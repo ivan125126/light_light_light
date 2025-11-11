@@ -1,0 +1,51 @@
+.waveform-display {
+  height: 160px;
+  background-color: #121212;
+  border-bottom: 1px solid #2a2a2a;
+  display: flex;
+  flex-direction: column;
+}
+
+.waveform-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.waveform-header h3 {
+  font-size: 14px;
+  font-weight: 500;
+  color: #e0e0e0;
+}
+
+.music-name {
+  font-size: 12px;
+  color: #888;
+}
+
+.waveform-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.waveform-canvas {
+  cursor: pointer;
+  border-radius: 4px;
+  background-color: #0a0a0a;
+}
+
+.waveform-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #666;
+  font-size: 14px;
+}
+

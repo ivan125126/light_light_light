@@ -1,0 +1,47 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #0a0a0a;
+  color: #e0e0e0;
+}
+
+.app-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.app-left-panel {
+  width: 280px;
+  background-color: #121212;
+  border-right: 1px solid #2a2a2a;
+  overflow-y: auto;
+}
+
+.app-center-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #0f0f0f;
+  overflow: hidden;
+}
+
+.app-right-panel {
+  width: 320px;
+  background-color: #121212;
+  border-left: 1px solid #2a2a2a;
+  overflow-y: auto;
+}
+
+.preview-panel {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+}
+
+.preview-panel h3 {
+  margin-bottom: 10px;
+  color: #888;
+}
+

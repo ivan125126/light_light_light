@@ -1,0 +1,85 @@
+.timeline-editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #0f0f0f;
+  overflow: hidden;
+}
+
+.timeline-header {
+  display: flex;
+  background-color: #151515;
+  border-bottom: 1px solid #2a2a2a;
+  height: 40px;
+}
+
+.timeline-track-label {
+  width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #2a2a2a;
+  background-color: #1a1a1a;
+  font-size: 12px;
+  color: #999;
+  font-weight: 500;
+}
+
+.timeline-track-label.header {
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.timeline-ruler {
+  flex: 1;
+  position: relative;
+  height: 40px;
+  background-color: #151515;
+  overflow: hidden;
+}
+
+.ruler-mark {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-left: 1px solid #333;
+}
+
+.ruler-label {
+  position: absolute;
+  top: 8px;
+  left: 4px;
+  font-size: 11px;
+  color: #666;
+}
+
+.timeline-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.timeline-tracks {
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.timeline-track {
+  display: flex;
+  height: 60px;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.timeline-track-content {
+  flex: 1;
+  position: relative;
+  background-color: #0f0f0f;
+  background-image: 
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent calc(50px - 1px),
+      #1a1a1a calc(50px - 1px),
+      #1a1a1a 50px
+    );
+}
+
