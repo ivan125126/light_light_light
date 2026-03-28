@@ -1,0 +1,310 @@
+[
+  [
+    {
+      "mode": "MODES_SICKLE",
+      "start_time": 0,
+      "duration": 4195,
+      "XH": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 28,
+        "p2": 0
+      },
+      "XS": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 179,
+        "p2": 0
+      },
+      "XV": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 179,
+        "p2": 0
+      },
+      "YH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "p1": 50,
+      "p2": 0,
+      "p3": 50,
+      "p4": 150
+    },
+    {
+      "mode": "MODES_CMAP_FIRE",
+      "start_time": 4195,
+      "duration": 3323,
+      "XH": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 227,
+        "p2": 0
+      },
+      "XS": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 128,
+        "p2": 0
+      },
+      "XV": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 128,
+        "p2": 0
+      },
+      "YH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "p4": 150
+    },
+    {
+      "mode": "MODES_CMAP_GEAR",
+      "start_time": 7518,
+      "duration": 9378,
+      "XH": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 28,
+        "p2": 0
+      },
+      "XS": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 179,
+        "p2": 0
+      },
+      "XV": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 179,
+        "p2": 0
+      },
+      "YH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "p4": 0
+    },
+    {
+      "mode": "MODES_CMAP_GEAR",
+      "start_time": 35518,
+      "duration": 9378,
+      "XH": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 28,
+        "p2": 0
+      },
+      "XS": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 179,
+        "p2": 0
+      },
+      "XV": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 179,
+        "p2": 0
+      },
+      "YH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "p4": 0
+    },
+    {
+      "mode": "MODES_CMAP_YEN",
+      "start_time": 54864,
+      "duration": 39931,
+      "XH": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "XS": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 179,
+        "p2": 0
+      },
+      "XV": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 179,
+        "p2": 0
+      },
+      "YH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "p4": 0
+    },
+    {
+      "mode": "MODES_CMAP_BENSON",
+      "start_time": 96833,
+      "duration": 79972,
+      "XH": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "XS": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 179,
+        "p2": 0
+      },
+      "XV": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 179,
+        "p2": 0
+      },
+      "YH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "p4": 0
+    }
+  ]
+]

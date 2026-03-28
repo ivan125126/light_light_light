@@ -1,0 +1,52 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\asus\\Documents\\GitHub\\light_light_light\\ES-Lux-master\\LightPOV\\\u5149\u86C7\u7DE8\u62DB\u7CFB\u7D71\\LightSnake\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{91AFD457-D48F-42D3-A403-57F8CE54F1B0}|LightSnake\\LightSnake.csproj|c:\\users\\asus\\documents\\github\\light_light_light\\es-lux-master\\lightpov\\\u5149\u86C7\u7DE8\u62DB\u7CFB\u7D71\\lightsnake\\lightsnake\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{91AFD457-D48F-42D3-A403-57F8CE54F1B0}|LightSnake\\LightSnake.csproj|solutionrelative:lightsnake\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91AFD457-D48F-42D3-A403-57F8CE54F1B0}|LightSnake\\LightSnake.csproj|C:\\Users\\asus\\Documents\\GitHub\\light_light_light\\ES-Lux-master\\LightPOV\\\u5149\u86C7\u7DE8\u62DB\u7CFB\u7D71\\LightSnake\\lightsnake\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{91AFD457-D48F-42D3-A403-57F8CE54F1B0}|LightSnake\\LightSnake.csproj|solutionrelative:lightsnake\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Form1.cs",
+              "DocumentMoniker": "C:\\Users\\asus\\Documents\\GitHub\\light_light_light\\ES-Lux-master\\LightPOV\\\u5149\u86C7\u7DE8\u62DB\u7CFB\u7D71\\LightSnake\\LightSnake\\Form1.cs",
+              "RelativeDocumentMoniker": "LightSnake\\Form1.cs",
+              "ToolTip": "C:\\Users\\asus\\Documents\\GitHub\\light_light_light\\ES-Lux-master\\LightPOV\\\u5149\u86C7\u7DE8\u62DB\u7CFB\u7D71\\LightSnake\\LightSnake\\Form1.cs",
+              "RelativeToolTip": "LightSnake\\Form1.cs",
+              "ViewState": "AgIAABIAAAAAAAAAAAAuwEwAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-15T12:55:21.985Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Form1.cs [\u8A2D\u8A08]",
+              "DocumentMoniker": "C:\\Users\\asus\\Documents\\GitHub\\light_light_light\\ES-Lux-master\\LightPOV\\\u5149\u86C7\u7DE8\u62DB\u7CFB\u7D71\\LightSnake\\LightSnake\\Form1.cs",
+              "RelativeDocumentMoniker": "LightSnake\\Form1.cs",
+              "ToolTip": "C:\\Users\\asus\\Documents\\GitHub\\light_light_light\\ES-Lux-master\\LightPOV\\\u5149\u86C7\u7DE8\u62DB\u7CFB\u7D71\\LightSnake\\LightSnake\\Form1.cs [\u8A2D\u8A08]*",
+              "RelativeToolTip": "LightSnake\\Form1.cs [\u8A2D\u8A08]*",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-15T12:55:22.149Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

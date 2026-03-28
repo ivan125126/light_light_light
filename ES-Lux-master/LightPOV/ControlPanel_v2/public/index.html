@@ -1,0 +1,977 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="utf-8"/>
+    <title>編招系統</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" href="./css/style.css"/><!doctype html>
+</head>
+<body>
+    <!--menu bar -->
+    <header class="menu_bar">
+      <div class="content">menu bar</div>
+    </header>
+
+    <div class = "row1"></div>
+    <div class = "row2">
+        <div class="Asset_library">
+            <header class="Asset_library_header">
+                <button class="tab active" data-tab="preset">預設效果</button>
+                <button class="tab" data-tab="custom">自定義</button>
+            </header>
+
+            <div class="Asset_library_content preset active">
+                <div class="Asset_item">清除</div>
+                <div class="Asset_item">純色</div>
+                <div class="Asset_item">方形</div>
+                <div class="Asset_item">鐮刀</div>
+                <div class="Asset_item">扇形</div>
+                <div class="Asset_item">方塊</div>
+                <div class="Asset_item">DNA</div>
+                <div class="Asset_item">火焰</div>
+            </div>
+
+            <div class="Asset_library_content custom">
+                <p class="empty">目前尚無自定義素材</p>
+            </div>
+        </div> 
+        <div></div>
+        <div class="param_panel">
+
+            <!-- Tabs -->
+            <div class="param_header">
+                <button class="param_tab active" data-mode="param">參數</button>
+                <button class="param_tab" data-mode="control">控制</button>
+            </div>
+
+            <div class="param_body param_body--param active">
+                <div class="param_empty">請從左側選擇一個素材</div>
+                <div class="param_main hidden">
+
+                    <!--顏色-->
+                    <div class="param_group">
+                        <div class="param_label_row">
+                        <span class="param_label">顏色</span>
+                        <input type="color" class="color_preview" value="#ffffff">
+                        </div>
+                    </div>
+                    <!--額外參數-->
+                    <!--扇葉數量-->
+                    <div class="param_group extra_group" data-extra="bladeCount">
+                        <label class="param_label">扇葉數量</label>
+                        <div class="param_input_row">
+                            <input type="number" class="param_number" min="0" max="12" value="3">
+                            <input type="range" class="param_range" min="0" max="12" value="3">
+                        </div>
+                    </div>
+
+                    <!-- 長度 -->
+                    <div class="param_group extra_group" data-extra="length">
+                        <label class="param_label">長度</label>
+                        <div class="param_input_row">
+                            <input type="number" class="param_number" min="0" max="300" value="150">
+                            <input type="range" class="param_range" min="0" max="300" value="150">
+                        </div>
+                    </div>
+
+                    <!-- 曲度 -->
+                    <div class="param_group extra_group" data-extra="curvature">
+                        <label class="param_label">曲度</label>
+                        <div class="param_input_row">
+                            <input type="number" class="param_number" min="0" max="100" value="50">
+                            <input type="range" class="param_range" min="0" max="100" value="50">
+                        </div>
+                    </div>
+
+                    <!-- 方塊大小 -->
+                    <div class="param_group extra_group" data-extra="boxsize">
+                        <label class="param_label">方塊大小</label>
+                        <div class="param_input_row">
+                            <input type="number" class="param_number" min="0" max="255" value="50">
+                            <input type="range" class="param_range" min="0" max="255" value="50">
+                        </div>
+                    </div>
+
+                    <!-- 位置 -->
+                    <div class="param_group extra_group" data-extra="position_fix">
+                        <label class="param_label">位置</label>
+                        <div class="param_input_row">
+                            <input type="number" class="param_number" min="0" max="255" value="50">
+                            <input type="range" class="param_range" min="0" max="255" value="50">
+                        </div>
+                    </div>
+
+                    <!-- space -->
+                    <div class="param_group extra_group" data-extra="space">
+                        <label class="param_label">space</label>
+                        <div class="param_input_row">
+                            <input type="number" class="param_number" min="0" max="255" value="50">
+                            <input type="range" class="param_range" min="0" max="255" value="50">
+                        </div>
+                    </div>
+
+                    <!-- 反向 -->
+                    <div class="param_group extra_group" data-extra="reverse">
+                        <label class="param_label">反向</label>
+                        <div class="param_input_row">
+                            <input type="number" class="param_number" min="0" max="1" value="0">
+                            <input type="range" class="param_range" min="0" max="1" value="0">
+                        </div>
+                    </div>
+                    
+                    <!--HSV-->
+                    <!--XH-->
+                    <div class="hsv_block" data-key="XH">
+                        <div class="param_group_title">XH (色相) °</div>
+                        <!-- Function-->
+                        <div class="param_field">
+                            <label>Function</label>
+                            <select class="hsv_func_select">
+                                <option value="none">None</option>
+                                <option value="const">Const</option>
+                                <option value="ramp">Ramp</option>
+                                <option value="tri">Tri</option>
+                                <option value="pulse">Pulse</option>
+                                <option value="step">Step</option>
+                            </select>
+                        </div>
+                        <!-- None -->
+                        <div class="hsv_func_params active" data-func="None">
+                            <div class="param_field compact">
+                            </div>
+                        </div>
+                        <!-- Const -->
+                        <div class="hsv_func_params active" data-func="const">
+                            <div class="param_field compact">
+                                <label>Value</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="value" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="value" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Ramp -->
+                        <div class="hsv_func_params" data-func="ramp">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Upper</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="upper" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="upper" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Tri -->
+                        <div class="hsv_func_params" data-func="tri">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Upper</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="upper" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="upper" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Pulse -->
+                        <div class="hsv_func_params" data-func="pulse">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Top</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="top" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="top" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Step -->
+                        <div class="hsv_func_params" data-func="step">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Height</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="height" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="height" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Step Num</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="step" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="step" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--XS-->
+                    <div class="hsv_block" data-key="XS">
+                        <div class="param_group_title">XS (飽和) %</div>
+                        <!-- Function-->
+                        <div class="param_field">
+                            <label>Function</label>
+                            <select class="hsv_func_select">
+                                <option value="none">None</option>
+                                <option value="const">Const</option>
+                                <option value="ramp">Ramp</option>
+                                <option value="tri">Tri</option>
+                                <option value="pulse">Pulse</option>
+                                <option value="step">Step</option>
+                            </select>
+                        </div>
+                        <!-- None -->
+                        <div class="hsv_func_params active" data-func="None">
+                            <div class="param_field compact">
+                            </div>
+                        </div>
+                        <!-- Const -->
+                        <div class="hsv_func_params active" data-func="const">
+                            <div class="param_field compact">
+                                <label>Value</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="value" min="0" max="100" value="0" value="0">
+                                    <input type="range" class="func_range" data-param="value" min="0" max="100" value="0" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Ramp -->
+                        <div class="hsv_func_params" data-func="ramp">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Upper</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="upper" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="upper" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Tri -->
+                        <div class="hsv_func_params" data-func="tri">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Upper</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="upper" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="upper" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Pulse -->
+                        <div class="hsv_func_params" data-func="pulse">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Top</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="top" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="top" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Step -->
+                        <div class="hsv_func_params" data-func="step">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Height</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="height" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="height" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Step Num</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="step" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="step" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--XV-->
+                    <div class="hsv_block" data-key="XV">
+                        <div class="param_group_title">XV (明度) %</div>
+                        <!-- Function-->
+                        <div class="param_field">
+                            <label>Function</label>
+                            <select class="hsv_func_select">
+                                <option value="none">None</option>
+                                <option value="const">Const</option>
+                                <option value="ramp">Ramp</option>
+                                <option value="tri">Tri</option>
+                                <option value="pulse">Pulse</option>
+                                <option value="step">Step</option>
+                            </select>
+                        </div>
+                        <!-- None -->
+                        <div class="hsv_func_params active" data-func="None">
+                            <div class="param_field compact">
+                            </div>
+                        </div>
+                        <!-- Const -->
+                        <div class="hsv_func_params active" data-func="const">
+                            <div class="param_field compact">
+                                <label>Value</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="value" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="value" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Ramp -->
+                        <div class="hsv_func_params" data-func="ramp">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Upper</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="upper" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="upper" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Tri -->
+                        <div class="hsv_func_params" data-func="tri">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Upper</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="upper" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="upper" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Pulse -->
+                        <div class="hsv_func_params" data-func="pulse">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Top</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="top" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="top" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Step -->
+                        <div class="hsv_func_params" data-func="step">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Height</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="height" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="height" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Step Num</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="step" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="step" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--YH-->
+                    <div class="hsv_block" data-key="YH">
+                        <div class="param_group_title">YH (色相) °</div>
+                        <!-- Function-->
+                        <div class="param_field">
+                            <label>Function</label>
+                            <select class="hsv_func_select">
+                                <option value="none">None</option>
+                                <option value="const">Const</option>
+                                <option value="ramp">Ramp</option>
+                                <option value="tri">Tri</option>
+                                <option value="pulse">Pulse</option>
+                                <option value="step">Step</option>
+                            </select>
+                        </div>
+                        <!-- None -->
+                        <div class="hsv_func_params active" data-func="None">
+                            <div class="param_field compact">
+                            </div>
+                        </div>
+                        <!-- Const -->
+                        <div class="hsv_func_params active" data-func="const">
+                            <div class="param_field compact">
+                                <label>Value</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="value" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="value" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Ramp -->
+                        <div class="hsv_func_params" data-func="ramp">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Upper</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="upper" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="upper" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Tri -->
+                        <div class="hsv_func_params" data-func="tri">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Upper</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="upper" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="upper" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Pulse -->
+                        <div class="hsv_func_params" data-func="pulse">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Top</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="top" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="top" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Step -->
+                        <div class="hsv_func_params" data-func="step">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Height</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="height" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="height" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Step Num</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="step" min="0" max="359" value="0">
+                                    <input type="range" class="func_range" data-param="step" min="0" max="359" value="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--YS-->
+                    <div class="hsv_block" data-key="YS">
+                        <div class="param_group_title">YS (飽和) %</div>
+                        <!-- Function-->
+                        <div class="param_field">
+                            <label>Function</label>
+                            <select class="hsv_func_select">
+                                <option value="none">None</option>
+                                <option value="const">Const</option>
+                                <option value="ramp">Ramp</option>
+                                <option value="tri">Tri</option>
+                                <option value="pulse">Pulse</option>
+                                <option value="step">Step</option>
+                            </select>
+                        </div>
+                        <!-- None -->
+                        <div class="hsv_func_params active" data-func="None">
+                            <div class="param_field compact">
+                            </div>
+                        </div>
+                        <!-- Const -->
+                        <div class="hsv_func_params active" data-func="const">
+                            <div class="param_field compact">
+                                <label>Value</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="value" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="value" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Ramp -->
+                        <div class="hsv_func_params" data-func="ramp">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Upper</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="upper" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="upper" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Tri -->
+                        <div class="hsv_func_params" data-func="tri">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Upper</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="upper" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="upper" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Pulse -->
+                        <div class="hsv_func_params" data-func="pulse">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Top</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="top" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="top" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Step -->
+                        <div class="hsv_func_params" data-func="step">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Height</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="height" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="height" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Step Num</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="step" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="step" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--YV-->
+                    <div class="hsv_block" data-key="YV">
+                        <div class="param_group_title">YV (明度) %</div>
+                        <!-- Function-->
+                        <div class="param_field">
+                            <label>Function</label>
+                            <select class="hsv_func_select">
+                                <option value="none">None</option>
+                                <option value="const">Const</option>
+                                <option value="ramp">Ramp</option>
+                                <option value="tri">Tri</option>
+                                <option value="pulse">Pulse</option>
+                                <option value="step">Step</option>
+                            </select>
+                        </div>
+                        <!-- None -->
+                        <div class="hsv_func_params active" data-func="None">
+                            <div class="param_field compact">
+                            </div>
+                        </div>
+                        <!-- Const -->
+                        <div class="hsv_func_params active" data-func="const">
+                            <div class="param_field compact">
+                                <label>Value</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="value" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="value" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Ramp -->
+                        <div class="hsv_func_params" data-func="ramp">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Upper</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="upper" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="upper" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Tri -->
+                        <div class="hsv_func_params" data-func="tri">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Upper</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="upper" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="upper" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Pulse -->
+                        <div class="hsv_func_params" data-func="pulse">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Top</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="top" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="top" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Step -->
+                        <div class="hsv_func_params" data-func="step">
+                            <div class="param_field compact">
+                                <label>Range</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="range" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="range" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Lower</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="lower" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="lower" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Height</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="height" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="height" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                            <div class="param_field compact">
+                                <label>Step Num</label>
+                                <div class="param_input_row">
+                                    <input type="number" class="func_number" data-param="step" min="0" max="100" value="0">
+                                    <input type="range" class="func_range" data-param="step" min="0" max="100" value="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                <button class="btn_add_custom">加入自訂義素材庫</button>
+
+                </div>
+            </div>
+
+            <!-- 控制面板 -->
+            <div class="param_body param_body--control">
+                <p class="param_hint">施工中</p>
+            </div>
+        </div>
+    </div>
+    <!--音樂效果控制區-->
+    <div class="music_and_effects">
+
+        <section class="controls">
+            <div class="music_file_load">
+                <button id="music_file_load_Btn">選擇音檔</button>
+                <input id="fileInput" type="file" accept="audio/*" hidden />
+            </div>
+
+            <div class="player-controls">
+                <button id="playToggle" disabled>▶ 播放</button>
+                <button id="stopBtn" disabled>⏹ 停止</button>
+                <span id="time">00:00</span>
+            </div>
+
+            <div class="time-controls">
+                <div class="content">跳至時間:
+                <input id="minInput" type="number" min="0" /> :
+                <input id="secInput" type="number" min="0" max="59" /> 
+                </div>
+            </div>
+
+            <div class="volume-control">
+                <label for="volumeSlider">🔊 音量：</label>
+                <input type="range" id="volumeSlider" min="0" max="100" value="100">
+                <span id="volumeValue">100%</span>
+            </div>
+        </section>
+        <div id="app">
+            <canvas id="timelineCanvas" width="1200" height="160"></canvas>
+        </div>
+
+        <audio id="audio" controls style="display:none;"></audio>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="./js/script.js"></script>
+</body>
+</html>
