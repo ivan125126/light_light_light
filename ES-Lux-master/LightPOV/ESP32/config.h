@@ -4,7 +4,7 @@
 // #define DEBUGGER
 // #define DEBUGGER_TASK_REPORT
 
-#define LUX_ID_DEFAULT 2
+#define LUX_ID_DEFAULT 0
 
 /* Type Definition */
 #define time_t unsigned long
@@ -17,15 +17,15 @@
 
 /* Network configuration */ 
 /* Network configuration */ 
-#define WIFI_SSID1_DEFAULT "superfan"
-#define WIFI_PASS1_DEFAULT "20031114"
+#define WIFI_SSID1_DEFAULT "allen"
+#define WIFI_PASS1_DEFAULT "20041105"
 #define WIFI_SSID2_DEFAULT "Esp32"
 #define WIFI_PASS2_DEFAULT "hsnu1524"
 #define WIFI_SSID3_DEFAULT "NCKUES[AUTO]"
 #define WIFI_PASS3_DEFAULT "nckues_auto"
 
-#define WIFI_REQUEST_URL_DEFAULT ":10240/get_effect"
-#define WIFI_TIME_CHECK_URL_DEFAULT ":10240/esp_time"
+#define WIFI_REQUEST_URL_DEFAULT ":20480/get_effect"
+#define WIFI_TIME_CHECK_URL_DEFAULT ":20480/esp_time"
 
 #define WIFI_CONNECT_RETRY 20
 
