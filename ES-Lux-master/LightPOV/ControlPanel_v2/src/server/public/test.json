@@ -1,28 +1,79 @@
 [
   [
     {
-      "mode": "MODES_BOXES",
-      "start_time": 966,
-      "duration": 14295,
+      "mode": "MODES_PLAIN",
+      "start_time": 0,
+      "duration": 46541,
       "XH": {
-        "func": 1,
-        "range": 210,
-        "lower": 0,
-        "p1": 173,
-        "p2": 0
+        "func": 5,
+        "range": 97,
+        "lower": 162,
+        "p1": 191,
+        "p2": 273
       },
       "XS": {
         "func": 1,
         "range": 0,
         "lower": 0,
-        "p1": 166,
+        "p1": 173,
         "p2": 0
       },
       "XV": {
         "func": 1,
         "range": 0,
         "lower": 0,
-        "p1": 115,
+        "p1": 138,
+        "p2": 0
+      },
+      "YH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "p4": 0
+    },
+    {
+      "mode": "MODES_SQUARE",
+      "start_time": 46541,
+      "duration": 99965,
+      "XH": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 175,
+        "p2": 0
+      },
+      "XS": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 194,
+        "p2": 0
+      },
+      "XV": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 186,
         "p2": 0
       },
       "YH": {
@@ -49,7 +100,619 @@
       "p1": 0,
       "p2": 0,
       "p3": 50,
-      "p4": 156
+      "p4": 0
+    },
+    {
+      "mode": "MODES_SICKLE",
+      "start_time": 146507,
+      "duration": 45318,
+      "XH": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 27,
+        "p2": 0
+      },
+      "XS": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 179,
+        "p2": 0
+      },
+      "XV": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 179,
+        "p2": 0
+      },
+      "YH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "p1": 50,
+      "p2": 0,
+      "p3": 50,
+      "p4": 150
+    },
+    {
+      "mode": "MODES_FAN",
+      "start_time": 192157,
+      "duration": 47313,
+      "XH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "XS": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 112,
+        "p2": 0
+      },
+      "XV": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 191,
+        "p2": 0
+      },
+      "YH": {
+        "func": 1,
+        "range": 24,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "p1": 50,
+      "p2": 0,
+      "p3": 9,
+      "p4": 150
+    },
+    {
+      "mode": "MODES_BOXES",
+      "start_time": 239471,
+      "duration": 88303,
+      "XH": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 202,
+        "p2": 0
+      },
+      "XS": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 232,
+        "p2": 0
+      },
+      "XV": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 140,
+        "p2": 0
+      },
+      "YH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "p1": 0,
+      "p2": 0,
+      "p3": 151,
+      "p4": 210
+    },
+    {
+      "mode": "MODES_CMAP_DNA",
+      "start_time": 327773,
+      "duration": 41319,
+      "XH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "XS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "XV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "p4": 50
+    },
+    {
+      "mode": "MODES_CMAP_FIRE",
+      "start_time": 369092,
+      "duration": 20992,
+      "XH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "XS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "XV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "p4": 50
+    },
+    {
+      "mode": "MODES_CMAP_LOVE",
+      "start_time": 390084,
+      "duration": 24991,
+      "XH": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "XS": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 173,
+        "p2": 0
+      },
+      "XV": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 176,
+        "p2": 0
+      },
+      "YH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "p4": 50
+    },
+    {
+      "mode": "MODES_CMAP_GEAR",
+      "start_time": 415076,
+      "duration": 114627,
+      "XH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "XS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "XV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "p4": 50
+    },
+    {
+      "mode": "MODES_MAP_ES",
+      "start_time": 530035,
+      "duration": 53981,
+      "XH": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "XS": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 196,
+        "p2": 0
+      },
+      "XV": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 207,
+        "p2": 0
+      },
+      "YH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "p4": 50
+    },
+    {
+      "mode": "MODES_MAP_ES_ZH",
+      "start_time": 584350,
+      "duration": 57980,
+      "XH": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "XS": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 199,
+        "p2": 0
+      },
+      "XV": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 255,
+        "p2": 0
+      },
+      "YH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "p4": 50
+    },
+    {
+      "mode": "MODES_MAP_ESXOPT",
+      "start_time": 642330,
+      "duration": 56647,
+      "XH": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 59,
+        "p2": 0
+      },
+      "XS": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 166,
+        "p2": 0
+      },
+      "XV": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 163,
+        "p2": 0
+      },
+      "YH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "p4": 50
+    },
+    {
+      "mode": "MODES_CMAP_BENSON",
+      "start_time": 698976,
+      "duration": 28657,
+      "XH": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 135,
+        "p2": 0
+      },
+      "XS": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 204,
+        "p2": 0
+      },
+      "XV": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 222,
+        "p2": 0
+      },
+      "YH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "p4": 0
+    },
+    {
+      "mode": "MODES_CMAP_YEN",
+      "start_time": 727633,
+      "duration": 35654,
+      "XH": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 146,
+        "p2": 0
+      },
+      "XS": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 184,
+        "p2": 0
+      },
+      "XV": {
+        "func": 1,
+        "range": 0,
+        "lower": 0,
+        "p1": 199,
+        "p2": 0
+      },
+      "YH": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YS": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "YV": {
+        "func": 0,
+        "range": 0,
+        "lower": 0,
+        "p1": 0,
+        "p2": 0
+      },
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "p4": 0
     }
   ]
 ]

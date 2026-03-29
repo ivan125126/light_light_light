@@ -387,8 +387,8 @@ const MODE_MAP = {
   "ES": "MODES_MAP_ES",
   "工科": "MODES_MAP_ES_ZH",
   "ESXOPT": "MODES_MAP_ESXOPT",
-  "OT": "MODES_CMAP_BENSON",
-  "PT": "MODES_CMAP_YEN"
+  "PT": "MODES_CMAP_BENSON",
+  "OT": "MODES_CMAP_YEN"
 };
 
 const FUNC_CODE = {
