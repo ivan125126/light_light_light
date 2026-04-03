@@ -1,10 +1,21 @@
 <template>
-  <div id="app-root">
-    <!-- UI components will be added in Plan 2 -->
-    <p style="color:white; padding: 20px;">ControlPanel v2 — Foundation ready</p>
+  <div class="app-layout">
+    <aside class="panel-left">
+      <AssetLibrary />
+    </aside>
+    <main class="panel-center">
+      <TimelinePanel />
+    </main>
+    <aside class="panel-right">
+      <PreviewPanel />
+      <ParameterPanel />
+    </aside>
   </div>
 </template>
 
 <script setup lang="ts">
-// stores and components will be imported in Plan 2
+import AssetLibrary from './components/AssetLibrary.vue'
+import TimelinePanel from './components/TimelinePanel.vue'
+import PreviewPanel from './components/PreviewPanel.vue'
+import ParameterPanel from './components/ParameterPanel.vue'
 </script>
