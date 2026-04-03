@@ -1,6 +1,7 @@
 /**
  * Web Audio API utilities.
- * Stateless — all audio state lives in audioStore.
+ * Audio playback state (context, buffer, source node) is held at module scope;
+ * reactive state (peaks, duration, hasAudio) is delegated to audioStore.
  */
 
 let _audioContext: AudioContext | null = null
@@ -14,8 +15,9 @@ function getAudioContext(): AudioContext {
   return _audioContext
 }
 
-/** Load an MP3/WAV File into an AudioBuffer */
+/** Load an MP3/WAV File into an AudioBuffer. Stops any current playback first. */
 export async function loadAudioFile(file: File): Promise<{ buffer: AudioBuffer; duration: number }> {
+  stopPlayback()
   const ctx = getAudioContext()
   const arrayBuffer = await file.arrayBuffer()
   const audioBuffer = await ctx.decodeAudioData(arrayBuffer)

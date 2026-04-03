@@ -38,5 +38,9 @@ export async function getEffectFromServer(effectId: number, luxId: number): Prom
 
 /** Send hardware to auto execution mode (0) or manual mode (1) */
 export async function setExecutionMode(mode: 0 | 1): Promise<void> {
-  await fetch(`/exe_mode?mode=${mode}`)
+  try {
+    await fetch(`/exe_mode?mode=${mode}`)
+  } catch {
+    // Server unreachable — silently ignore
+  }
 }
