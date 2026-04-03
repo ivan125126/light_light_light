@@ -1,57 +1,60 @@
 "use strict";
-// Persistent worker thread for handling synchronous XHR requests.
-//
-// This worker runs in a separate thread and performs async HTTP requests on behalf of the main
-// thread, which blocks on Atomics.wait() until we signal completion. A single JSDOM instance is
-// created at startup and reused across requests to avoid the ~400ms initialization cost each time.
-//
-// The signaling protocol uses a SharedArrayBuffer with two Int32 slots:
-//   [0] = ack:  worker writes 1 here immediately upon receiving the message
-//   [1] = done: worker writes 1 here after the response is ready
-//
-// The ack slot lets the main thread detect the race condition where the worker has exited (idle
-// timeout) but the main thread hasn't processed the exit event yet. See sendSyncWorkerRequest()
-// in XMLHttpRequest-impl.js for the main-thread side.
-
-const { parentPort } = require("node:worker_threads");
+/* eslint-disable no-process-exit */
+const util = require("util");
 const { JSDOM } = require("../../../..");
-const idlUtils = require("../../../generated/idl/utils");
+const { READY_STATES } = require("./xhr-utils");
+const idlUtils = require("../generated/utils");
+const tough = require("tough-cookie");
 
 const dom = new JSDOM();
-const IDLE_TIMEOUT_MS = 5000;
+const xhr = new dom.window.XMLHttpRequest();
+const xhrImpl = idlUtils.implForWrapper(xhr);
 
-let idleTimer = setTimeout(() => process.exit(0), IDLE_TIMEOUT_MS);
-idleTimer.unref();
+const chunks = [];
 
-parentPort.on("message", ({ sharedBuffer, responsePort, config }) => {
-  clearTimeout(idleTimer);
+process.stdin.on("data", chunk => {
+  chunks.push(chunk);
+});
 
-  const int32 = new Int32Array(sharedBuffer);
+process.stdin.on("end", () => {
+  const buffer = Buffer.concat(chunks);
 
-  // Acknowledge receipt so the main thread knows we're alive.
-  Atomics.store(int32, 0, 1);
-  Atomics.notify(int32, 0);
-
-  const xhr = new dom.window.XMLHttpRequest();
-  const xhrImpl = idlUtils.implForWrapper(xhr);
-  xhrImpl._adoptSerializedRequest(config);
-
-  function done() {
-    const response = xhrImpl._serializeResponse();
-    const transfer = response.responseBytes ? [response.responseBytes.buffer] : [];
-    responsePort.postMessage(response, transfer);
-    Atomics.store(int32, 1, 1);
-    Atomics.notify(int32, 1);
-
-    idleTimer = setTimeout(() => process.exit(0), IDLE_TIMEOUT_MS);
-    idleTimer.unref();
+  const flag = JSON.parse(buffer.toString());
+  if (flag.body && flag.body.type === "Buffer" && flag.body.data) {
+    flag.body = Buffer.from(flag.body.data);
+  }
+  if (flag.cookieJar) {
+    flag.cookieJar = tough.CookieJar.fromJSON(flag.cookieJar);
   }
 
+  flag.synchronous = false;
+  Object.assign(xhrImpl.flag, flag);
+  const { properties } = xhrImpl;
+  xhrImpl.readyState = READY_STATES.OPENED;
   try {
-    xhr.addEventListener("loadend", done, false);
-    xhr.send(xhrImpl._body);
+    xhr.addEventListener("loadend", () => {
+      if (properties.error) {
+        properties.error = properties.error.stack || util.inspect(properties.error);
+      }
+      process.stdout.write(JSON.stringify({
+        responseURL: xhrImpl.responseURL,
+        status: xhrImpl.status,
+        statusText: xhrImpl.statusText,
+        properties
+      }), () => {
+        process.exit(0);
+      });
+    }, false);
+    xhr.send(flag.body);
   } catch (error) {
-    xhrImpl._error = error;
-    done();
+    properties.error += error.stack || util.inspect(error);
+    process.stdout.write(JSON.stringify({
+      responseURL: xhrImpl.responseURL,
+      status: xhrImpl.status,
+      statusText: xhrImpl.statusText,
+      properties
+    }), () => {
+      process.exit(0);
+    });
   }
 });
