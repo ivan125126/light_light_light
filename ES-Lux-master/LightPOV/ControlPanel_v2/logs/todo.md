@@ -6,4 +6,4 @@
 - There are issues with the SQUARE, BOXES, and FAN assets.
 - The effect on the X-axis is correct, but the Y-axis is wrong and needs to be fixed.
 - Auto-save hasn't been implemented yet.
-- Hardware operation currently depends on manually importing the JSON file and the music file.
+- Testing without music is not supported — the hardware can only be triggered when a music file is loaded, making effect-only testing inconvenient.
