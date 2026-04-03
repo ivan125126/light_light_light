@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest'
-import { effectDataToHardwareString, instanceToEffectData } from '../services/serializer'
+import { effectDataToHardwareString, instanceToEffectData, instanceToHardwareString } from '../services/serializer'
 import type { EffectData, EffectInstance } from '../types'
 import { defaultEffectParams } from '../constants/effectConfig'
 
@@ -119,5 +119,21 @@ describe('instanceToEffectData', () => {
     }
     const data = instanceToEffectData(instance, 'MODES_CMAP_DNA')
     expect(data.p1).toBe(255)
+  })
+})
+
+describe('instanceToHardwareString', () => {
+  it('composes instanceToEffectData and effectDataToHardwareString correctly', () => {
+    const instance: EffectInstance = {
+      id: 'test-hw',
+      definitionName: '純色',
+      trackIndex: 0,
+      startTime: 100,
+      duration: 500,
+      params: defaultEffectParams(),
+    }
+    expect(instanceToHardwareString(instance, 'MODES_PLAIN')).toBe(
+      'M1S100D500X0,0Y0,0Z0,0U0,0V0,0W0,0P0,0;'
+    )
   })
 })

@@ -1,6 +1,7 @@
 import type { EffectData, EffectInstance, EffectMode } from '../types'
 import { MODE_ENUM } from '../constants/effectConfig'
 
+/** Linearly maps `value` from [min, max] to [0, 255]. Returns 0 if min === max. */
 function normalizeTo255(value: number, min: number, max: number): number {
   if (max === min) return 0
   return Math.round(((value - min) / (max - min)) * 255)
