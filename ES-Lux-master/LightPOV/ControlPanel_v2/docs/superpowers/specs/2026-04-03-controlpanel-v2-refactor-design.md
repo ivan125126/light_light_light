@@ -169,10 +169,9 @@ interface EffectInstance {
   id: string;
   definitionName: string;          // 指向 EffectDefinition.name
   trackIndex: number;              // 0-5，在哪一軌
-  startTime: number;               // 秒
-  duration: number;                // 秒
-  params: EffectParams;            // 這個 block 目前的參數
-  extra: ExtraParams;              // 這個 block 的額外參數
+  startTime: number;               // 毫秒（與 EffectData.start_time 相同單位）
+  duration: number;                // 毫秒
+  params: EffectParams;            // HSV 通道 + extra（extra 包含在 params.extra 內）
 }
 
 // HSV 6 通道參數
@@ -201,8 +200,8 @@ interface ExtraParams {
   curvature?: number;
   boxsize?: number;
   space?: number;
-  reverse?: boolean;
-  position_fix?: number;
+  reverse?: boolean;          // 舊系統為 number 0|1，新架構改為 boolean
+  positionFix?: number;       // 注意：舊系統 JSON 為 position_fix（snake_case），載入舊檔需做欄位映射
 }
 ```
 

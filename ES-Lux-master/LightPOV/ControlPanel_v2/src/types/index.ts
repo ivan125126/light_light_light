@@ -88,6 +88,7 @@ export interface EffectDefinition {
   isBuiltIn: boolean
   defaultParams: EffectParams       // initial values when dropped onto timeline
   extraParamSchema: ExtraParamSchema
+  thumbnail?: string                // future: preview image data URL (optional)
 }
 
 // A single block placed on the timeline
