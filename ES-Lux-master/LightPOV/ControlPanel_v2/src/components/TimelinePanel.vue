@@ -28,7 +28,7 @@ import TrackCanvas from './TrackCanvas.vue'
 import { useTimelineStore } from '../stores/timelineStore'
 import { useAudioStore } from '../stores/audioStore'
 import { loadAudioFile, extractPeaks, startPlayback, stopPlayback } from '../services/audioService'
-import { startHardwareSync, stopHardwareSync } from '../services/hardwareService'
+import { startHardwareSync, stopHardwareSync, startWithoutAudio } from '../services/hardwareService'
 
 const timelineStore = useTimelineStore()
 const audioStore = useAudioStore()
@@ -59,6 +59,8 @@ function play() {
   playStartGlobalTime = timelineStore.globalTime
   if (audioStore.hasAudio) {
     startPlayback(timelineStore.globalTime)
+  } else {
+    startWithoutAudio()  // 無音樂也能啟動硬體
   }
   startHardwareSync(() => timelineStore.globalTime)
   timelineStore.setPlaying(true)

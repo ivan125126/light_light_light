@@ -44,3 +44,12 @@ export async function setExecutionMode(mode: 0 | 1): Promise<void> {
     // Server unreachable — silently ignore
   }
 }
+
+/** Start hardware playback without audio — calls /start_no_audio on server */
+export async function startWithoutAudio(): Promise<void> {
+  try {
+    await fetch('/start_no_audio', { method: 'POST' })
+  } catch {
+    // Server unreachable — silently ignore
+  }
+}
