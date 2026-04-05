@@ -144,6 +144,9 @@ export class EffectBlock {
     })
 
     group.on('modified', () => {
+      gestureSnapped = false
+      const exists = effectStore.instances.some(i => i.id === this.id)
+      if (!exists) return
       effectStore.updateInstance(this.id, {
         startTime: this.startTime,
         duration: this.duration,

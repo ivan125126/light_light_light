@@ -438,7 +438,7 @@ function onKeyDown(e: KeyboardEvent) {
       effectStore.updateInstance(newId, { params: JSON.parse(JSON.stringify(entry.params)) })
       newIds.push(newId)
     }
-    selectionStore.selectedIds = newIds
+    selectionStore.setMany(newIds)
     if (newIds.length === 1) effectStore.selectInstance(newIds[0])
     return
   }

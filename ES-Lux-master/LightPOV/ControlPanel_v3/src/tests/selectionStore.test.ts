@@ -59,4 +59,11 @@ describe('selectionStore', () => {
     store.setCopy([])
     expect(store.clipboard).toBeNull()
   })
+
+  it('setMany 設定多個選取並取代舊的', () => {
+    const store = useSelectionStore()
+    store.setOnly('a')
+    store.setMany(['b', 'c'])
+    expect(store.selectedIds).toEqual(['b', 'c'])
+  })
 })

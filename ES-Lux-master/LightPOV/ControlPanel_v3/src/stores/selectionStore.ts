@@ -38,5 +38,9 @@ export const useSelectionStore = defineStore('selection', {
         JSON.parse(JSON.stringify(rest)) as ClipboardEntry
       )
     },
+
+    setMany(ids: string[]): void {
+      this.selectedIds = [...ids]
+    },
   },
 })

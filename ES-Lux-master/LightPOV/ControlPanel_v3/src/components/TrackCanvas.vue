@@ -42,9 +42,15 @@ function syncFromStore() {
     }
   }
 
-  // Add fabric blocks for instances not yet on the canvas
+  // Add or reconcile fabric blocks
   for (const instance of instances) {
-    if (!blockMap.has(instance.id)) {
+    const existing = blockMap.get(instance.id)
+    if (existing) {
+      // Reconcile position/size from store (e.g. after undo)
+      existing.startTime = instance.startTime
+      existing.duration = instance.duration
+      existing.reposition()
+    } else {
       const block = new EffectBlock(instance.id, instance.definitionName, canvas)
       block.startTime = instance.startTime
       block.duration = instance.duration
