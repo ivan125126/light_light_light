@@ -1,6 +1,6 @@
 /**
- * Communication with the Express hardware server (port 10240).
- * All fetch calls go through Vite proxy → http://localhost:10240
+ * Communication with the Express hardware server (port 20480).
+ * All fetch calls go through Vite proxy → http://localhost:20480
  */
 
 let _syncInterval: ReturnType<typeof setInterval> | null = null
@@ -49,6 +49,50 @@ export async function setExecutionMode(mode: 0 | 1): Promise<void> {
 export async function startWithoutAudio(): Promise<void> {
   try {
     await fetch('/start_no_audio', { method: 'POST' })
+  } catch {
+    // Server unreachable — silently ignore
+  }
+}
+
+/** Fetch last-connection timestamp (ms) for a lux unit (0-based id) */
+export async function getLuxStat(id: number): Promise<number> {
+  try {
+    const res = await fetch(`/get_stat?id=${id}`)
+    if (!res.ok) return 0
+    return parseInt(await res.text(), 10) || 0
+  } catch {
+    return 0
+  }
+}
+
+/** Fetch the current effect name/index reported by a lux unit (0-based id) */
+export async function getLuxLight(id: number): Promise<string> {
+  try {
+    const res = await fetch(`/get_light?id=${id}`)
+    if (!res.ok) return ''
+    return (await res.text()).trim()
+  } catch {
+    return ''
+  }
+}
+
+/** Push live effect data to server so all ESP32 units display it immediately */
+export async function pushLiveEffect(data: import('../types').EffectData): Promise<void> {
+  try {
+    await fetch('/live_effect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+  } catch {
+    // Server unreachable — silently ignore
+  }
+}
+
+/** Stop live effect mode on server, resuming normal timeline playback */
+export async function stopLiveEffect(): Promise<void> {
+  try {
+    await fetch('/live_effect/stop', { method: 'POST' })
   } catch {
     // Server unreachable — silently ignore
   }

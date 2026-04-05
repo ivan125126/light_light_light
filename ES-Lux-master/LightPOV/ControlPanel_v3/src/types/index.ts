@@ -95,20 +95,52 @@ export interface EffectDefinition {
 export interface EffectInstance {
   id: string
   definitionName: string            // references EffectDefinition.name
-  trackIndex: number                // 0–5
+  trackIndex: number                // which track this belongs to
   startTime: number                 // milliseconds
   duration: number                  // milliseconds
   params: EffectParams
 }
 
-// Serialized project file (project.json)
+// A single effect stored within a track (no trackIndex — position determined by parent track)
+export interface ProjectEffect {
+  id: string
+  definitionName: string
+  startTime: number                 // milliseconds
+  duration: number                  // milliseconds
+  params: EffectParams
+}
+
+// A track as stored in the project file
+export interface ProjectTrack {
+  id: string
+  name: string
+  deviceIndices: number[]           // which lux units this track controls (can be multiple)
+  effects: ProjectEffect[]
+}
+
+// Serialized project file v3.0 (project.json)
 export interface ProjectFile {
+  version: '3.0'
+  name: string
+  musicFile: string | null
+  tracks: ProjectTrack[]
+}
+
+// Legacy project file v2.0 (flat instances array, for backwards compatibility)
+export interface ProjectFileV2 {
   version: '2.0'
   name: string
   musicFile: string | null
   timeline: {
     instances: EffectInstance[]
   }
+}
+
+// A single lux unit shown in the control panel
+export interface LuxUnit {
+  id: number          // 1-based display id
+  connected: boolean  // last server timestamp diff < 1000ms
+  modeName: string    // ESP32-reported effect name, or "--"
 }
 
 // Serialized effect library file (effect_library.json)

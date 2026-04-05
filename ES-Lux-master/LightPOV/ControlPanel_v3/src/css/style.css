@@ -896,10 +896,38 @@ body {
     flex: 0 0 auto;
     background: #000;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 200px;
     border-bottom: 1px solid #333;
+    position: relative;
+}
+
+.preview_toolbar {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    z-index: 1;
+}
+
+.live_hw_label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: #aaa;
+    cursor: pointer;
+    user-select: none;
+}
+
+.live_hw_label:has(.live_hw_check:checked) {
+    color: #4fd677;
+}
+
+.live_hw_check {
+    accent-color: #4fd677;
+    cursor: pointer;
 }
 
 /* ========== ParameterPanel empty state ========== */
@@ -1102,16 +1130,49 @@ body {
   color: #ff9090;
 }
 
+/* 時間刻度行（播放按鈕 + 刻度canvas並排） */
+.timeline-row {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: stretch;
+}
+
+/* 左側播放控制（寬度對齊 .track-label） */
+.timeline-ctrl {
+    width: 72px;
+    flex-shrink: 0;
+    background: #1a1a1a;
+    border-right: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 4px;
+}
+
+.timeline-ctrl button {
+    width: 100%;
+    padding: 4px 0;
+    font-size: 14px;
+}
+
+/* canvas 的外層容器，填滿剩餘寬度 */
+.timescale-wrapper {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+}
+
 .timescale_canvas {
-    flex: 0 0 120px;
     display: block;
     width: 100%;
+    height: 120px;
     /* override global canvas rule */
     border: none !important;
     padding: 0 !important;
     border-radius: 0 !important;
     background: #0d1117 !important;
-    max-height: 120px;
     cursor: grab;
 }
 

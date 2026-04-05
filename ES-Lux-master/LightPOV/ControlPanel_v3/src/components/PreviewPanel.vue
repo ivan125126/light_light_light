@@ -1,5 +1,11 @@
 <template>
   <div class="preview_panel">
+    <div class="preview_toolbar">
+      <label class="live_hw_label">
+        <input type="checkbox" v-model="liveHardware" class="live_hw_check" />
+        推播硬體
+      </label>
+    </div>
     <pre-view
       ref="previewRef"
       id="live_preview"
@@ -10,13 +16,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onUnmounted } from 'vue'
 import { useEffectStore } from '../stores/effectStore'
 import { instanceToEffectData } from '../services/serializer'
+import { pushLiveEffect, stopLiveEffect } from '../services/hardwareService'
 import type { EffectInstance } from '../types'
 
 const effectStore = useEffectStore()
 const previewRef = ref<HTMLElement | null>(null)
+const liveHardware = ref(false)
 
 // Resolve what to preview: selected timeline instance takes priority,
 // then fall back to the definition clicked in asset library
@@ -45,9 +53,22 @@ function sendToPreview(instance: EffectInstance | null) {
   if (!def) return
   const effectData = instanceToEffectData(instance, def.mode)
   ;(el.updateData as (data: unknown) => void)(effectData)
+
+  if (liveHardware.value) {
+    pushLiveEffect(effectData)
+  }
 }
 
 watch(previewSource, sendToPreview, { deep: true })
+
+// When checkbox is turned off, stop live mode on server
+watch(liveHardware, (val) => {
+  if (!val) stopLiveEffect()
+})
+
+onUnmounted(() => {
+  if (liveHardware.value) stopLiveEffect()
+})
 </script>
 
 <script lang="ts">

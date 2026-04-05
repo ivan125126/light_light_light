@@ -5,13 +5,15 @@ const fs = require('fs');
 const path = require('path');
 var formidable = require('formidable');
 const app = express();
-const port = 10240;
+const port = 20480;
 var light_state = new Array(NUM_OF_LUX).fill(0);
 var light_effect = new Array(NUM_OF_LUX).fill(0);
 var lux_mode = new Array(NUM_OF_LUX).fill(0);
 var light_reset = new Array(NUM_OF_LUX).fill(0);
 var light_stop = new Array(NUM_OF_LUX).fill(0);
 var EXE_MODE = 0 //0 auto 1 manual
+var liveMode = false
+var liveEffectData = null
 var SONG = "unravel.json"
 var Time = 0;
 var time = 0;
@@ -132,6 +134,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../')));
 
 app.get("/get_effect", (req, res) => {
+    if (liveMode && liveEffectData) {
+        return res.send(stringify({ ...liveEffectData, start_time: 0, duration: 10000 }))
+    }
     var ID = req.query.id;
     var LUX_ID = req.query.luxid;
     if (ID >= Object.keys(EffectMap[0]).length || LUX_ID >= NUM_OF_LUX) {
@@ -158,6 +163,12 @@ app.get("/esp_time", (req, res) => {
     var now = new Date();
     light_state[id] = now.getTime()
     light_effect[id] = req.query.effect
+    if (liveMode) {
+        // Live preview broadcast: force ALL ESP32 units to clear buffer and
+        // reset to time=0 every cycle so they always fetch the latest effect.
+        // This is intentional — "推播硬體" is a broadcast test mode.
+        return res.send('C0')
+    }
     var mode =(light_reset[id]) ? "C" : (light_stop[id]) ? "P" : (EXE_MODE == 0) ? "A" : "M"
     res.send(mode + (Time).toString())
 })
@@ -229,6 +240,18 @@ app.get("/update_lux_stop", (req, res) => {
     // reset 已经是一个布尔值了，不需要再检查是否为有效数字
     light_stop[id] = stop;  // 更新数组中的值
     res.send("Lux " + id.toString() + " stop: " + stop);
+})
+
+app.post('/live_effect', (req, res) => {
+    liveEffectData = req.body
+    liveMode = true
+    res.send('ok')
+})
+
+app.post('/live_effect/stop', (req, res) => {
+    liveMode = false
+    liveEffectData = null
+    res.send('ok')
 })
 
 app.post('/fileupload', function (req, res) {
