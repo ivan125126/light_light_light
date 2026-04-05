@@ -391,6 +391,7 @@ watch(() => timelineStore.timelineOffset, drawTimescale)
 // ── inline 編輯軌道名稱 ──────────────────────────────────
 const editingTrackId = ref<string | null>(null)
 const editingName = ref('')
+let cancellingEdit = false
 
 function startEdit(id: string) {
   const track = timelineStore.tracks.find(t => t.id === id)
@@ -400,12 +401,17 @@ function startEdit(id: string) {
 }
 
 function finishEdit(id: string) {
+  if (cancellingEdit) {
+    cancellingEdit = false
+    return
+  }
   const name = editingName.value.trim()
   if (name) timelineStore.renameTrack(id, name)
   editingTrackId.value = null
 }
 
 function cancelEdit() {
+  cancellingEdit = true
   editingTrackId.value = null
 }
 
@@ -422,13 +428,15 @@ function confirmDelete() {
   const id = deleteTargetId.value
   if (!id) return
   const idx = timelineStore.tracks.findIndex(t => t.id === id)
+  if (idx === -1) return
   const toRemove = effectStore.instances
     .filter(i => i.trackIndex === idx)
     .map(i => i.id)
   const toReindex = effectStore.instances
     .filter(i => i.trackIndex > idx)
+    .map(i => ({ id: i.id, newIndex: i.trackIndex - 1 }))
   toRemove.forEach(instanceId => effectStore.removeInstance(instanceId))
-  toReindex.forEach(i => effectStore.updateInstance(i.id, { trackIndex: i.trackIndex - 1 }))
+  toReindex.forEach(({ id: iid, newIndex }) => effectStore.updateInstance(iid, { trackIndex: newIndex }))
   timelineStore.removeTrack(id)
   showDeleteDialog.value = false
   deleteTargetId.value = null
