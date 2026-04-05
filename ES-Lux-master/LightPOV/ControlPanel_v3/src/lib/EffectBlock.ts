@@ -128,7 +128,9 @@ export class EffectBlock {
           }
         })
       }
-      const bounds = this._getSafeBoundaries(canvas)
+      // Pass co-moving IDs so boundaries skip them as obstacles
+      const coMovingIds = new Set(otherBlockOffsets.keys())
+      const bounds = this._getSafeBoundaries(canvas, coMovingIds)
       const currentWidth = group.getScaledWidth()
       if (group.left < bounds.minX) group.left = bounds.minX
       if (group.left + currentWidth > bounds.maxX) group.left = bounds.maxX - currentWidth
@@ -144,7 +146,9 @@ export class EffectBlock {
         const otherGroup = obj as fabric.Group
         otherGroup.left = group.left + offset
         lb.startTime = timelineStore.pixelToMs(otherGroup.left)
+        otherGroup.setCoords()
       })
+      canvas.requestRenderAll()
     })
 
     group.on('scaling', () => {
@@ -191,7 +195,7 @@ export class EffectBlock {
     })
   }
 
-  private _getSafeBoundaries(canvas: fabric.Canvas): { minX: number; maxX: number } {
+  private _getSafeBoundaries(canvas: fabric.Canvas, skipIds: Set<string> = new Set()): { minX: number; maxX: number } {
     const timelineStore = useTimelineStore()
     let minX = -timelineStore.timelineOffset / timelineStore.secondsPerPixel
     let maxX = Infinity
@@ -203,6 +207,8 @@ export class EffectBlock {
       if (other === activeObj) return
       const o = other as fabric.Group & { logicBlock?: EffectBlock }
       if (!o.logicBlock) return
+      // Skip blocks that are moving together with this one
+      if (skipIds.has(o.logicBlock.id)) return
 
       const otherLeft = other.left
       const otherRight = other.left + other.getScaledWidth()
