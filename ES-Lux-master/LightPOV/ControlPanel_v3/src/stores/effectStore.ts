@@ -79,6 +79,12 @@ export const useEffectStore = defineStore('effect', {
       this.definitions.push(def)
     },
 
+    updateCustomDefinition(name: string, patch: Partial<Pick<EffectDefinition, 'defaultParams' | 'extraParamSchema'>>): void {
+      const def = this.definitions.find(d => d.name === name && !d.isBuiltIn)
+      if (!def) throw new Error(`Custom definition not found: ${name}`)
+      Object.assign(def, patch)
+    },
+
     removeCustomDefinition(name: string): void {
       const def = this.definitions.find(d => d.name === name)
       if (!def) throw new Error(`Definition not found: ${name}`)
@@ -101,6 +107,11 @@ export const useEffectStore = defineStore('effect', {
     clear(): void {
       this.instances = []
       this.definitions = [...BUILT_IN_DEFINITIONS]
+      this.selectedInstanceId = null
+    },
+
+    restoreInstances(instances: EffectInstance[]): void {
+      this.instances = JSON.parse(JSON.stringify(instances))
       this.selectedInstanceId = null
     },
   },
