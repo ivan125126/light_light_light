@@ -97,22 +97,36 @@ export class EffectBlock {
     const undoStore = useUndoStore()
 
     let gestureSnapped = false
+    // id → pixel offset relative to this block at drag start (for co-moving selected blocks)
+    const otherBlockOffsets = new Map<string, number>()
 
     group.on('mousedown', (opt) => {
       gestureSnapped = false
       const isShift = (opt.e as MouseEvent).shiftKey
       if (isShift) {
         selectionStore.toggle(this.id)
-      } else {
+      } else if (!selectionStore.selectedIds.includes(this.id)) {
+        // Only reset selection when clicking an unselected block
         selectionStore.setOnly(this.id)
         effectStore.selectInstance(this.id)
       }
+      // If block is already selected (plain click on selected) → keep multi-selection intact
     })
 
     group.on('moving', () => {
       if (!gestureSnapped) {
         undoStore.push()
         gestureSnapped = true
+        // Record relative offsets of all other selected blocks
+        otherBlockOffsets.clear()
+        const myLeft = group.left
+        canvas.getObjects().forEach(obj => {
+          const lb = (obj as fabric.Group & { logicBlock?: EffectBlock }).logicBlock
+          if (!lb || lb.id === this.id) continue
+          if (selectionStore.selectedIds.includes(lb.id)) {
+            otherBlockOffsets.set(lb.id, (obj as fabric.Group).left - myLeft)
+          }
+        })
       }
       const bounds = this._getSafeBoundaries(canvas)
       const currentWidth = group.getScaledWidth()
@@ -120,6 +134,17 @@ export class EffectBlock {
       if (group.left + currentWidth > bounds.maxX) group.left = bounds.maxX - currentWidth
 
       this.startTime = timelineStore.pixelToMs(group.left)
+
+      // Move all other selected blocks by the same relative offset
+      canvas.getObjects().forEach(obj => {
+        const lb = (obj as fabric.Group & { logicBlock?: EffectBlock }).logicBlock
+        if (!lb || lb.id === this.id) continue
+        const offset = otherBlockOffsets.get(lb.id)
+        if (offset === undefined) continue
+        const otherGroup = obj as fabric.Group
+        otherGroup.left = group.left + offset
+        lb.startTime = timelineStore.pixelToMs(otherGroup.left)
+      })
     })
 
     group.on('scaling', () => {
@@ -151,6 +176,18 @@ export class EffectBlock {
         startTime: this.startTime,
         duration: this.duration,
       })
+      // Persist co-moved blocks
+      canvas.getObjects().forEach(obj => {
+        const lb = (obj as fabric.Group & { logicBlock?: EffectBlock }).logicBlock
+        if (!lb || lb.id === this.id) continue
+        if (!otherBlockOffsets.has(lb.id)) return
+        if (!effectStore.instances.some(i => i.id === lb.id)) return
+        effectStore.updateInstance(lb.id, {
+          startTime: lb.startTime,
+          duration: lb.duration,
+        })
+      })
+      otherBlockOffsets.clear()
     })
   }
 
