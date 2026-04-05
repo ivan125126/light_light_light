@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-interface Track {
+export interface Track {
   id: string
   name: string
 }
@@ -12,6 +12,7 @@ interface TimelineState {
   isPlaying: boolean
   totalDuration: number
   tracks: Track[]
+  _nextTrackNum: number
 }
 
 export const useTimelineStore = defineStore('timeline', {
@@ -22,6 +23,7 @@ export const useTimelineStore = defineStore('timeline', {
     isPlaying: false,
     totalDuration: 60_000,
     tracks: [{ id: 'track-0', name: '軌道 1' }],
+    _nextTrackNum: 2,
   }),
 
   getters: {
@@ -59,8 +61,8 @@ export const useTimelineStore = defineStore('timeline', {
     },
 
     addTrack(): void {
-      const n = this.tracks.length + 1
-      this.tracks.push({ id: `track-${Date.now()}`, name: `軌道 ${n}` })
+      this.tracks.push({ id: `track-${Date.now()}`, name: `軌道 ${this._nextTrackNum}` })
+      this._nextTrackNum++
     },
 
     removeTrack(id: string): void {
