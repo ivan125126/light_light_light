@@ -1,11 +1,17 @@
 import { defineStore } from 'pinia'
 
+interface Track {
+  id: string
+  name: string
+}
+
 interface TimelineState {
   secondsPerPixel: number
   timelineOffset: number
   globalTime: number
   isPlaying: boolean
   totalDuration: number
+  tracks: Track[]
 }
 
 export const useTimelineStore = defineStore('timeline', {
@@ -15,6 +21,7 @@ export const useTimelineStore = defineStore('timeline', {
     globalTime: 0,
     isPlaying: false,
     totalDuration: 60_000,
+    tracks: [{ id: 'track-0', name: '軌道 1' }],
   }),
 
   getters: {
@@ -49,6 +56,20 @@ export const useTimelineStore = defineStore('timeline', {
 
     setTotalDuration(ms: number): void {
       this.totalDuration = ms
+    },
+
+    addTrack(): void {
+      const n = this.tracks.length + 1
+      this.tracks.push({ id: `track-${Date.now()}`, name: `軌道 ${n}` })
+    },
+
+    removeTrack(id: string): void {
+      this.tracks = this.tracks.filter(t => t.id !== id)
+    },
+
+    renameTrack(id: string, name: string): void {
+      const track = this.tracks.find(t => t.id === id)
+      if (track) track.name = name
     },
   },
 })

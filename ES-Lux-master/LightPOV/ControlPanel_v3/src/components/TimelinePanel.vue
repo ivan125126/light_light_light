@@ -1,57 +1,118 @@
 <template>
   <div class="timeline_panel">
-    <!-- 播放控制 -->
+    <!-- 播放控制列 -->
     <div class="playback_controls">
-      <button @click="togglePlay">{{ timelineStore.isPlaying ? '暫停' : '播放' }}</button>
-      <button @click="stop">停止</button>
-      <input type="file" accept="audio/*" @change="loadAudio" />
-      <span>{{ formatTime(timelineStore.globalTime) }}</span>
+      <!-- 音樂載入 -->
+      <label class="load-audio-btn">
+        選擇音檔
+        <input type="file" accept="audio/*" hidden @change="loadAudio" />
+      </label>
+
+      <!-- 播放 / 停止 -->
+      <button @click="togglePlay">{{ timelineStore.isPlaying ? '⏸ 暫停' : '▶ 播放' }}</button>
+      <button @click="stop">⏹ 停止</button>
+
+      <!-- 當前時間 -->
+      <span class="time-display">當前時間:{{ formatTimeMmSs(timelineStore.globalTime) }}</span>
+
+      <!-- 跳至時間（mm : ss + Enter） -->
+      <span class="jump-label">跳至時間:</span>
+      <input
+        v-model.number="jumpMin"
+        class="jump-input"
+        type="number" min="0" placeholder="mm"
+        @keydown.enter="secInputRef?.focus()"
+      />
+      <span class="jump-colon">:</span>
+      <input
+        ref="secInputRef"
+        v-model.number="jumpSec"
+        class="jump-input"
+        type="number" min="0" max="59" placeholder="ss"
+        @keydown.enter="jumpToTime"
+      />
+
+      <!-- 音量 -->
+      <span class="volume-icon">🔊 音量：</span>
+      <input
+        class="volume-slider"
+        type="range" min="0" max="100" :value="Math.round(audioStore.volume * 100)"
+        @input="onVolumeInput"
+      />
+      <span class="volume-value">{{ Math.round(audioStore.volume * 100) }}%</span>
+
+      <!-- 音檔名稱 -->
+      <span v-if="audioStore.hasAudio" class="audio-name">{{ audioStore.fileName }}</span>
     </div>
 
-    <!-- 時間刻度軸 -->
-    <canvas ref="timescaleCanvasRef" class="timescale_canvas" :width="canvasWidth" height="30"></canvas>
+    <!-- 時間刻度軸（可拖曳 pan、滾輪 zoom） -->
+    <canvas
+      ref="timescaleCanvasRef"
+      class="timescale_canvas"
+      :width="canvasWidth"
+      :height="TIMESCALE_HEIGHT"
+      @mousedown="onTimescaleMouseDown"
+      @wheel.prevent="onWheel"
+    ></canvas>
 
-    <!-- 6 軌 -->
+    <!-- 動態軌道 -->
     <div
       ref="tracksContainerRef"
       class="tracks_container"
       @wheel.prevent="onWheel"
     >
-      <TrackCanvas v-for="i in 6" :key="i" :trackIndex="i - 1" />
+      <TrackCanvas
+        v-for="(track, index) in timelineStore.tracks"
+        :key="track.id"
+        :trackIndex="index"
+      />
     </div>
+
+    <!-- 新增軌道按鈕 -->
+    <button class="add-track-btn" @click="timelineStore.addTrack()">+ 新增軌道</button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import TrackCanvas from './TrackCanvas.vue'
 import { useTimelineStore } from '../stores/timelineStore'
 import { useAudioStore } from '../stores/audioStore'
-import { loadAudioFile, extractPeaks, startPlayback, stopPlayback } from '../services/audioService'
+import { loadAudioFile, extractPeaks, startPlayback, stopPlayback, setVolume } from '../services/audioService'
 import { startHardwareSync, stopHardwareSync, startWithoutAudio } from '../services/hardwareService'
+
+const TIMESCALE_HEIGHT = 120
 
 const timelineStore = useTimelineStore()
 const audioStore = useAudioStore()
 const timescaleCanvasRef = ref<HTMLCanvasElement | null>(null)
 const tracksContainerRef = ref<HTMLElement | null>(null)
+const secInputRef = ref<HTMLInputElement | null>(null)
 const canvasWidth = ref(1200)
+
+// 跳至時間 inputs
+const jumpMin = ref<number | null>(null)
+const jumpSec = ref<number | null>(null)
 
 let animationFrameId: number | null = null
 let playStartWallTime = 0
 let playStartGlobalTime = 0
 
-function formatTime(ms: number): string {
+// 拖曳 pan 狀態
+let isDragging = false
+let dragStartX = 0
+let dragStartOffset = 0
+
+// ── 時間格式 ──────────────────────────────────────────────
+function formatTimeMmSs(ms: number): string {
   const s = Math.floor(ms / 1000)
   const m = Math.floor(s / 60)
-  return `${String(m).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}.${String(ms % 1000).padStart(3, '0')}`
+  return `${String(m).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 }
 
+// ── 播放控制 ──────────────────────────────────────────────
 function togglePlay() {
-  if (timelineStore.isPlaying) {
-    pause()
-  } else {
-    play()
-  }
+  timelineStore.isPlaying ? pause() : play()
 }
 
 function play() {
@@ -60,7 +121,7 @@ function play() {
   if (audioStore.hasAudio) {
     startPlayback(timelineStore.globalTime)
   } else {
-    startWithoutAudio()  // 無音樂也能啟動硬體
+    startWithoutAudio()
   }
   startHardwareSync(() => timelineStore.globalTime)
   timelineStore.setPlaying(true)
@@ -83,6 +144,32 @@ function stop() {
   drawTimescale()
 }
 
+// ── 跳至時間 ──────────────────────────────────────────────
+function jumpToTime() {
+  const min = jumpMin.value ?? 0
+  const sec = jumpSec.value ?? 0
+  if (sec > 59) return
+  const ms = (min * 60 + sec) * 1000
+  timelineStore.setTime(ms)
+  if (timelineStore.isPlaying) {
+    // 重新從新位置開始播放
+    if (audioStore.hasAudio) {
+      stopPlayback()
+      startPlayback(ms)
+    }
+    playStartWallTime = performance.now()
+    playStartGlobalTime = ms
+  }
+  drawTimescale()
+}
+
+// ── 音量 ──────────────────────────────────────────────────
+function onVolumeInput(event: Event) {
+  const val = Number((event.target as HTMLInputElement).value) / 100
+  audioStore.setVolume(val)
+  setVolume(val)
+}
+
 function tick() {
   if (!timelineStore.isPlaying) return
   const elapsed = performance.now() - playStartWallTime
@@ -91,81 +178,161 @@ function tick() {
   animationFrameId = requestAnimationFrame(tick)
 }
 
+// ── 音樂載入 ──────────────────────────────────────────────
 async function loadAudio(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
   const { buffer, duration } = await loadAudioFile(file)
-  const peaks = extractPeaks(buffer, canvasWidth.value)
+  // 用 200 samples/sec 取樣，縮放後仍有足夠解析度
+  const numPeaks = Math.max(4000, Math.ceil(buffer.duration * 200))
+  const peaks = extractPeaks(buffer, numPeaks)
   audioStore.setAudio(duration, peaks, file.name)
   timelineStore.setTotalDuration(duration)
   drawTimescale()
 }
 
+// ── 滾輪：上下 = zoom，左右 = pan ─────────────────────────
 function onWheel(event: WheelEvent) {
-  if (event.ctrlKey || event.metaKey) {
-    const factor = event.deltaY > 0 ? 1.1 : 0.9
-    timelineStore.zoom(factor, event.offsetX)
+  if (Math.abs(event.deltaY) >= Math.abs(event.deltaX)) {
+    // 縱向滾動 → zoom（向上縮小 secondsPerPixel = 放大尺度）
+    const factor = event.deltaY > 0 ? 1.15 : 0.87
+    const anchorX = event.offsetX
+    timelineStore.zoom(factor, anchorX)
   } else {
-    timelineStore.setOffset(timelineStore.timelineOffset + event.deltaX * 0.5)
+    // 橫向滾動 → pan
+    timelineStore.setOffset(timelineStore.timelineOffset + event.deltaX)
   }
   drawTimescale()
 }
 
+// ── 拖曳時間刻度軸 pan ────────────────────────────────────
+function onTimescaleMouseDown(event: MouseEvent) {
+  isDragging = true
+  dragStartX = event.clientX
+  dragStartOffset = timelineStore.timelineOffset
+}
+
+function onMouseMove(event: MouseEvent) {
+  if (!isDragging) return
+  const dx = event.clientX - dragStartX
+  timelineStore.setOffset(dragStartOffset - dx)
+  drawTimescale()
+}
+
+function onMouseUp() {
+  isDragging = false
+}
+
+// ── 繪製時間刻度軸 ────────────────────────────────────────
 function drawTimescale() {
   const canvas = timescaleCanvasRef.value
   if (!canvas) return
   const ctx = canvas.getContext('2d')
   if (!ctx) return
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
-  ctx.fillStyle = '#444'
-  ctx.fillRect(0, 0, canvas.width, canvas.height)
-
+  const w = canvas.width
+  const h = canvas.height
   const { secondsPerPixel, timelineOffset } = timelineStore
-  ctx.fillStyle = '#aaa'
-  ctx.font = '10px monospace'
 
-  const startSec = timelineOffset * secondsPerPixel
-  const endSec = (timelineOffset + canvas.width) * secondsPerPixel
-  const tickInterval = Math.max(0.5, Math.ceil((endSec - startSec) / 20))
+  // 版面常數（對照 v2 的 160px 等比縮放至 120px）
+  const baselineY = 45           // 基準線 y 位置
+  const tickTop   = 28           // 刻度線上緣
+  const labelY    = 22           // mm:ss 標籤基線
+  const waveCenter = Math.floor(baselineY + (h - baselineY) / 2)  // ~82
+  const waveHalfH  = Math.floor((h - baselineY - 6) / 2)          // ~35
 
-  for (let s = Math.ceil(startSec / tickInterval) * tickInterval; s < endSec; s += tickInterval) {
-    const x = s / secondsPerPixel - timelineOffset
-    ctx.strokeStyle = '#666'
-    ctx.beginPath()
-    ctx.moveTo(x, 0)
-    ctx.lineTo(x, 30)
-    ctx.stroke()
-    ctx.fillText(`${s.toFixed(1)}s`, x + 2, 20)
-  }
+  // 背景
+  ctx.fillStyle = '#0d1117'
+  ctx.fillRect(0, 0, w, h)
 
-  // Draw waveform
+  // 波形（對稱式，對照 v2 的 strokeStyle = '#4fb3d6'）
   if (audioStore.peaks.length > 0) {
-    ctx.fillStyle = '#4a9eff44'
     const peaks = audioStore.peaks
-    for (let i = 0; i < canvas.width; i++) {
-      const peakIdx = Math.floor((i + timelineOffset) / canvas.width * peaks.length)
-      const peak = peaks[peakIdx] ?? 0
-      const h = peak * 28
-      ctx.fillRect(i, (28 - h) / 2, 1, h)
+    const audioDurSec = audioStore.duration / 1000
+
+    ctx.strokeStyle = '#4fb3d6'
+    ctx.lineWidth = 1
+    ctx.beginPath()
+
+    for (let i = 0; i < w; i++) {
+      const timeSec = (i + timelineOffset) * secondsPerPixel
+      if (timeSec < 0 || timeSec > audioDurSec) continue
+      const peakIdx = Math.floor(timeSec / audioDurSec * peaks.length)
+      const peak = peaks[Math.min(peakIdx, peaks.length - 1)] ?? 0
+      const y = peak * waveHalfH
+      ctx.moveTo(i + 0.5, waveCenter - y)
+      ctx.lineTo(i + 0.5, waveCenter + y)
     }
+    ctx.stroke()
   }
 
-  // Draw playhead
+  // 基準線
+  ctx.strokeStyle = '#ffffff'
+  ctx.lineWidth = 1.5
+  ctx.beginPath()
+  ctx.moveTo(0, baselineY)
+  ctx.lineTo(w, baselineY)
+  ctx.stroke()
+  ctx.lineWidth = 1
+
+  // 刻度間隔（對照 v2 邏輯）
+  let majorTick = 1
+  if (secondsPerPixel < 1 / 800)  majorTick = 0.5
+  if (secondsPerPixel < 1 / 1500) majorTick = 0.2
+  if (secondsPerPixel > 1 / 40)   majorTick = 5
+  if (secondsPerPixel > 1 / 20)   majorTick = 10
+  if (secondsPerPixel > 1 / 10)   majorTick = 30
+  if (secondsPerPixel > 1 / 5)    majorTick = 60
+
+  const startSec  = timelineOffset * secondsPerPixel
+  const endSec    = startSec + w * secondsPerPixel
+  const firstTick = Math.ceil(startSec / majorTick) * majorTick
+
+  ctx.fillStyle = '#ffffff'
+  ctx.font = '11px monospace'
+
+  for (let t = firstTick; t <= endSec; t = Math.round((t + majorTick) * 1000) / 1000) {
+    const x = Math.floor(t / secondsPerPixel - timelineOffset)
+
+    // 刻度線
+    ctx.strokeStyle = '#ffffff'
+    ctx.beginPath()
+    ctx.moveTo(x, tickTop)
+    ctx.lineTo(x, baselineY)
+    ctx.stroke()
+
+    // mm:ss 標籤
+    const mm = String(Math.floor(t / 60)).padStart(2, '0')
+    const ss = String(Math.floor(t % 60)).padStart(2, '0')
+    ctx.fillText(`${mm}:${ss}`, x + 3, labelY)
+  }
+
+  // 播放頭（紅線貫穿全高）
   const playheadX = timelineStore.playheadPixel
-  if (playheadX >= 0 && playheadX <= canvas.width) {
+  if (playheadX >= 0 && playheadX <= w) {
     ctx.strokeStyle = '#ff4444'
     ctx.lineWidth = 2
     ctx.beginPath()
     ctx.moveTo(playheadX, 0)
-    ctx.lineTo(playheadX, 30)
+    ctx.lineTo(playheadX, h)
     ctx.stroke()
     ctx.lineWidth = 1
   }
 }
 
-onMounted(() => {
+// ── 生命週期 ──────────────────────────────────────────────
+onMounted(async () => {
+  const canvas = timescaleCanvasRef.value
+  if (canvas) canvasWidth.value = canvas.parentElement?.clientWidth ?? 1200
+  await nextTick()   // 等 Vue 把 :width 更新到 DOM 後再畫，避免 canvas 被重置清空
   drawTimescale()
+  window.addEventListener('mousemove', onMouseMove)
+  window.addEventListener('mouseup', onMouseUp)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('mousemove', onMouseMove)
+  window.removeEventListener('mouseup', onMouseUp)
 })
 
 watch(() => timelineStore.secondsPerPixel, drawTimescale)
