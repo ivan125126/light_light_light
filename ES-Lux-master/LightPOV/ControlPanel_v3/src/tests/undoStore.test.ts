@@ -45,7 +45,7 @@ describe('undoStore', () => {
   it('stack 超過 50 步時移除最舊快照', () => {
     const undoStore = useUndoStore()
     for (let i = 0; i < 55; i++) undoStore.push()
-    expect(undoStore.stack.length).toBeLessThanOrEqual(50)
+    expect(undoStore.stack.length).toBe(50)
   })
 
   it('stack 為空時 undo 不拋出錯誤，不改變 instances', () => {
@@ -53,6 +53,31 @@ describe('undoStore', () => {
     const effectStore = useEffectStore()
     effectStore.addInstance('純色', 0, 3000, 0)
     expect(() => undoStore.undo()).not.toThrow()
+    expect(effectStore.instances).toHaveLength(1)
+  })
+
+  it('多次 undo 依序還原到更早的快照', () => {
+    const undoStore = useUndoStore()
+    const effectStore = useEffectStore()
+
+    // 快照 A: 1 個 instance
+    effectStore.addInstance('純色', 0, 3000, 0)
+    undoStore.push()
+
+    // 快照 B: 2 個 instances
+    effectStore.addInstance('純色', 5000, 3000, 0)
+    undoStore.push()
+
+    // 新增第 3 個（不快照）
+    effectStore.addInstance('純色', 10000, 3000, 0)
+    expect(effectStore.instances).toHaveLength(3)
+
+    // 第一次 undo → 還原到快照 B（2 個）
+    undoStore.undo()
+    expect(effectStore.instances).toHaveLength(2)
+
+    // 第二次 undo → 還原到快照 A（1 個）
+    undoStore.undo()
     expect(effectStore.instances).toHaveLength(1)
   })
 })
