@@ -122,7 +122,7 @@ export class EffectBlock {
         const myLeft = group.left
         canvas.getObjects().forEach(obj => {
           const lb = (obj as fabric.Group & { logicBlock?: EffectBlock }).logicBlock
-          if (!lb || lb.id === this.id) continue
+          if (!lb || lb.id === this.id) return
           if (selectionStore.selectedIds.includes(lb.id)) {
             otherBlockOffsets.set(lb.id, (obj as fabric.Group).left - myLeft)
           }
@@ -138,9 +138,9 @@ export class EffectBlock {
       // Move all other selected blocks by the same relative offset
       canvas.getObjects().forEach(obj => {
         const lb = (obj as fabric.Group & { logicBlock?: EffectBlock }).logicBlock
-        if (!lb || lb.id === this.id) continue
+        if (!lb || lb.id === this.id) return
         const offset = otherBlockOffsets.get(lb.id)
-        if (offset === undefined) continue
+        if (offset === undefined) return
         const otherGroup = obj as fabric.Group
         otherGroup.left = group.left + offset
         lb.startTime = timelineStore.pixelToMs(otherGroup.left)
@@ -179,7 +179,7 @@ export class EffectBlock {
       // Persist co-moved blocks
       canvas.getObjects().forEach(obj => {
         const lb = (obj as fabric.Group & { logicBlock?: EffectBlock }).logicBlock
-        if (!lb || lb.id === this.id) continue
+        if (!lb || lb.id === this.id) return
         if (!otherBlockOffsets.has(lb.id)) return
         if (!effectStore.instances.some(i => i.id === lb.id)) return
         effectStore.updateInstance(lb.id, {
