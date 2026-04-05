@@ -8,10 +8,6 @@
         <input type="file" accept="audio/*" hidden @change="loadAudio" />
       </label>
 
-      <!-- 播放 / 停止 -->
-      <button @click="togglePlay">{{ timelineStore.isPlaying ? '⏸ 暫停' : '▶ 播放' }}</button>
-      <button @click="stop">⏹ 停止</button>
-
       <!-- 當前時間 -->
       <span class="time-display">當前時間:{{ formatTimeMmSs(timelineStore.globalTime) }}</span>
 
@@ -54,15 +50,23 @@
       </div>
     </div>
 
-    <!-- 時間刻度軸（可拖曳 pan、滾輪 zoom） -->
-    <canvas
-      ref="timescaleCanvasRef"
-      class="timescale_canvas"
-      :width="canvasWidth"
-      :height="TIMESCALE_HEIGHT"
-      @mousedown="onTimescaleMouseDown"
-      @wheel.prevent="onWheel"
-    ></canvas>
+    <!-- 時間刻度行（左：播放控制 | 右：時間刻度canvas） -->
+    <div class="timeline-row">
+      <div class="timeline-ctrl">
+        <button @click="togglePlay">{{ timelineStore.isPlaying ? '⏸' : '▶' }}</button>
+        <button @click="stop">⏹</button>
+      </div>
+      <div class="timescale-wrapper">
+        <canvas
+          ref="timescaleCanvasRef"
+          class="timescale_canvas"
+          :width="canvasWidth"
+          :height="TIMESCALE_HEIGHT"
+          @mousedown="onTimescaleMouseDown"
+          @wheel.prevent="onWheel"
+        ></canvas>
+      </div>
+    </div>
 
     <!-- 動態軌道 -->
     <div
@@ -129,12 +133,16 @@ import { useAudioStore } from '../stores/audioStore'
 import { useEffectStore } from '../stores/effectStore'
 import { loadAudioFile, extractPeaks, startPlayback, stopPlayback, setVolume } from '../services/audioService'
 import { startHardwareSync, stopHardwareSync, startWithoutAudio } from '../services/hardwareService'
+import { useSelectionStore } from '../stores/selectionStore'
+import { useUndoStore } from '../stores/undoStore'
 
 const TIMESCALE_HEIGHT = 120
 
 const timelineStore = useTimelineStore()
 const audioStore = useAudioStore()
 const effectStore = useEffectStore()
+const selectionStore = useSelectionStore()
+const undoStore = useUndoStore()
 const timescaleCanvasRef = ref<HTMLCanvasElement | null>(null)
 const tracksContainerRef = ref<HTMLElement | null>(null)
 const secInputRef = ref<HTMLInputElement | null>(null)
@@ -371,6 +379,96 @@ function drawTimescale() {
 }
 
 // ── 生命週期 ──────────────────────────────────────────────
+function onKeyDown(e: KeyboardEvent) {
+  const tag = (e.target as HTMLElement).tagName
+  const isEditable = tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement).isContentEditable
+  const isMeta = e.metaKey || e.ctrlKey
+
+  // Cmd+Z — undo
+  if (isMeta && e.key === 'z' && !e.shiftKey) {
+    if (isEditable) return
+    e.preventDefault()
+    undoStore.undo()
+    return
+  }
+
+  // Cmd+X — cut
+  if (isMeta && e.key === 'x') {
+    if (isEditable) return
+    e.preventDefault()
+    const ids = [...selectionStore.selectedIds]   // snapshot before mutations
+    if (ids.length === 0) return
+    const instances = effectStore.instances.filter(i => ids.includes(i.id))
+    selectionStore.setCopy(instances)
+    undoStore.push()
+    ids.forEach(id => effectStore.removeInstance(id))
+    selectionStore.clear()
+    effectStore.selectInstance(null)
+    return
+  }
+
+  // Cmd+C — copy
+  if (isMeta && e.key === 'c') {
+    if (isEditable) return
+    e.preventDefault()
+    const ids = [...selectionStore.selectedIds]   // snapshot
+    if (ids.length === 0) return
+    const instances = effectStore.instances.filter(i => ids.includes(i.id))
+    selectionStore.setCopy(instances)
+    return
+  }
+
+  // Cmd+V — paste at playhead
+  if (isMeta && e.key === 'v') {
+    if (isEditable) return
+    e.preventDefault()
+    const { clipboard, clipboardAnchorTime } = selectionStore
+    if (!clipboard || clipboard.length === 0) return
+    undoStore.push()
+    const playhead = timelineStore.globalTime
+    const newIds: string[] = []
+    for (const entry of clipboard) {
+      const newStartTime = playhead + (entry.startTime - clipboardAnchorTime)
+      const newId = effectStore.addInstance(
+        entry.definitionName,
+        newStartTime,
+        entry.duration,
+        entry.trackIndex
+      )
+      effectStore.updateInstance(newId, { params: JSON.parse(JSON.stringify(entry.params)) })
+      newIds.push(newId)
+    }
+    selectionStore.selectedIds = newIds
+    if (newIds.length === 1) effectStore.selectInstance(newIds[0])
+    return
+  }
+
+  // Backspace — delete selected (multi or single)
+  if (e.key === 'Backspace') {
+    if (isEditable) return
+    e.preventDefault()
+    const multiIds = [...selectionStore.selectedIds]   // snapshot before mutations
+    if (multiIds.length > 0) {
+      undoStore.push()
+      multiIds.forEach(id => effectStore.removeInstance(id))
+      selectionStore.clear()
+      effectStore.selectInstance(null)
+    } else {
+      const id = effectStore.selectedInstanceId
+      if (id) {
+        undoStore.push()
+        effectStore.removeInstance(id)
+      }
+    }
+    return
+  }
+
+  // Escape — clear selection
+  if (e.key === 'Escape') {
+    selectionStore.clear()
+  }
+}
+
 onMounted(async () => {
   const canvas = timescaleCanvasRef.value
   if (canvas) canvasWidth.value = canvas.parentElement?.clientWidth ?? 1200
@@ -378,11 +476,13 @@ onMounted(async () => {
   drawTimescale()
   window.addEventListener('mousemove', onMouseMove)
   window.addEventListener('mouseup', onMouseUp)
+  window.addEventListener('keydown', onKeyDown)
 })
 
 onUnmounted(() => {
   window.removeEventListener('mousemove', onMouseMove)
   window.removeEventListener('mouseup', onMouseUp)
+  window.removeEventListener('keydown', onKeyDown)
 })
 
 watch(() => timelineStore.secondsPerPixel, drawTimescale)
