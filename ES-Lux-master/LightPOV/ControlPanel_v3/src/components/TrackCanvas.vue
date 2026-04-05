@@ -50,6 +50,7 @@ function syncFromStore() {
       existing.startTime = instance.startTime
       existing.duration = instance.duration
       existing.reposition()
+      existing.fabricGroup?.setCoords()
     } else {
       const block = new EffectBlock(instance.id, instance.definitionName, canvas)
       block.startTime = instance.startTime
@@ -68,6 +69,7 @@ function repositionAll() {
   canvas.getObjects().forEach(obj => {
     const block = (obj as fabric.Group & { logicBlock?: EffectBlock }).logicBlock
     block?.reposition()
+    ;(obj as fabric.Group).setCoords()
   })
   canvas.requestRenderAll()
 }
