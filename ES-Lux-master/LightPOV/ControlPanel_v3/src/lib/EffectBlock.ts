@@ -1,6 +1,8 @@
 import * as fabric from 'fabric'
 import { useEffectStore } from '../stores/effectStore'
 import { useTimelineStore } from '../stores/timelineStore'
+import { useSelectionStore } from '../stores/selectionStore'
+import { useUndoStore } from '../stores/undoStore'
 import type { EffectParams } from '../types'
 
 export class EffectBlock {
@@ -70,22 +72,61 @@ export class EffectBlock {
     this._canvas.requestRenderAll()
   }
 
+  reposition(): void {
+    if (!this.fabricGroup) return
+    const timelineStore = useTimelineStore()
+    this.fabricGroup.left = timelineStore.msToPixel(this.startTime)
+    this._updateDimensionsFromTime()
+  }
+
+  setHighlight(selected: boolean): void {
+    if (!this.fabricGroup) return
+    const bgRect = this.fabricGroup.item(0) as fabric.Rect
+    bgRect.set({
+      stroke: selected ? '#4a9eff' : '#888',
+      strokeWidth: selected ? 2 : 1,
+    })
+    this._canvas.requestRenderAll()
+  }
+
   private _bindEvents(canvas: fabric.Canvas) {
     const group = this.fabricGroup!
     const timelineStore = useTimelineStore()
     const effectStore = useEffectStore()
+    const selectionStore = useSelectionStore()
+    const undoStore = useUndoStore()
+
+    let gestureSnapped = false
+
+    group.on('mousedown', (opt) => {
+      gestureSnapped = false
+      const isShift = (opt.e as MouseEvent).shiftKey
+      if (isShift) {
+        selectionStore.toggle(this.id)
+      } else {
+        selectionStore.setOnly(this.id)
+        effectStore.selectInstance(this.id)
+      }
+    })
 
     group.on('moving', () => {
+      if (!gestureSnapped) {
+        undoStore.push()
+        gestureSnapped = true
+      }
       const bounds = this._getSafeBoundaries(canvas)
       const currentWidth = group.getScaledWidth()
       if (group.left < bounds.minX) group.left = bounds.minX
       if (group.left + currentWidth > bounds.maxX) group.left = bounds.maxX - currentWidth
 
       this.startTime = timelineStore.pixelToMs(group.left)
-      effectStore.updateInstance(this.id, { startTime: this.startTime })
     })
 
     group.on('scaling', () => {
+      if (!gestureSnapped) {
+        undoStore.push()
+        gestureSnapped = true
+      }
       const bounds = this._getSafeBoundaries(canvas)
       const currentWidth = group.getScaledWidth()
       const textObj = group.item(1) as fabric.FabricText
@@ -100,11 +141,13 @@ export class EffectBlock {
 
       this.duration = group.getScaledWidth() * timelineStore.secondsPerPixel * 1000
       this.startTime = timelineStore.pixelToMs(group.left)
-      effectStore.updateInstance(this.id, { startTime: this.startTime, duration: this.duration })
     })
 
-    group.on('mousedown', () => {
-      effectStore.selectInstance(this.id)
+    group.on('modified', () => {
+      effectStore.updateInstance(this.id, {
+        startTime: this.startTime,
+        duration: this.duration,
+      })
     })
   }
 
