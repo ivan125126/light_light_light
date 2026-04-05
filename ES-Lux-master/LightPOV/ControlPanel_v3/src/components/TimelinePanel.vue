@@ -43,6 +43,15 @@
 
       <!-- 音檔名稱 -->
       <span v-if="audioStore.hasAudio" class="audio-name">{{ audioStore.fileName }}</span>
+
+      <!-- 新增 / 刪除軌道 -->
+      <div class="track-actions">
+        <button @click="timelineStore.addTrack()">+ 新增軌道</button>
+        <button
+          :disabled="timelineStore.tracks.length <= 1"
+          @click="openDeleteDialog"
+        >− 刪除軌道</button>
+      </div>
     </div>
 
     <!-- 時間刻度軸（可拖曳 pan、滾輪 zoom） -->
@@ -61,15 +70,54 @@
       class="tracks_container"
       @wheel.prevent="onWheel"
     >
-      <TrackCanvas
+      <div
+        class="track-row"
         v-for="(track, index) in timelineStore.tracks"
         :key="track.id"
-        :trackIndex="index"
-      />
+      >
+        <div class="track-label">
+          <span
+            v-if="editingTrackId !== track.id"
+            @click="startEdit(track.id)"
+          >{{ track.name }}</span>
+          <input
+            v-else
+            class="track-name-input"
+            :value="editingName"
+            @input="editingName = ($event.target as HTMLInputElement).value"
+            @blur="finishEdit(track.id)"
+            @keydown.enter="($event.target as HTMLInputElement).blur()"
+            @keydown.esc="cancelEdit"
+            autofocus
+          />
+        </div>
+        <TrackCanvas :trackIndex="index" />
+      </div>
     </div>
 
-    <!-- 新增軌道按鈕 -->
-    <button class="add-track-btn" @click="timelineStore.addTrack()">+ 新增軌道</button>
+    <!-- 刪除軌道 Dialog -->
+    <div v-if="showDeleteDialog" class="dialog-overlay" @click.self="showDeleteDialog = false">
+      <div class="dialog-box">
+        <div class="dialog-title">刪除軌道</div>
+        <div class="track-delete-list">
+          <div
+            v-for="track in timelineStore.tracks"
+            :key="track.id"
+            class="track-delete-item"
+            :class="{ selected: deleteTargetId === track.id }"
+            @click="deleteTargetId = track.id"
+          >{{ track.name }}</div>
+        </div>
+        <div class="dialog-actions">
+          <button class="dialog-btn dialog-btn--cancel" @click="showDeleteDialog = false">取消</button>
+          <button
+            class="dialog-btn dialog-btn--confirm"
+            :disabled="!deleteTargetId"
+            @click="confirmDelete"
+          >刪除</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -78,6 +126,7 @@ import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import TrackCanvas from './TrackCanvas.vue'
 import { useTimelineStore } from '../stores/timelineStore'
 import { useAudioStore } from '../stores/audioStore'
+import { useEffectStore } from '../stores/effectStore'
 import { loadAudioFile, extractPeaks, startPlayback, stopPlayback, setVolume } from '../services/audioService'
 import { startHardwareSync, stopHardwareSync, startWithoutAudio } from '../services/hardwareService'
 
@@ -85,6 +134,7 @@ const TIMESCALE_HEIGHT = 120
 
 const timelineStore = useTimelineStore()
 const audioStore = useAudioStore()
+const effectStore = useEffectStore()
 const timescaleCanvasRef = ref<HTMLCanvasElement | null>(null)
 const tracksContainerRef = ref<HTMLElement | null>(null)
 const secInputRef = ref<HTMLInputElement | null>(null)
@@ -337,4 +387,50 @@ onUnmounted(() => {
 
 watch(() => timelineStore.secondsPerPixel, drawTimescale)
 watch(() => timelineStore.timelineOffset, drawTimescale)
+
+// ── inline 編輯軌道名稱 ──────────────────────────────────
+const editingTrackId = ref<string | null>(null)
+const editingName = ref('')
+
+function startEdit(id: string) {
+  const track = timelineStore.tracks.find(t => t.id === id)
+  if (!track) return
+  editingTrackId.value = id
+  editingName.value = track.name
+}
+
+function finishEdit(id: string) {
+  const name = editingName.value.trim()
+  if (name) timelineStore.renameTrack(id, name)
+  editingTrackId.value = null
+}
+
+function cancelEdit() {
+  editingTrackId.value = null
+}
+
+// ── 刪除軌道 Dialog ──────────────────────────────────────
+const showDeleteDialog = ref(false)
+const deleteTargetId = ref<string | null>(null)
+
+function openDeleteDialog() {
+  deleteTargetId.value = null
+  showDeleteDialog.value = true
+}
+
+function confirmDelete() {
+  const id = deleteTargetId.value
+  if (!id) return
+  const idx = timelineStore.tracks.findIndex(t => t.id === id)
+  const toRemove = effectStore.instances
+    .filter(i => i.trackIndex === idx)
+    .map(i => i.id)
+  const toReindex = effectStore.instances
+    .filter(i => i.trackIndex > idx)
+  toRemove.forEach(instanceId => effectStore.removeInstance(instanceId))
+  toReindex.forEach(i => effectStore.updateInstance(i.id, { trackIndex: i.trackIndex - 1 }))
+  timelineStore.removeTrack(id)
+  showDeleteDialog.value = false
+  deleteTargetId.value = null
+}
 </script>
