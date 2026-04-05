@@ -2,6 +2,13 @@
     box-sizing: border-box;
 }
 
+/* 拖動 resize handle 時防止選到文字 */
+.app-wrapper.resizing,
+.app-wrapper.resizing * {
+    user-select: none;
+    cursor: inherit;
+}
+
 body {
     color: white;
     background-color: #222;
@@ -47,6 +54,24 @@ body {
     line-height: 1;
 }
 
+.toolbar button,
+.toolbar label.btn {
+    padding: 5px 12px;
+    background: #2a3a4a;
+    color: #c8dff0;
+    border: 1px solid #3a5068;
+    border-radius: 5px;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.toolbar button:hover,
+.toolbar label.btn:hover {
+    background: #344e63;
+    border-color: #4a6880;
+}
+
 /* legacy alias */
 .menu_bar {
     flex: 0 0 auto;
@@ -54,36 +79,99 @@ body {
     padding: 10px 20px 0 20px;
 }
 
-/* ========== Main 3-column layout (上半：素材庫 | 預覽 | 參數) ========== */
-.app-layout {
-    flex: 0 0 520px;
-    display: grid;
-    grid-template-columns: 250px 1fr 320px;
-    column-gap: 0;
+/* ========== 上半：三欄（素材庫 | 預覽 | 參數） ========== */
+.top-section {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: row;
     overflow: hidden;
+    padding: 12px 16px 0 16px;
+    gap: 0;
+    background: #222;
+}
+
+/* 通用面板外框 */
+.panel {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: #1c1c1c;
+    border-radius: 8px;
+    border: 1px solid #2e2e2e;
 }
 
 .panel-left {
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid #333;
+    flex: 0 0 auto;  /* 寬度由 :style 控制 */
+    margin-right: 0;
 }
 
 .panel-center {
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    flex: 1 1 auto;  /* 剩餘空間自動填滿 */
+    min-width: 0;
     align-items: center;
     justify-content: center;
-    background: #000;
+    background: #111;
+    margin: 0 0;
 }
 
 .panel-right {
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    border-left: 1px solid #333;
+    flex: 0 0 auto;  /* 寬度由 :style 控制 */
+}
+
+/* ========== 可拖動分隔線 ========== */
+.resize-handle {
+    flex: 0 0 auto;
+    background: transparent;
+    transition: background 0.15s;
+    z-index: 10;
+}
+
+.resize-handle--v {
+    width: 8px;
+    cursor: col-resize;
+    margin: 0 2px;
+}
+
+.resize-handle--h {
+    height: 8px;
+    width: 100%;
+    cursor: row-resize;
+    margin: 6px 0 0 0;
+}
+
+.resize-handle--v:hover,
+.resize-handle--v:active {
+    background: #4fb3d644;
+}
+
+.resize-handle--h:hover,
+.resize-handle--h:active {
+    background: #4fb3d644;
+}
+
+/* 分隔線中間的視覺提示點 */
+.resize-handle--v::after {
+    content: '';
+    display: block;
+    width: 2px;
+    height: 40px;
+    background: #3a3a3a;
+    border-radius: 1px;
+    margin: auto;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 3px;
+}
+
+.resize-handle--h::after {
+    content: '';
+    display: block;
+    height: 2px;
+    width: 40px;
+    background: #3a3a3a;
+    border-radius: 1px;
+    margin: 3px auto 0;
 }
 
 /* ========== Timeline 下半區塊 ========== */
@@ -91,7 +179,10 @@ body {
     flex: 1 1 auto;
     overflow: hidden;
     min-height: 0;
-    border-top: 1px solid #333;
+    margin: 0 16px 10px 16px;
+    background: #1c1c1c;
+    border-radius: 8px;
+    border: 1px solid #2e2e2e;
 }
 
 /* legacy alias */
@@ -112,15 +203,13 @@ body {
 
 /* 左側素材庫 */
 .Asset_library {
-    background: #1c1c1c;
-    border-right: 1px solid #333;
+    background: transparent;
     padding: 10px;
     display: flex;
     flex-direction: column;
-
     height: 100%;
     max-height: 100%;
-    overflow-y: hidden;  
+    overflow-y: hidden;
 }
 
 .Asset_library_header {
@@ -151,6 +240,7 @@ body {
     /* v-show controls visibility; always use grid when visible */
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
     gap: 6px;
     overflow-y: auto;
     flex: 1 1 auto;
@@ -221,17 +311,155 @@ body {
 
 .add-custom-btn {
     grid-column: 1 / -1;
-    padding: 8px 0;
+    height: 28px;
+    padding: 0 8px;
     border-radius: 6px;
     border: 1px dashed #486a8c;
     background: transparent;
     color: #88c0d0;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .add-custom-btn:hover {
     background: #1f3448;
+}
+
+/* ── 新增效果 Dialog ─────────────────────────── */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog-box {
+  background: #1a2332;
+  border: 1px solid #3a5068;
+  border-radius: 10px;
+  padding: 20px 24px;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dialog-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #d0eaff;
+  margin-bottom: 4px;
+}
+
+.dialog-label {
+  font-size: 12px;
+  color: #7aafcc;
+}
+
+.dialog-input,
+.dialog-select {
+  background: #0d1117;
+  border: 1px solid #3a5068;
+  border-radius: 5px;
+  color: #d0eaff;
+  font-size: 13px;
+  padding: 6px 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dialog-input:focus,
+.dialog-select:focus {
+  outline: none;
+  border-color: #4fb3d6;
+}
+
+.dialog-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #aac8de;
+  cursor: pointer;
+  margin-top: 2px;
+}
+
+.dialog-error {
+  font-size: 12px;
+  color: #ff7070;
+  margin-top: 2px;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.dialog-btn {
+  padding: 6px 16px;
+  border-radius: 5px;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.dialog-btn--cancel {
+  background: #2a3a4a;
+  color: #aac8de;
+}
+
+.dialog-btn--cancel:hover {
+  background: #334455;
+}
+
+.dialog-btn--confirm {
+  background: #2e6a96;
+  color: #fff;
+}
+
+.dialog-btn--confirm:hover {
+  background: #3a80b5;
+}
+
+/* ── 儲存為自定義按鈕（ParameterPanel） ─────────── */
+.save-custom-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 7px 0;
+  border-radius: 6px;
+  border: 1px dashed #486a8c;
+  background: transparent;
+  color: #88c0d0;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.save-custom-btn:hover {
+  background: #1f3448;
+}
+
+.delete-custom-btn {
+  width: 100%;
+  margin-top: 4px;
+  padding: 7px 0;
+  border-radius: 6px;
+  border: 1px dashed #6a3030;
+  background: transparent;
+  color: #c07070;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.delete-custom-btn:hover {
+  background: #3a1f1f;
 }
 
 .empty {
@@ -247,9 +475,7 @@ body {
 
 /* 右側參數 / 控制面板外框 */
 .param_panel {
-  background: #1c1c1c;
-  border-left: 1px solid #333;
-  border-radius: 8px;
+  background: transparent;
   padding: 10px 12px;
   color: #eee;
   font-size: 14px;
@@ -258,7 +484,18 @@ body {
   max-height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;   /* 內容多時可捲動 */
+  overflow-x: hidden;
+}
+
+.param_panel h3 {
+  flex: 0 0 auto;
+  font-size: 14px;
+  font-weight: bold;
+  color: #dff6ff;
+  margin: 0 0 10px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #333;
 }
 
 /* 上方 tab 列：參數 / 控制 */
@@ -290,17 +527,34 @@ body {
 .param_body {
   flex: 1 1 auto;
   overflow-y: auto;
-  display: none;
-}
-
-.param_body.active {
-  display: block;
+  overflow-x: hidden;
+  /* v-show 控制，不用 display:none */
 }
 
 /* 什麼都沒選時的提示文字 */
 .param_empty {
   font-size: 13px;
   color: #aaa;
+  padding: 8px 0;
+}
+
+/* 選中效果的標題 */
+.param_effect_title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #dff6ff;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #333;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.param_source_hint {
+  font-size: 11px;
+  font-weight: normal;
+  color: #6a9ab0;
 }
 
 /* 主要參數內容 */
@@ -331,6 +585,30 @@ body {
 
 .param_label {
   font-size: 14px;
+}
+
+/* 快速選色 */
+.color_picker_group .param_label_row {
+  margin-bottom: 0;
+}
+
+.color_preview {
+  width: 36px;
+  height: 28px;
+  padding: 2px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+}
+
+.color_preview::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color_preview::-webkit-color-swatch {
+  border: none;
+  border-radius: 3px;
 }
 
 /* label + (number + range) */
@@ -634,7 +912,7 @@ body {
 
 /* ========== ExtraParamsGroup ========== */
 .extra_params {
-    display: none; /* hidden when not applicable */
+    display: block; /* v-if 已經控制顯示，CSS 不應再隱藏 */
 }
 
 .extra_params label {
@@ -651,8 +929,9 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background: #1a1a1a;
+    background: transparent;
     min-height: 0;
+    border-radius: 8px;
 }
 
 .playback_controls {
@@ -665,16 +944,179 @@ body {
     border-bottom: 1px solid #333;
 }
 
+.load-audio-btn {
+    background: #2b3946;
+    color: #e6eef8;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    border: 1px solid #3b4a57;
+}
+
+.load-audio-btn:hover {
+    background: #3b4a57;
+}
+
+.time-display {
+    font-family: monospace;
+    font-size: 14px;
+    color: #dff6ff;
+    min-width: 90px;
+}
+
+.audio-name {
+    font-size: 12px;
+    color: #88c0d0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 200px;
+}
+
+.jump-label {
+    font-size: 13px;
+    color: #dff6ff;
+    white-space: nowrap;
+}
+
+.jump-colon {
+    color: #aaa;
+}
+
+.jump-input {
+    width: 48px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: 1px solid #3b4a57;
+    background: #1f2a36;
+    color: #e6eef8;
+    text-align: center;
+    font-size: 13px;
+    -moz-appearance: textfield;
+}
+
+.jump-input::-webkit-inner-spin-button,
+.jump-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+.volume-icon {
+    font-size: 13px;
+    color: #dff6ff;
+    white-space: nowrap;
+}
+
+.volume-slider {
+    width: 100px;
+    cursor: pointer;
+    accent-color: #4fb3d6;
+}
+
+.volume-value {
+    font-size: 13px;
+    color: #dff6ff;
+    min-width: 38px;
+}
+
+/* 右上角新增/刪除按鈕群 */
+.track-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* 軌道列（label + canvas 的容器） */
+.track-row {
+  display: flex;
+  height: 40px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+/* 左側軌道名稱欄 */
+.track-label {
+  width: 72px;
+  flex-shrink: 0;
+  background: #222;
+  border-right: 1px solid #333;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  overflow: hidden;
+}
+
+.track-label span {
+  font-size: 11px;
+  color: #888;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.track-label span:hover {
+  color: #ccc;
+}
+
+/* Inline 編輯輸入框 */
+.track-name-input {
+  width: 100%;
+  font-size: 11px;
+  background: #1a2332;
+  border: 1px solid #4fb3d6;
+  border-radius: 3px;
+  color: #d0eaff;
+  padding: 2px 4px;
+  outline: none;
+}
+
+/* 刪除 dialog 軌道清單 */
+.track-delete-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 14px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.track-delete-item {
+  padding: 7px 12px;
+  border-radius: 5px;
+  border: 1px solid #2e3e50;
+  background: #0f1c2a;
+  color: #aac8de;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.track-delete-item:hover {
+  background: #1a2a3a;
+}
+
+.track-delete-item.selected {
+  border-color: #ff5555;
+  background: #2a1010;
+  color: #ff9090;
+}
+
 .timescale_canvas {
-    flex: 0 0 30px;
+    flex: 0 0 120px;
     display: block;
     width: 100%;
     /* override global canvas rule */
     border: none !important;
     padding: 0 !important;
     border-radius: 0 !important;
-    background: #444 !important;
-    max-height: 30px;
+    background: #0d1117 !important;
+    max-height: 120px;
+    cursor: grab;
+}
+
+.timescale_canvas:active {
+    cursor: grabbing;
 }
 
 .tracks_container {
@@ -807,6 +1249,11 @@ button:disabled {
   text-align: right;
 }
 
+.canvas-container {
+    width: 100% !important;
+}
+
 .canvas-container .upper-canvas {
     background: transparent !important;
+    /* 不覆蓋 width，讓 Fabric.js 自己管理 canvas buffer 大小，避免點擊座標偏移 */
 }
