@@ -28,10 +28,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onUnmounted } from 'vue'
+import { ref, computed, watch, watchEffect, onUnmounted } from 'vue'
 import { useEffectStore } from '../stores/effectStore'
 import { useHardwareStore } from '../stores/hardwareStore'
-import { useActiveEffect } from '../composables/useActiveEffect'
+import { useTimelineStore } from '../stores/timelineStore'
 import { instanceToEffectData } from '../services/serializer'
 import type { EffectData } from '../types'
 
@@ -39,6 +39,7 @@ type PreviewEl = { updateData: (data: EffectData) => void }
 
 const effectStore = useEffectStore()
 const hardwareStore = useHardwareStore()
+const timelineStore = useTimelineStore()
 
 // ── Single-preview (smart switch) ────────────────────────────
 const isSinglePreview = computed(() => !!effectStore.previewDefinitionName)
@@ -64,11 +65,10 @@ const singleEffectData = computed<EffectData | null>(() => {
   return null
 })
 
-watch(singleEffectData, data => {
-  if (data && singleRef.value?.updateData) {
-    singleRef.value.updateData(data)
-  }
-}, { deep: true })
+watchEffect(() => {
+  const data = singleEffectData.value
+  if (data && singleRef.value?.updateData) singleRef.value.updateData(data)
+})
 
 // ── Multi-Lux preview (timeline driven) ──────────────────────
 const previewRefs = ref<(PreviewEl | null)[]>([])
@@ -79,19 +79,27 @@ const activeInstanceTrack = computed(() => {
   return inst ? inst.trackIndex : null
 })
 
-// Build one computed effectData per unit
-const perUnitEffectData = computed(() =>
-  hardwareStore.units.map(unit =>
-    useActiveEffect(() => unit.trackIndex).value
-  )
-)
+// Reset refs array when unit count changes to avoid index drift (Bug 3)
+watch(() => hardwareStore.units.length, () => {
+  previewRefs.value = []
+})
 
-watch(perUnitEffectData, dataArr => {
-  dataArr.forEach((data, i) => {
+// Drive each Lux preview from globalTime + effectStore (Bug 1)
+watchEffect(() => {
+  hardwareStore.units.forEach((unit, i) => {
     const el = previewRefs.value[i]
-    if (data && el?.updateData) el.updateData(data)
+    if (!el?.updateData || unit.trackIndex === null) return
+    const time = timelineStore.globalTime
+    const instance = effectStore.instances.find(
+      inst => inst.trackIndex === unit.trackIndex &&
+               inst.startTime <= time && time < inst.startTime + inst.duration
+    )
+    if (!instance) return
+    const def = effectStore.getDefinition(instance.definitionName)
+    if (!def) return
+    el.updateData(instanceToEffectData(instance, def.mode))
   })
-}, { deep: true })
+})
 
 onUnmounted(() => {
   previewRefs.value = []
