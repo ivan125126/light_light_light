@@ -67,8 +67,12 @@ watchEffect(() => {
     if (!instance) return
     const def = effectStore.getDefinition(instance.definitionName)
     if (!def) return
-    el.updateData(instanceToEffectData(instance, def.mode))
-    if (liveHardware.value) pushLiveEffect(instanceToEffectData(instance, def.mode))
+    const effectData = instanceToEffectData(instance, def.mode)
+    el.updateData(effectData)
+    // Note: pushLiveEffect broadcasts to all hardware — last unit's effect wins.
+    // This matches V2 live-mode behavior (broadcast test mode).
+    // Per-unit addressing requires server-side changes.
+    if (liveHardware.value) pushLiveEffect(effectData)
   })
 })
 
