@@ -5,6 +5,7 @@
       <span>ID</span>
       <span>狀態</span>
       <span>當前效果</span>
+      <span>對應 Track</span>
     </div>
 
     <!-- lux 列表 -->
@@ -18,7 +19,19 @@
         class="state_text"
         :class="unit.connected ? 'connected' : 'disconnected'"
       >{{ unit.connected ? '已連線' : '斷線' }}</span>
-      <span class="time_text">{{ unit.modeName }}</span>
+      <span class="time_text">{{ currentEffectName(unit) }}</span>
+      <select
+        class="track_select"
+        :value="unit.trackIndex ?? ''"
+        @change="onTrackChange(unit.id, $event)"
+      >
+        <option value="">未對應</option>
+        <option
+          v-for="(track, i) in timelineStore.tracks"
+          :key="track.id"
+          :value="i"
+        >{{ track.name }}</option>
+      </select>
     </div>
 
     <!-- 無 lux 時的空狀態提示 -->
@@ -41,9 +54,14 @@
 <script setup lang="ts">
 import { watch, onUnmounted } from 'vue'
 import { useHardwareStore } from '../stores/hardwareStore'
+import { useTimelineStore } from '../stores/timelineStore'
+import { useEffectStore } from '../stores/effectStore'
+import type { LuxUnit } from '../types'
 
 const props = defineProps<{ active: boolean }>()
 const store = useHardwareStore()
+const timelineStore = useTimelineStore()
+const effectStore = useEffectStore()
 
 watch(
   () => props.active,
@@ -55,6 +73,22 @@ watch(
 )
 
 onUnmounted(() => store.stopPolling())
+
+function onTrackChange(unitId: number, event: Event) {
+  const val = (event.target as HTMLSelectElement).value
+  store.setTrackIndex(unitId, val === '' ? null : Number(val))
+}
+
+function currentEffectName(unit: LuxUnit): string {
+  if (unit.trackIndex === null) return '--'
+  const time = timelineStore.globalTime
+  const instance = effectStore.instances.find(
+    i => i.trackIndex === unit.trackIndex! &&
+         i.startTime <= time &&
+         time < i.startTime + i.duration
+  )
+  return instance?.definitionName ?? '--'
+}
 </script>
 
 <style scoped>
@@ -109,10 +143,25 @@ onUnmounted(() => store.stopPolling())
   background: #4a2828;
 }
 
-/* Override to 3 columns (ID | 狀態 | 當前效果), no Mode/Rst */
+/* 4 columns: ID | 狀態 | 當前效果 | 對應 Track */
 .control_table_header,
 .control_row {
   display: grid;
-  grid-template-columns: 30px 60px 1fr;
+  grid-template-columns: 30px 60px 1fr 1fr;
+}
+
+.track_select {
+  background: #1e2d3a;
+  color: #c8dff0;
+  border: 1px solid #3a5068;
+  border-radius: 4px;
+  font-size: 12px;
+  padding: 2px 4px;
+  cursor: pointer;
+}
+
+.track_select:focus {
+  outline: none;
+  border-color: #5a8ab0;
 }
 </style>
