@@ -124,6 +124,7 @@ export interface ProjectFile {
   name: string
   musicFile: string | null
   tracks: ProjectTrack[]
+  luxUnits?: Pick<LuxUnit, 'id' | 'trackIndex'>[]  // persisted mapping, no runtime state
 }
 
 // Legacy project file v2.0 (flat instances array, for backwards compatibility)
@@ -140,7 +141,7 @@ export interface ProjectFileV2 {
 export interface LuxUnit {
   id: number          // 1-based display id
   connected: boolean  // last server timestamp diff < 1000ms
-  modeName: string    // ESP32-reported effect name, or "--"
+  trackIndex: number | null  // which timeline track this Lux maps to (null = unmapped)
 }
 
 // Serialized effect library file (effect_library.json)
