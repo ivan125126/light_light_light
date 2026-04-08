@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest'
-import { effectDataToHardwareString, instanceToEffectData, instanceToHardwareString } from '../services/serializer'
-import type { EffectData, EffectInstance } from '../types'
+import { effectDataToHardwareString, instanceToEffectData, instanceToHardwareString, tracksToEffectMap } from '../services/serializer'
+import type { EffectData, EffectInstance, EffectDefinition, ProjectTrack } from '../types'
 import { defaultEffectParams } from '../constants/effectConfig'
 
 // Helper: all-zero channel
@@ -135,5 +135,97 @@ describe('instanceToHardwareString', () => {
     expect(instanceToHardwareString(instance, 'MODES_PLAIN')).toBe(
       'M1S100D500X0,0Y0,0Z0,0U0,0V0,0W0,0P0,0;'
     )
+  })
+})
+
+// ---------------------------------------------------------------------------
+// tracksToEffectMap — gap filling
+// ---------------------------------------------------------------------------
+
+const zeroParams = () => ({
+  XH: zeroChannel(), XS: zeroChannel(), XV: zeroChannel(),
+  YH: zeroChannel(), YS: zeroChannel(), YV: zeroChannel(),
+  extra: { bladeCount: 0, length: 0, curvature: 0, boxsize: 0, space: 0, reverse: 0, positionFix: 0 },
+})
+
+const plainDef: EffectDefinition = {
+  name: '純色', mode: 'MODES_PLAIN', isBuiltIn: true,
+  defaultParams: zeroParams(), extraParamSchema: {},
+}
+
+function makeTrack(effects: { startTime: number; duration: number }[]): ProjectTrack {
+  return {
+    id: 'track-0', name: 'Track 0', deviceIndices: [0],
+    effects: effects.map((e, i) => ({
+      id: `e${i}`, definitionName: '純色',
+      startTime: e.startTime, duration: e.duration,
+      params: zeroParams(),
+    })),
+  }
+}
+
+describe('tracksToEffectMap — gap filling', () => {
+  it('no totalDuration: no tail CLEAR, no leading CLEAR if effect starts at 0', () => {
+    const track = makeTrack([{ startTime: 0, duration: 5000 }])
+    const result = tracksToEffectMap([track], [plainDef])
+    expect(result[0].length).toBe(1)
+    expect(result[0][0].mode).toBe('MODES_PLAIN')
+  })
+
+  it('with totalDuration: inserts CLEAR before first effect', () => {
+    const track = makeTrack([{ startTime: 3000, duration: 2000 }])
+    const result = tracksToEffectMap([track], [plainDef], 10000)
+    // Expect: CLEAR(0→3000), PLAIN(3000→5000), CLEAR(5000→10000)
+    expect(result[0].length).toBe(3)
+    expect(result[0][0]).toMatchObject({ mode: 'MODES_CLEAR', start_time: 0, duration: 3000 })
+    expect(result[0][1]).toMatchObject({ mode: 'MODES_PLAIN', start_time: 3000, duration: 2000 })
+    expect(result[0][2]).toMatchObject({ mode: 'MODES_CLEAR', start_time: 5000, duration: 5000 })
+  })
+
+  it('with totalDuration: inserts CLEAR between two effects', () => {
+    const track = makeTrack([
+      { startTime: 0, duration: 2000 },
+      { startTime: 5000, duration: 2000 },
+    ])
+    const result = tracksToEffectMap([track], [plainDef], 10000)
+    // Expect: PLAIN(0), CLEAR(2000→5000), PLAIN(5000), CLEAR(7000→10000)
+    expect(result[0].length).toBe(4)
+    expect(result[0][1]).toMatchObject({ mode: 'MODES_CLEAR', start_time: 2000, duration: 3000 })
+    expect(result[0][3]).toMatchObject({ mode: 'MODES_CLEAR', start_time: 7000, duration: 3000 })
+  })
+
+  it('with totalDuration: inserts tail CLEAR after last effect', () => {
+    const track = makeTrack([{ startTime: 0, duration: 5000 }])
+    const result = tracksToEffectMap([track], [plainDef], 10000)
+    expect(result[0].length).toBe(2)
+    expect(result[0][1]).toMatchObject({ mode: 'MODES_CLEAR', start_time: 5000, duration: 5000 })
+  })
+
+  it('with totalDuration: no tail CLEAR if last effect reaches totalDuration', () => {
+    const track = makeTrack([{ startTime: 0, duration: 10000 }])
+    const result = tracksToEffectMap([track], [plainDef], 10000)
+    expect(result[0].length).toBe(1)
+    expect(result[0][0].mode).toBe('MODES_PLAIN')
+  })
+
+  it('empty track with totalDuration: single CLEAR covering full duration', () => {
+    const track: ProjectTrack = {
+      id: 'track-0', name: 'Track 0', deviceIndices: [0], effects: [],
+    }
+    const result = tracksToEffectMap([track], [plainDef], 10000)
+    expect(result[0].length).toBe(1)
+    expect(result[0][0]).toMatchObject({ mode: 'MODES_CLEAR', start_time: 0, duration: 10000 })
+  })
+
+  it('CLEAR blocks have all-zero HSV channels and p1–p4', () => {
+    const track = makeTrack([{ startTime: 2000, duration: 1000 }])
+    const result = tracksToEffectMap([track], [plainDef], 5000)
+    const clear = result[0][0]  // leading CLEAR
+    expect(clear.mode).toBe('MODES_CLEAR')
+    expect(clear.XH).toEqual({ func: 0, range: 0, lower: 0, p1: 0, p2: 0 })
+    expect(clear.p1).toBe(0)
+    expect(clear.p2).toBe(0)
+    expect(clear.p3).toBe(0)
+    expect(clear.p4).toBe(0)
   })
 })

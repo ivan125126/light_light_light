@@ -1,4 +1,4 @@
-import type { EffectData, EffectInstance, EffectMode } from '../types'
+import type { EffectData, EffectDefinition, EffectInstance, EffectMode, HsvChannel, ProjectTrack } from '../types'
 import { MODE_ENUM } from '../constants/effectConfig'
 
 /** Linearly maps `value` from [min, max] to [0, 255]. Returns 0 if min === max. */
@@ -99,4 +99,90 @@ export function effectDataToHardwareString(data: EffectData): string {
  */
 export function instanceToHardwareString(instance: EffectInstance, mode: EffectMode): string {
   return effectDataToHardwareString(instanceToEffectData(instance, mode))
+}
+
+/**
+ * Converts project tracks to the server EffectMap format: EffectData[][].
+ * Outer index = lux device index. One track can map to multiple devices.
+ * If multiple tracks share a device, their effects are merged and sorted by startTime.
+ *
+ * Empty gaps between effects — including before the first effect and after the last
+ * effect (up to totalDuration) — are filled with MODES_CLEAR blocks.
+ *
+ * definitions: the full list of EffectDefinition (to look up mode by definitionName)
+ * totalDuration: optional, in milliseconds. If provided, a CLEAR block is inserted
+ *   from the end of the last effect to totalDuration.
+ */
+export function tracksToEffectMap(
+  tracks: ProjectTrack[],
+  definitions: EffectDefinition[],
+  totalDuration?: number
+): EffectData[][] {
+  const defMap = new Map(definitions.map(d => [d.name, d]))
+
+  // Find highest device index across all tracks
+  let maxDeviceIdx = -1
+  for (const track of tracks) {
+    for (const idx of track.deviceIndices) {
+      if (idx > maxDeviceIdx) maxDeviceIdx = idx
+    }
+  }
+  if (maxDeviceIdx < 0) return []
+
+  const result: EffectData[][] = Array.from({ length: maxDeviceIdx + 1 }, () => [])
+
+  for (const track of tracks) {
+    for (const effect of track.effects) {
+      const def = defMap.get(effect.definitionName)
+      if (!def) continue
+
+      // Reuse instanceToEffectData — trackIndex is not used inside it
+      const instance: EffectInstance = {
+        id: effect.id,
+        definitionName: effect.definitionName,
+        trackIndex: 0,
+        startTime: effect.startTime,
+        duration: effect.duration,
+        params: effect.params,
+      }
+      const effectData = instanceToEffectData(instance, def.mode)
+
+      for (const deviceIdx of track.deviceIndices) {
+        result[deviceIdx].push(effectData)
+      }
+    }
+  }
+
+  const zeroCh = (): HsvChannel => ({ func: 0, range: 0, lower: 0, p1: 0, p2: 0 })
+  const makeClear = (start: number, duration: number): EffectData => ({
+    mode: 'MODES_CLEAR',
+    start_time: start,
+    duration,
+    XH: zeroCh(), XS: zeroCh(), XV: zeroCh(),
+    YH: zeroCh(), YS: zeroCh(), YV: zeroCh(),
+    p1: 0, p2: 0, p3: 0, p4: 0,
+  })
+
+  // Fill gaps per device
+  for (let i = 0; i < result.length; i++) {
+    const effects = result[i].sort((a, b) => a.start_time - b.start_time)
+    const filled: EffectData[] = []
+    let cursor = 0
+
+    for (const effect of effects) {
+      if (effect.start_time > cursor) {
+        filled.push(makeClear(cursor, effect.start_time - cursor))
+      }
+      filled.push(effect)
+      cursor = effect.start_time + effect.duration
+    }
+
+    if (totalDuration != null && cursor < totalDuration) {
+      filled.push(makeClear(cursor, totalDuration - cursor))
+    }
+
+    result[i] = filled
+  }
+
+  return result
 }
