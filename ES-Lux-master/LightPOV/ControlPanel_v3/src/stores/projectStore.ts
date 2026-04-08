@@ -140,8 +140,13 @@ export const useProjectStore = defineStore('project', {
 
     async pushToServer(): Promise<void> {
       const effectStore = useEffectStore()
+      const timelineStore = useTimelineStore()
       const projectFile = this.toProjectFile()
-      const effectMap = tracksToEffectMap(projectFile.tracks, effectStore.definitions)
+      const effectMap = tracksToEffectMap(
+        projectFile.tracks,
+        effectStore.definitions,
+        timelineStore.totalDuration
+      )
       await fetch('/push_effect_map', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
