@@ -23,13 +23,14 @@ describe('useActiveEffect', () => {
     expect(effectData.value).toBeNull()
   })
 
-  it('returns null when no effect is active at current time', () => {
+  it('returns CLEAR when no effect is active at current time', () => {
     const effectStore = useEffectStore()
     const timelineStore = useTimelineStore()
     timelineStore.setTime(5000)
     effectStore.addInstance('純色', 0, 3000, 0)  // track 0, 0–3000ms
     const effectData = useActiveEffect(() => 0)
-    expect(effectData.value).toBeNull()  // 5000 > 3000
+    expect(effectData.value).not.toBeNull()
+    expect(effectData.value?.mode).toBe('MODES_CLEAR')
   })
 
   it('returns EffectData when an effect covers current time', () => {
@@ -42,12 +43,13 @@ describe('useActiveEffect', () => {
     expect(effectData.value?.mode).toBe('MODES_PLAIN')
   })
 
-  it('returns null when trackIndex does not match any instance', () => {
+  it('returns CLEAR when trackIndex has no instances', () => {
     const effectStore = useEffectStore()
     const timelineStore = useTimelineStore()
     timelineStore.setTime(1000)
-    effectStore.addInstance('純色', 0, 3000, 0)  // track 0
-    const effectData = useActiveEffect(() => 1)  // asking for track 1
-    expect(effectData.value).toBeNull()
+    effectStore.addInstance('純色', 0, 3000, 0)  // only track 0
+    const effectData = useActiveEffect(() => 1)   // track 1 has nothing
+    expect(effectData.value).not.toBeNull()
+    expect(effectData.value?.mode).toBe('MODES_CLEAR')
   })
 })
