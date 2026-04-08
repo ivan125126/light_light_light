@@ -1,12 +1,5 @@
 <template>
   <div class="performance_preview">
-    <div class="preview_toolbar">
-      <label class="live_hw_label">
-        <input type="checkbox" v-model="liveHardware" class="live_hw_check" />
-        推播硬體
-      </label>
-    </div>
-
     <div class="preview_multi">
       <div
         v-for="(unit, i) in hardwareStore.units"
@@ -42,41 +35,84 @@ import type { EffectData, LuxUnit } from '../types'
 
 type PreviewEl = { updateData: (data: EffectData) => void }
 
+const ZERO_CH = { func: 0 as const, range: 0, lower: 0, p1: 0, p2: 0 }
+const CLEAR_EFFECT_DATA: EffectData = {
+  mode: 'MODES_CLEAR', start_time: 0, duration: 0,
+  XH: ZERO_CH, XS: ZERO_CH, XV: ZERO_CH,
+  YH: ZERO_CH, YS: ZERO_CH, YV: ZERO_CH,
+  p1: 0, p2: 0, p3: 0, p4: 0,
+}
+
 const effectStore = useEffectStore()
 const hardwareStore = useHardwareStore()
 const timelineStore = useTimelineStore()
-const liveHardware = ref(false)
 const previewRefs = ref<(PreviewEl | null)[]>([])
 
 // Reset refs array when unit count changes to avoid index drift
 watch(() => hardwareStore.units.length, () => {
   previewRefs.value = []
+  activeInstanceIds.value = []
 })
 
-// Drive each Lux preview from globalTime + effectStore (avoids reactivity bug
-// of calling composables inside computed)
+// 記錄每個 slot 目前播放的 instance id
+const activeInstanceIds = ref<(string | null)[]>([])
+
+// Effect 1: 偵測 globalTime 跨越效果邊界 → 只在 instance 切換時呼叫 updateData
 watchEffect(() => {
   hardwareStore.units.forEach((unit, i) => {
-    const el = previewRefs.value[i]
-    if (!el?.updateData || unit.trackIndex === null) return
+    if (unit.trackIndex === null) {
+      activeInstanceIds.value[i] = null
+      return
+    }
     const time = timelineStore.globalTime
     const instance = effectStore.instances.find(
       inst => inst.trackIndex === unit.trackIndex &&
                inst.startTime <= time && time < inst.startTime + inst.duration
-    )
-    if (!instance) return
+    ) ?? null
+
+    const newId = instance?.id ?? null
+    if (newId === activeInstanceIds.value[i]) return  // 同一個 instance，RAF 自己在跑
+
+    activeInstanceIds.value[i] = newId
+    const el = previewRefs.value[i]
+    if (!el?.updateData) return
+    if (!instance) {
+      el.updateData(CLEAR_EFFECT_DATA)
+      if (hardwareStore.liveHardware) pushLiveEffect(CLEAR_EFFECT_DATA)
+      return
+    }
     const def = effectStore.getDefinition(instance.definitionName)
-    if (!def) return
-    const effectData = instanceToEffectData(instance, def.mode)
+    const effectData = def ? instanceToEffectData(instance, def.mode) : CLEAR_EFFECT_DATA
     el.updateData(effectData)
     // Note: pushLiveEffect broadcasts to all hardware — last unit's effect wins.
     // This matches V2 live-mode behavior (broadcast test mode).
     // Per-unit addressing requires server-side changes.
-    if (liveHardware.value) pushLiveEffect(effectData)
+    if (hardwareStore.liveHardware) pushLiveEffect(effectData)
   })
 })
 
-watch(liveHardware, val => {
+// Effect 2: 偵測 params 變更（ParameterPanel 編輯時）→ 對目前活躍的 instance 重新計算
+watch(
+  () => effectStore.instances,
+  (instances) => {
+    hardwareStore.units.forEach((unit, i) => {
+      const id = activeInstanceIds.value[i]
+      if (!id) return
+      const instance = instances.find(inst => inst.id === id)
+      if (!instance) return
+      const el = previewRefs.value[i]
+      if (!el?.updateData) return
+      const def = effectStore.getDefinition(instance.definitionName)
+      if (!def) return
+      const effectData = instanceToEffectData(instance, def.mode)
+      el.updateData(effectData)
+      if (hardwareStore.liveHardware) pushLiveEffect(effectData)
+    })
+  },
+  { deep: true }
+)
+
+watch(() => hardwareStore.liveHardware, val => {
   if (!val) stopLiveEffect()
 })
 
@@ -92,7 +128,7 @@ function unitEffectName(unit: LuxUnit): string {
 }
 
 onUnmounted(() => {
-  if (liveHardware.value) stopLiveEffect()
+  if (hardwareStore.liveHardware) stopLiveEffect()
   previewRefs.value = []
 })
 </script>

@@ -37,9 +37,22 @@ import type { EffectData } from '../types'
 
 type PreviewEl = { updateData: (data: EffectData) => void }
 
+const ZERO_CH = { func: 0 as const, range: 0, lower: 0, p1: 0, p2: 0 }
+const CLEAR_EFFECT_DATA: EffectData = {
+  mode: 'MODES_CLEAR', start_time: 0, duration: 0,
+  XH: ZERO_CH, XS: ZERO_CH, XV: ZERO_CH,
+  YH: ZERO_CH, YS: ZERO_CH, YV: ZERO_CH,
+  p1: 0, p2: 0, p3: 0, p4: 0,
+}
+
 const effectStore = useEffectStore()
 const hardwareStore = useHardwareStore()
 const timelineStore = useTimelineStore()
+
+// 播放時自動離開單一效果預覽，切換回多 Lux 模式
+watch(() => timelineStore.isPlaying, playing => {
+  if (playing) effectStore.setPreviewDefinition(null)
+})
 
 // ── Single-preview (smart switch) ────────────────────────────
 const isSinglePreview = computed(() => !!effectStore.previewDefinitionName)
@@ -79,27 +92,58 @@ const activeInstanceTrack = computed(() => {
   return inst ? inst.trackIndex : null
 })
 
-// Reset refs array when unit count changes to avoid index drift (Bug 3)
+// Reset refs array when unit count changes to avoid index drift
 watch(() => hardwareStore.units.length, () => {
   previewRefs.value = []
+  activeInstanceIds.value = []
 })
 
-// Drive each Lux preview from globalTime + effectStore (Bug 1)
+// 記錄每個 slot 目前播放的 instance id
+const activeInstanceIds = ref<(string | null)[]>([])
+
+// Effect 1: 偵測 globalTime 跨越效果邊界 → 只在 instance 切換時呼叫 updateData
+// watchEffect 每 16ms 跑一次，但 updateData 只在 instance.id 變化時才呼叫
 watchEffect(() => {
   hardwareStore.units.forEach((unit, i) => {
-    const el = previewRefs.value[i]
-    if (!el?.updateData || unit.trackIndex === null) return
+    if (unit.trackIndex === null) {
+      activeInstanceIds.value[i] = null
+      return
+    }
     const time = timelineStore.globalTime
     const instance = effectStore.instances.find(
       inst => inst.trackIndex === unit.trackIndex &&
                inst.startTime <= time && time < inst.startTime + inst.duration
-    )
-    if (!instance) return
+    ) ?? null
+
+    const newId = instance?.id ?? null
+    if (newId === activeInstanceIds.value[i]) return  // 同一個 instance，RAF 自己在跑
+
+    activeInstanceIds.value[i] = newId
+    const el = previewRefs.value[i]
+    if (!el?.updateData) return
+    if (!instance) { el.updateData(CLEAR_EFFECT_DATA); return }
     const def = effectStore.getDefinition(instance.definitionName)
-    if (!def) return
-    el.updateData(instanceToEffectData(instance, def.mode))
+    el.updateData(def ? instanceToEffectData(instance, def.mode) : CLEAR_EFFECT_DATA)
   })
 })
+
+// Effect 2: 偵測 params 變更（ParameterPanel 編輯時）→ 對目前活躍的 instance 重新計算
+watch(
+  () => effectStore.instances,
+  (instances) => {
+    hardwareStore.units.forEach((unit, i) => {
+      const id = activeInstanceIds.value[i]
+      if (!id) return
+      const instance = instances.find(inst => inst.id === id)
+      if (!instance) return
+      const el = previewRefs.value[i]
+      if (!el?.updateData) return
+      const def = effectStore.getDefinition(instance.definitionName)
+      if (def) el.updateData(instanceToEffectData(instance, def.mode))
+    })
+  },
+  { deep: true }
+)
 
 onUnmounted(() => {
   previewRefs.value = []
