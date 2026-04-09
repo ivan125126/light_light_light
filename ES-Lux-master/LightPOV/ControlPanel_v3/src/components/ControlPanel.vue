@@ -18,7 +18,12 @@
       <span
         class="state_text"
         :class="unit.connected ? 'connected' : 'disconnected'"
-      >{{ unit.connected ? '已連線' : '斷線' }}</span>
+      >
+        {{ unit.connected ? '已連線' : '斷線' }}
+        <span v-if="!unit.connected && unit.lastSeenMs > 0" class="last_seen">
+          {{ secondsSince(unit.lastSeenMs) }}s
+        </span>
+      </span>
       <span class="time_text">{{ currentEffectName(unit) }}</span>
       <select
         class="track_select"
@@ -77,6 +82,10 @@ onUnmounted(() => store.stopPolling())
 function onTrackChange(unitId: number, event: Event) {
   const val = (event.target as HTMLSelectElement).value
   store.setTrackIndex(unitId, val === '' ? null : Number(val))
+}
+
+function secondsSince(ms: number): number {
+  return Math.floor((Date.now() - ms) / 1000)
 }
 
 function currentEffectName(unit: LuxUnit): string {
@@ -148,6 +157,12 @@ function currentEffectName(unit: LuxUnit): string {
 .control_row {
   display: grid;
   grid-template-columns: 30px 60px 1fr 1fr;
+}
+
+.last_seen {
+  font-size: 11px;
+  color: #888;
+  margin-left: 4px;
 }
 
 .track_select {

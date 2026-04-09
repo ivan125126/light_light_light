@@ -141,6 +141,7 @@ export interface ProjectFileV2 {
 export interface LuxUnit {
   id: number          // 1-based display id
   connected: boolean  // last server timestamp diff < 1000ms
+  lastSeenMs: number  // raw timestamp (ms) from /get_stat, 0 if never seen
   trackIndex: number | null  // which timeline track this Lux maps to (null = unmapped)
 }
 

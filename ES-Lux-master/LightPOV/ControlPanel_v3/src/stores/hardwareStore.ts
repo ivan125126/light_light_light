@@ -16,7 +16,7 @@ export const useHardwareStore = defineStore('hardware', {
       const nextId = this.units.length > 0
         ? Math.max(...this.units.map(u => u.id)) + 1
         : 1
-      this.units.push({ id: nextId, connected: false, trackIndex: null })
+      this.units.push({ id: nextId, connected: false, lastSeenMs: 0, trackIndex: null })
     },
 
     removeUnit(id: number) {
@@ -55,6 +55,7 @@ export const useHardwareStore = defineStore('hardware', {
         const stat = await getLuxStat(zeroBasedId).catch(() => 0)
         const unit = this.units.find(u => u.id === id)
         if (!unit) continue
+        if (stat > 0) unit.lastSeenMs = stat
         unit.connected = (now - stat) < 1000
       }
     },
