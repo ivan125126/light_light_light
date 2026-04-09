@@ -108,10 +108,10 @@ body {
 .panel-center {
     flex: 1 1 auto;  /* 剩餘空間自動填滿 */
     min-width: 0;
-    align-items: center;
-    justify-content: center;
+    align-items: stretch;  /* 讓子元素撐滿寬度 */
     background: #111;
     margin: 0 0;
+    overflow: hidden;
 }
 
 .panel-right {
@@ -893,15 +893,113 @@ body {
 
 /* ========== PreviewPanel ========== */
 .preview_panel {
-    flex: 0 0 auto;
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
     background: #000;
     display: flex;
     flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.edit_preview,
+.performance_preview {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    width: 100%;
+}
+
+/* canvas 永遠填滿 pre-view 元素（CSS 縮放） */
+pre-view canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+/* Single effect preview — 等比例置中，1:1 */
+.preview_single {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 200px;
-    border-bottom: 1px solid #333;
-    position: relative;
+    overflow: hidden;
+    padding: 8px;
+}
+
+.preview_single pre-view {
+    aspect-ratio: 1;
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+}
+
+/* Multi-Lux preview: 依 --grid-cols / --grid-rows 等分面板 */
+.preview_multi {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--grid-cols, 1), minmax(0, 1fr));
+    grid-template-rows: repeat(var(--grid-rows, 1), minmax(0, 1fr));
+    gap: 6px;
+    padding: 8px;
+    overflow: hidden;
+}
+
+.preview_lux_slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* pre-view 在 slot 內填滿可用高度並保持 1:1 */
+.preview_lux_slot pre-view {
+    flex: 1 1 0;
+    min-height: 0;
+    aspect-ratio: 1;
+    max-width: 100%;
+    display: block;
+    align-self: center;
+}
+
+.preview_lux_label {
+    font-size: 11px;
+    color: #888;
+}
+
+.preview_lux_effect {
+    font-size: 10px;
+    color: #666;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.preview_lux_status {
+    font-size: 10px;
+}
+
+.preview_lux_status.connected   { color: #4fd677; }
+.preview_lux_status.disconnected { color: #666; }
+
+.preview_lux_slot.highlighted pre-view {
+    outline: 1px solid #4fd677;
+}
+
+.preview_empty {
+    width: 100%;
+    text-align: center;
+    color: #555;
+    font-size: 13px;
+    padding-top: 24px;
 }
 
 .preview_toolbar {
