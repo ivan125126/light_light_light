@@ -13,16 +13,17 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      '/get_effect':       'http://localhost:20480',
-      '/start':            'http://localhost:20480',
-      '/esp_time':         'http://localhost:20480',
-      '/exe_mode':         'http://localhost:20480',
-      '/get_stat':         'http://localhost:20480',
-      '/get_light':        'http://localhost:20480',
-      '/update_file':      'http://localhost:20480',
-      '/update_lux_mode':  'http://localhost:20480',
-      '/update_lux_reset': 'http://localhost:20480',
-      '/live_effect':      'http://localhost:20480',
+      '/get_effect':       'http://localhost:10240',
+      '/start':            'http://localhost:10240',
+      '/esp_time':         'http://localhost:10240',
+      '/exe_mode':         'http://localhost:10240',
+      '/get_stat':         'http://localhost:10240',
+      '/get_light':        'http://localhost:10240',
+      '/update_file':      'http://localhost:10240',
+      '/update_lux_mode':  'http://localhost:10240',
+      '/update_lux_reset': 'http://localhost:10240',
+      '/live_effect':      'http://localhost:10240',
+      '/health':           'http://localhost:10240',
     }
   },
   test: {
