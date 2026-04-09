@@ -147,6 +147,7 @@ export const useProjectStore = defineStore('project', {
         effectStore.definitions,
         timelineStore.totalDuration
       )
+      console.log(`EffectMap updated: ${effectMap} device(s)`)
       await fetch('/push_effect_map', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

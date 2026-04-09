@@ -24,6 +24,8 @@ export default defineConfig({
       '/update_lux_reset': 'http://localhost:10240',
       '/live_effect':      'http://localhost:10240',
       '/health':           'http://localhost:10240',
+      '/push_effect_map':  'http://localhost:10240',
+      
     }
   },
   test: {

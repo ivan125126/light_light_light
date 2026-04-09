@@ -268,6 +268,7 @@ app.post('/update_file', (req: Request, res: Response) => {
 // --- Push EffectMap directly from frontend (no file I/O required) ---
 app.post('/push_effect_map', (req: Request, res: Response) => {
   const map = req.body as EffectMap
+  console.log(`EffectMap updated: ${map}`)
   if (!Array.isArray(map)) return res.status(400).json({ error: 'Invalid EffectMap' })
   EffectMap = map
   console.log(`EffectMap updated: ${map.length} device(s)`)

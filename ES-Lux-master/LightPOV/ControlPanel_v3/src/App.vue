@@ -165,6 +165,7 @@ function saveProject() {
 }
 
 async function uploadToServer() {
+  console.log('1234556')
   await projectStore.pushToServer()
 }
 
