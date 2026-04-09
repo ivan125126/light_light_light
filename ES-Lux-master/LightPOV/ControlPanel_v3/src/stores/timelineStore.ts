@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 export interface Track {
   id: string
   name: string
+  deviceIndices: number[]   // which lux units this track controls
 }
 
 interface TimelineState {
@@ -22,7 +23,7 @@ export const useTimelineStore = defineStore('timeline', {
     globalTime: 0,
     isPlaying: false,
     totalDuration: 60_000,
-    tracks: [{ id: 'track-0', name: '軌道 1' }],
+    tracks: [{ id: 'track-0', name: '軌道 1', deviceIndices: [0] }],
     _nextTrackNum: 2,
   }),
 
@@ -61,8 +62,18 @@ export const useTimelineStore = defineStore('timeline', {
     },
 
     addTrack(): void {
-      this.tracks.push({ id: `track-${Date.now()}`, name: `軌道 ${this._nextTrackNum}` })
+      const deviceIdx = this.tracks.length
+      this.tracks.push({
+        id: `track-${Date.now()}`,
+        name: `軌道 ${this._nextTrackNum}`,
+        deviceIndices: [deviceIdx],
+      })
       this._nextTrackNum++
+    },
+
+    loadTracks(tracks: Track[], nextTrackNum: number): void {
+      this.tracks = tracks
+      this._nextTrackNum = nextTrackNum
     },
 
     removeTrack(id: string): void {

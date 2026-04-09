@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { EffectInstance, EffectDefinition } from '../types'
+import type { EffectInstance, EffectDefinition, EffectParams } from '../types'
 import { BUILT_IN_DEFINITIONS } from '../constants/effectDefinitions'
 import { defaultEffectParams } from '../constants/effectConfig'
 
@@ -8,6 +8,7 @@ interface EffectState {
   instances: EffectInstance[]
   selectedInstanceId: string | null
   previewDefinitionName: string | null
+  previewParams: EffectParams | null
 }
 
 export const useEffectStore = defineStore('effect', {
@@ -16,6 +17,7 @@ export const useEffectStore = defineStore('effect', {
     instances: [],
     selectedInstanceId: null,
     previewDefinitionName: null,
+    previewParams: null,
   }),
 
   getters: {
@@ -69,6 +71,16 @@ export const useEffectStore = defineStore('effect', {
 
     setPreviewDefinition(name: string | null): void {
       this.previewDefinitionName = name
+      if (name) {
+        const def = this.definitions.find(d => d.name === name)
+        this.previewParams = def ? JSON.parse(JSON.stringify(def.defaultParams)) : null
+      } else {
+        this.previewParams = null
+      }
+    },
+
+    setPreviewParams(params: EffectParams | null): void {
+      this.previewParams = params
     },
 
     addCustomDefinition(def: EffectDefinition): void {

@@ -5,6 +5,7 @@
  */
 
 let _audioContext: AudioContext | null = null
+let _gainNode: GainNode | null = null
 let _sourceNode: AudioBufferSourceNode | null = null
 let _audioBuffer: AudioBuffer | null = null
 
@@ -13,6 +14,15 @@ function getAudioContext(): AudioContext {
     _audioContext = new AudioContext()
   }
   return _audioContext
+}
+
+function getGainNode(): GainNode {
+  const ctx = getAudioContext()
+  if (!_gainNode) {
+    _gainNode = ctx.createGain()
+    _gainNode.connect(ctx.destination)
+  }
+  return _gainNode
 }
 
 /** Load an MP3/WAV File into an AudioBuffer. Stops any current playback first. */
@@ -58,7 +68,7 @@ export function startPlayback(offsetMs: number): void {
   if (ctx.state === 'suspended') ctx.resume()
   const source = ctx.createBufferSource()
   source.buffer = _audioBuffer
-  source.connect(ctx.destination)
+  source.connect(getGainNode())
   source.start(0, offsetMs / 1000)
   _sourceNode = source
 }
@@ -69,6 +79,11 @@ export function stopPlayback(): void {
     try { _sourceNode.stop() } catch { /* already stopped */ }
     _sourceNode = null
   }
+}
+
+/** Set playback volume (0–1) */
+export function setVolume(vol: number): void {
+  getGainNode().gain.value = Math.max(0, Math.min(1, vol))
 }
 
 /** Get current AudioContext time in milliseconds */

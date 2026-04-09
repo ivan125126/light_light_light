@@ -5,6 +5,7 @@ import type { LuxUnit } from '../types'
 export const useHardwareStore = defineStore('hardware', {
   state: () => ({
     units: [] as LuxUnit[],
+    liveHardware: false,
     _pollingId: null as ReturnType<typeof setInterval> | null,
   }),
 
