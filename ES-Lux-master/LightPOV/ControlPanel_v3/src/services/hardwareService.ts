@@ -97,3 +97,13 @@ export async function stopLiveEffect(): Promise<void> {
     // Server unreachable — silently ignore
   }
 }
+
+/** Check whether the Express server is reachable */
+export async function checkServerHealth(): Promise<boolean> {
+  try {
+    const res = await fetch('/health')
+    return res.ok
+  } catch {
+    return false
+  }
+}
