@@ -160,6 +160,7 @@ let playStartGlobalTime = 0
 let isDragging = false
 let dragStartX = 0
 let dragStartOffset = 0
+let isTimescaleDown = false  // 記錄 mousedown 是否在時間刻度軸上
 
 // ── 時間格式 ──────────────────────────────────────────────
 function formatTimeMmSs(ms: number): string {
@@ -207,18 +208,7 @@ function jumpToTime() {
   const min = jumpMin.value ?? 0
   const sec = jumpSec.value ?? 0
   if (sec > 59) return
-  const ms = (min * 60 + sec) * 1000
-  timelineStore.setTime(ms)
-  if (timelineStore.isPlaying) {
-    // 重新從新位置開始播放
-    if (audioStore.hasAudio) {
-      stopPlayback()
-      startPlayback(ms)
-    }
-    playStartWallTime = performance.now()
-    playStartGlobalTime = ms
-  }
-  drawTimescale()
+  seekTo((min * 60 + sec) * 1000)
 }
 
 // ── 音量 ──────────────────────────────────────────────────
@@ -263,9 +253,24 @@ function onWheel(event: WheelEvent) {
   drawTimescale()
 }
 
+// ── 跳至指定時間（seek） ──────────────────────────────────
+function seekTo(ms: number) {
+  timelineStore.setTime(ms)
+  if (timelineStore.isPlaying) {
+    if (audioStore.hasAudio) {
+      stopPlayback()
+      startPlayback(ms)
+    }
+    playStartWallTime = performance.now()
+    playStartGlobalTime = ms
+  }
+  drawTimescale()
+}
+
 // ── 拖曳時間刻度軸 pan ────────────────────────────────────
 function onTimescaleMouseDown(event: MouseEvent) {
   isDragging = true
+  isTimescaleDown = true
   dragStartX = event.clientX
   dragStartOffset = timelineStore.timelineOffset
 }
@@ -277,7 +282,20 @@ function onMouseMove(event: MouseEvent) {
   drawTimescale()
 }
 
-function onMouseUp() {
+function onMouseUp(event: MouseEvent) {
+  if (isTimescaleDown) {
+    const moved = Math.abs(event.clientX - dragStartX)
+    if (moved < 5) {
+      // 視為點擊，跳至該位置
+      const canvas = timescaleCanvasRef.value
+      if (canvas) {
+        const rect = canvas.getBoundingClientRect()
+        const offsetX = event.clientX - rect.left
+        seekTo(timelineStore.pixelToMs(offsetX))
+      }
+    }
+    isTimescaleDown = false
+  }
   isDragging = false
 }
 

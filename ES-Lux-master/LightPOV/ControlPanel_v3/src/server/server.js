@@ -297,6 +297,18 @@ app.post('/settime', (req, res) => {
     res.status(200).send('Time updated');
 });
 
+app.post('/live_effect', (req, res) => {
+    liveMode = true
+    liveEffectData = req.body
+    res.status(200).send('ok')
+})
+
+app.post('/live_effect/stop', (_req, res) => {
+    liveMode = false
+    liveEffectData = null
+    res.status(200).send('ok')
+})
+
 app.post('/update_file', (req, res) => {
     const newFile = req.body.file || req.body.path;
     

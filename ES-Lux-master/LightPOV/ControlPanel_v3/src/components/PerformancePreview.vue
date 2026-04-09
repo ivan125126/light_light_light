@@ -1,6 +1,6 @@
 <template>
   <div class="performance_preview">
-    <div class="preview_multi">
+    <div class="preview_multi" :style="gridStyle">
       <div
         v-for="(unit, i) in hardwareStore.units"
         :key="unit.id"
@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, watchEffect, onUnmounted } from 'vue'
+import { ref, computed, watch, watchEffect, onUnmounted, type CSSProperties } from 'vue'
 import { useEffectStore } from '../stores/effectStore'
 import { useHardwareStore } from '../stores/hardwareStore'
 import { useTimelineStore } from '../stores/timelineStore'
@@ -47,6 +47,20 @@ const effectStore = useEffectStore()
 const hardwareStore = useHardwareStore()
 const timelineStore = useTimelineStore()
 const previewRefs = ref<(PreviewEl | null)[]>([])
+
+function gridLayout(n: number): { cols: number; rows: number } {
+  if (n <= 1) return { cols: 1, rows: 1 }
+  if (n <= 2) return { cols: 2, rows: 1 }
+  if (n <= 4) return { cols: 2, rows: 2 }
+  if (n <= 6) return { cols: 3, rows: 2 }
+  if (n <= 9) return { cols: 3, rows: 3 }
+  return { cols: 4, rows: Math.ceil(n / 4) }
+}
+
+const gridStyle = computed((): CSSProperties => {
+  const { cols, rows } = gridLayout(hardwareStore.units.length)
+  return { '--grid-cols': String(cols), '--grid-rows': String(rows) } as CSSProperties
+})
 
 // Reset refs array when unit count changes to avoid index drift
 watch(() => hardwareStore.units.length, () => {

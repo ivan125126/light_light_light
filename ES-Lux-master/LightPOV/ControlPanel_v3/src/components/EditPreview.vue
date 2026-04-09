@@ -6,7 +6,7 @@
     </div>
 
     <!-- Multi-Lux preview (timeline playback) -->
-    <div v-else class="preview_multi">
+    <div v-else class="preview_multi" :style="gridStyle">
       <div
         v-for="(unit, i) in hardwareStore.units"
         :key="unit.id"
@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, watchEffect, onUnmounted } from 'vue'
+import { ref, computed, watch, watchEffect, onUnmounted, type CSSProperties } from 'vue'
 import { useEffectStore } from '../stores/effectStore'
 import { useHardwareStore } from '../stores/hardwareStore'
 import { useTimelineStore } from '../stores/timelineStore'
@@ -54,6 +54,24 @@ watch(() => timelineStore.isPlaying, playing => {
   if (playing) effectStore.setPreviewDefinition(null)
 })
 
+// ── Grid layout (多重預覽，依 unit 數量決定欄列數) ────────────
+function gridLayout(n: number): { cols: number; rows: number } {
+  if (n <= 1) return { cols: 1, rows: 1 }
+  if (n <= 2) return { cols: 2, rows: 1 }
+  if (n <= 4) return { cols: 2, rows: 2 }
+  if (n <= 6) return { cols: 3, rows: 2 }
+  if (n <= 9) return { cols: 3, rows: 3 }
+  return { cols: 4, rows: Math.ceil(n / 4) }
+}
+
+const gridStyle = computed((): CSSProperties => {
+  const { cols, rows } = gridLayout(hardwareStore.units.length)
+  return {
+    '--grid-cols': String(cols),
+    '--grid-rows': String(rows),
+  } as CSSProperties
+})
+
 // ── Single-preview (smart switch) ────────────────────────────
 const isSinglePreview = computed(() => !!effectStore.previewDefinitionName)
 
@@ -71,7 +89,7 @@ const singleEffectData = computed<EffectData | null>(() => {
       trackIndex: 0,
       startTime: 0,
       duration: 10000,
-      params: def.defaultParams,
+      params: effectStore.previewParams ?? def.defaultParams,
     }
     return instanceToEffectData(instance, def.mode)
   }
