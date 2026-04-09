@@ -32,6 +32,7 @@
         <input type="checkbox" class="live_hw_check" v-model="hardwareStore.liveHardware" />
         推播硬體
       </label>
+      <button :disabled="!hardwareStore.serverOnline" @click="uploadToServer">上傳到 server</button>
     </header>
 
     <!-- ── 上半：三欄（素材庫 | 預覽 | 參數） ── -->
@@ -161,6 +162,10 @@ function finishEditProjectName() {
 // ── 專案操作 ────────────────────────────────────────────
 function saveProject() {
   projectStore.downloadProjectFile()
+}
+
+async function uploadToServer() {
+  await projectStore.pushToServer()
 }
 
 async function loadProjectDialog() {
