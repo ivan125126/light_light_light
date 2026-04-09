@@ -18,6 +18,9 @@
         @keydown.esc="editingProjectName = false"
       />
       <span v-if="projectStore.isDirty" class="dirty-indicator">●</span>
+      <span class="server-status" :class="hardwareStore.serverOnline ? 'online' : 'offline'">
+        ● {{ hardwareStore.serverOnline ? 'Server 已連線' : 'Server 未連線' }}
+      </span>
       <button @click="saveProject">儲存專案</button>
       <button @click="loadProjectDialog">載入專案</button>
       <button @click="projectStore.downloadLibraryFile()">匯出效果庫</button>
@@ -130,10 +133,12 @@ onMounted(() => {
   projectStore.restoreFromLocalStorage()
   window.addEventListener('mousemove', onMouseMove)
   window.addEventListener('mouseup', onMouseUp)
+  hardwareStore.startServerPolling()
 })
 onUnmounted(() => {
   window.removeEventListener('mousemove', onMouseMove)
   window.removeEventListener('mouseup', onMouseUp)
+  hardwareStore.stopServerPolling()
 })
 
 // ── 專案名稱 inline 編輯 ────────────────────────────────
@@ -180,3 +185,13 @@ async function importLibrary(event: Event) {
   })
 }
 </script>
+
+<style scoped>
+.server-status {
+  font-size: 0.8rem;
+  margin-right: 12px;
+  user-select: none;
+}
+.server-status.online  { color: #4caf50; }
+.server-status.offline { color: #f44336; opacity: 0.7; }
+</style>
