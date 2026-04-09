@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia'
 import { useHardwareStore } from '../stores/hardwareStore'
 
@@ -30,7 +31,7 @@ describe('hardwareStore — server polling', () => {
     vi.mocked(checkServerHealth).mockResolvedValue(true)
     const store = useHardwareStore()
     store.startServerPolling()
-    await vi.runAllTimersAsync()
+    await flushPromises()
     expect(store.serverOnline).toBe(true)
   })
 
@@ -39,7 +40,7 @@ describe('hardwareStore — server polling', () => {
     const store = useHardwareStore()
     store.serverOnline = true
     store.startServerPolling()
-    await vi.runAllTimersAsync()
+    await flushPromises()
     expect(store.serverOnline).toBe(false)
   })
 
@@ -47,7 +48,7 @@ describe('hardwareStore — server polling', () => {
     vi.mocked(checkServerHealth).mockResolvedValue(true)
     const store = useHardwareStore()
     store.startServerPolling()
-    await vi.runAllTimersAsync()
+    await flushPromises()
     expect(store.serverOnline).toBe(true)
 
     store.stopServerPolling()
