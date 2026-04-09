@@ -1,7 +1,8 @@
 <template>
   <div class="hsv_block" v-if="channel">
-    <label>{{ label }}</label>
-    <select v-model="funcName" @change="onFuncChange">
+    <!-- 通道名稱 + function 選擇 -->
+    <div class="param_group_title">{{ label }}</div>
+    <select class="hsv_func_select" v-model="funcName" @change="onFuncChange">
       <option value="None">None</option>
       <option value="Const">Const</option>
       <option value="Ramp">Ramp</option>
@@ -11,43 +12,119 @@
     </select>
 
     <!-- Const -->
-    <template v-if="funcName === 'Const'">
-      <label>Value</label>
-      <input type="range" min="0" max="255" v-model.number="channel.p1" @input="emitUpdate" />
-      <span>{{ channel.p1 }}</span>
-    </template>
+    <div v-if="funcName === 'Const'" class="hsv_func_params active">
+      <div class="param_field compact">
+        <label>Value {{ unit }}</label>
+        <div class="param_input_row">
+          <input type="number" class="func_number" min="0" :max="maxVal"
+            v-model.number="channel.p1" @input="emitUpdate" />
+          <input type="range" class="func_range" min="0" :max="maxVal"
+            v-model.number="channel.p1" @input="emitUpdate" />
+        </div>
+      </div>
+    </div>
 
     <!-- Ramp / Triangle -->
-    <template v-if="funcName === 'Ramp' || funcName === 'Triangle'">
-      <label>Upper</label>
-      <input type="range" min="0" max="255" v-model.number="channel.p1" @input="emitUpdate" />
-      <label>Range</label>
-      <input type="range" min="0" max="255" v-model.number="channel.range" @input="emitUpdate" />
-      <label>Lower</label>
-      <input type="range" min="0" max="255" v-model.number="channel.lower" @input="emitUpdate" />
-    </template>
+    <div v-if="funcName === 'Ramp' || funcName === 'Triangle'" class="hsv_func_params active">
+      <div class="param_field compact">
+        <label>Upper {{ unit }}</label>
+        <div class="param_input_row">
+          <input type="number" class="func_number" min="0" :max="maxVal"
+            v-model.number="channel.p1" @input="emitUpdate" />
+          <input type="range" class="func_range" min="0" :max="maxVal"
+            v-model.number="channel.p1" @input="emitUpdate" />
+        </div>
+      </div>
+      <div class="param_field compact">
+        <label>Range {{ unit }}</label>
+        <div class="param_input_row">
+          <input type="number" class="func_number" min="0" :max="maxVal"
+            v-model.number="channel.range" @input="emitUpdate" />
+          <input type="range" class="func_range" min="0" :max="maxVal"
+            v-model.number="channel.range" @input="emitUpdate" />
+        </div>
+      </div>
+      <div class="param_field compact">
+        <label>Lower {{ unit }}</label>
+        <div class="param_input_row">
+          <input type="number" class="func_number" min="0" :max="maxVal"
+            v-model.number="channel.lower" @input="emitUpdate" />
+          <input type="range" class="func_range" min="0" :max="maxVal"
+            v-model.number="channel.lower" @input="emitUpdate" />
+        </div>
+      </div>
+    </div>
 
     <!-- Pulse -->
-    <template v-if="funcName === 'Pulse'">
-      <label>Top</label>
-      <input type="range" min="0" max="255" v-model.number="channel.p1" @input="emitUpdate" />
-      <label>Range</label>
-      <input type="range" min="0" max="255" v-model.number="channel.range" @input="emitUpdate" />
-      <label>Lower</label>
-      <input type="range" min="0" max="255" v-model.number="channel.lower" @input="emitUpdate" />
-    </template>
+    <div v-if="funcName === 'Pulse'" class="hsv_func_params active">
+      <div class="param_field compact">
+        <label>Top {{ unit }}</label>
+        <div class="param_input_row">
+          <input type="number" class="func_number" min="0" :max="maxVal"
+            v-model.number="channel.p1" @input="emitUpdate" />
+          <input type="range" class="func_range" min="0" :max="maxVal"
+            v-model.number="channel.p1" @input="emitUpdate" />
+        </div>
+      </div>
+      <div class="param_field compact">
+        <label>Range {{ unit }}</label>
+        <div class="param_input_row">
+          <input type="number" class="func_number" min="0" :max="maxVal"
+            v-model.number="channel.range" @input="emitUpdate" />
+          <input type="range" class="func_range" min="0" :max="maxVal"
+            v-model.number="channel.range" @input="emitUpdate" />
+        </div>
+      </div>
+      <div class="param_field compact">
+        <label>Lower {{ unit }}</label>
+        <div class="param_input_row">
+          <input type="number" class="func_number" min="0" :max="maxVal"
+            v-model.number="channel.lower" @input="emitUpdate" />
+          <input type="range" class="func_range" min="0" :max="maxVal"
+            v-model.number="channel.lower" @input="emitUpdate" />
+        </div>
+      </div>
+    </div>
 
     <!-- Step -->
-    <template v-if="funcName === 'Step'">
-      <label>Height</label>
-      <input type="range" min="0" max="255" v-model.number="channel.p1" @input="emitUpdate" />
-      <label>Steps</label>
-      <input type="range" min="0" max="255" v-model.number="channel.p2" @input="emitUpdate" />
-      <label>Range</label>
-      <input type="range" min="0" max="255" v-model.number="channel.range" @input="emitUpdate" />
-      <label>Lower</label>
-      <input type="range" min="0" max="255" v-model.number="channel.lower" @input="emitUpdate" />
-    </template>
+    <div v-if="funcName === 'Step'" class="hsv_func_params active">
+      <div class="param_field compact">
+        <label>Height {{ unit }}</label>
+        <div class="param_input_row">
+          <input type="number" class="func_number" min="0" :max="maxVal"
+            v-model.number="channel.p1" @input="emitUpdate" />
+          <input type="range" class="func_range" min="0" :max="maxVal"
+            v-model.number="channel.p1" @input="emitUpdate" />
+        </div>
+      </div>
+      <div class="param_field compact">
+        <label>Steps</label>
+        <div class="param_input_row">
+          <input type="number" class="func_number" min="0" max="255"
+            v-model.number="channel.p2" @input="emitUpdate" />
+          <input type="range" class="func_range" min="0" max="255"
+            v-model.number="channel.p2" @input="emitUpdate" />
+        </div>
+      </div>
+      <div class="param_field compact">
+        <label>Range {{ unit }}</label>
+        <div class="param_input_row">
+          <input type="number" class="func_number" min="0" :max="maxVal"
+            v-model.number="channel.range" @input="emitUpdate" />
+          <input type="range" class="func_range" min="0" :max="maxVal"
+            v-model.number="channel.range" @input="emitUpdate" />
+        </div>
+      </div>
+      <div class="param_field compact">
+        <label>Lower {{ unit }}</label>
+        <div class="param_input_row">
+          <input type="number" class="func_number" min="0" :max="maxVal"
+            v-model.number="channel.lower" @input="emitUpdate" />
+          <input type="range" class="func_range" min="0" :max="maxVal"
+            v-model.number="channel.lower" @input="emitUpdate" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -62,6 +139,10 @@ const FUNC_NAMES = ['None', 'Const', 'Ramp', 'Triangle', 'Pulse', 'Step']
 
 const props = defineProps<{ label: string; channel: HsvChannel }>()
 const emit = defineEmits<{ (e: 'update:channel', v: HsvChannel): void }>()
+
+// 從 label 判斷單位（僅顯示用，內部值一律 0–255）
+const unit = props.label.includes('°') ? '°' : props.label.includes('%') ? '%' : ''
+const maxVal = 255
 
 const funcName = ref(FUNC_NAMES[props.channel.func] ?? 'None')
 

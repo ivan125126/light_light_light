@@ -1,35 +1,76 @@
 <template>
-  <div class="extra_params" v-if="schema && extra">
-    <template v-if="schema.bladeCount">
-      <label>Blade Count</label>
-      <input type="number" min="0" max="12" v-model.number="extra.bladeCount" @input="emitUpdate" />
-    </template>
-    <template v-if="schema.length">
-      <label>Length</label>
-      <input type="range" min="0" max="300" v-model.number="extra.length" @input="emitUpdate" />
-      <span>{{ extra.length }}</span>
-    </template>
-    <template v-if="schema.curvature">
-      <label>Curvature</label>
-      <input type="range" min="0" max="100" v-model.number="extra.curvature" @input="emitUpdate" />
-    </template>
-    <template v-if="schema.boxsize">
-      <label>Box Size</label>
-      <input type="range" min="0" max="300" v-model.number="extra.boxsize" @input="emitUpdate" />
-    </template>
-    <template v-if="schema.space">
-      <label>Space</label>
-      <input type="range" min="0" max="100" v-model.number="extra.space" @input="emitUpdate" />
-    </template>
-    <template v-if="schema.reverse">
-      <label>Reverse</label>
-      <input type="checkbox" :checked="extra.reverse === 1"
-        @change="extra.reverse = ($event.target as HTMLInputElement).checked ? 1 : 0; emitUpdate()" />
-    </template>
-    <template v-if="schema.positionFix">
-      <label>Position Fix</label>
-      <input type="range" min="0" max="255" v-model.number="extra.positionFix" @input="emitUpdate" />
-    </template>
+  <div v-if="schema && extra" class="extra_params">
+
+    <div v-if="schema.bladeCount" class="param_group">
+      <label class="param_label">扇葉數量</label>
+      <div class="param_input_row">
+        <input type="number" class="func_number" min="0" max="12"
+          v-model.number="extra.bladeCount" @input="emitUpdate" />
+        <input type="range" class="func_range" min="0" max="12"
+          v-model.number="extra.bladeCount" @input="emitUpdate" />
+      </div>
+    </div>
+
+    <div v-if="schema.length" class="param_group">
+      <label class="param_label">長度</label>
+      <div class="param_input_row">
+        <input type="number" class="func_number" min="0" max="300"
+          v-model.number="extra.length" @input="emitUpdate" />
+        <input type="range" class="func_range" min="0" max="300"
+          v-model.number="extra.length" @input="emitUpdate" />
+      </div>
+    </div>
+
+    <div v-if="schema.curvature" class="param_group">
+      <label class="param_label">曲度</label>
+      <div class="param_input_row">
+        <input type="number" class="func_number" min="0" max="100"
+          v-model.number="extra.curvature" @input="emitUpdate" />
+        <input type="range" class="func_range" min="0" max="100"
+          v-model.number="extra.curvature" @input="emitUpdate" />
+      </div>
+    </div>
+
+    <div v-if="schema.boxsize" class="param_group">
+      <label class="param_label">方塊大小</label>
+      <div class="param_input_row">
+        <input type="number" class="func_number" min="0" max="255"
+          v-model.number="extra.boxsize" @input="emitUpdate" />
+        <input type="range" class="func_range" min="0" max="255"
+          v-model.number="extra.boxsize" @input="emitUpdate" />
+      </div>
+    </div>
+
+    <div v-if="schema.space" class="param_group">
+      <label class="param_label">間距</label>
+      <div class="param_input_row">
+        <input type="number" class="func_number" min="0" max="100"
+          v-model.number="extra.space" @input="emitUpdate" />
+        <input type="range" class="func_range" min="0" max="100"
+          v-model.number="extra.space" @input="emitUpdate" />
+      </div>
+    </div>
+
+    <div v-if="schema.positionFix" class="param_group">
+      <label class="param_label">位置</label>
+      <div class="param_input_row">
+        <input type="number" class="func_number" min="0" max="255"
+          v-model.number="extra.positionFix" @input="emitUpdate" />
+        <input type="range" class="func_range" min="0" max="255"
+          v-model.number="extra.positionFix" @input="emitUpdate" />
+      </div>
+    </div>
+
+    <div v-if="schema.reverse" class="param_group">
+      <label class="param_label">反向</label>
+      <div class="param_input_row">
+        <input type="checkbox"
+          :checked="extra.reverse === 1"
+          @change="extra.reverse = ($event.target as HTMLInputElement).checked ? 1 : 0; emitUpdate()"
+        />
+      </div>
+    </div>
+
   </div>
 </template>
 

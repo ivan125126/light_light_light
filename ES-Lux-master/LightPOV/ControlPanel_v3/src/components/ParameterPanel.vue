@@ -65,46 +65,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useEffectStore } from '../stores/effectStore'
 import HsvChannelGroup from './HsvChannelGroup.vue'
 import ExtraParamsGroup from './ExtraParamsGroup.vue'
 import ControlPanel from './ControlPanel.vue'
-import type { HsvChannel, ExtraParams, EffectParams } from '../types'
+import type { HsvChannel, ExtraParams } from '../types'
 
 const effectStore = useEffectStore()
 const activeTab   = ref<'param' | 'control'>('param')
 
 // ── 顯示來源判斷 ────────────────────────────────────────
 // 'instance' = 選取 Timeline block；'definition' = 點選素材庫；null = 無選取
-const localParams = ref<EffectParams | null>(null)
-
-// 當 previewDefinitionName 改變時，同步 localParams（僅在無 instance 選取時）
-watch(
-  () => effectStore.previewDefinitionName,
-  (name) => {
-    if (effectStore.selectedInstance) return
-    if (!name) { localParams.value = null; return }
-    const def = effectStore.getDefinition(name)
-    localParams.value = def ? JSON.parse(JSON.stringify(def.defaultParams)) : null
-  }
-)
-
-// 當選取 instance 時，清除 localParams（優先顯示 instance）
-watch(
-  () => effectStore.selectedInstanceId,
-  () => { localParams.value = null }
-)
-
 const displayKind = computed<'instance' | 'definition' | null>(() => {
   if (effectStore.selectedInstance) return 'instance'
-  if (localParams.value) return 'definition'
+  if (effectStore.previewParams) return 'definition'
   return null
 })
 
-const displayParams = computed<EffectParams | null>(() => {
+const displayParams = computed(() => {
   if (displayKind.value === 'instance') return effectStore.selectedInstance!.params
-  if (displayKind.value === 'definition') return localParams.value
+  if (displayKind.value === 'definition') return effectStore.previewParams
   return null
 })
 
@@ -124,8 +105,8 @@ function updateChannel(key: 'XH'|'XS'|'XV'|'YH'|'YS'|'YV', value: HsvChannel) {
   if (displayKind.value === 'instance') {
     const inst = effectStore.selectedInstance!
     effectStore.updateInstance(inst.id, { params: { ...inst.params, [key]: value } })
-  } else if (displayKind.value === 'definition' && localParams.value) {
-    localParams.value = { ...localParams.value, [key]: value }
+  } else if (displayKind.value === 'definition' && effectStore.previewParams) {
+    effectStore.setPreviewParams({ ...effectStore.previewParams, [key]: value })
   }
 }
 
@@ -133,8 +114,8 @@ function updateExtra(value: ExtraParams) {
   if (displayKind.value === 'instance') {
     const inst = effectStore.selectedInstance!
     effectStore.updateInstance(inst.id, { params: { ...inst.params, extra: value } })
-  } else if (displayKind.value === 'definition' && localParams.value) {
-    localParams.value = { ...localParams.value, extra: value }
+  } else if (displayKind.value === 'definition' && effectStore.previewParams) {
+    effectStore.setPreviewParams({ ...effectStore.previewParams, extra: value })
   }
 }
 
