@@ -26,6 +26,10 @@ export class PreviewElement extends HTMLElement {
   private ledBulbSpacing = 3
   private speed = 60
 
+  private bgCanvas!: HTMLCanvasElement
+  private glowCanvas!: HTMLCanvasElement | OffscreenCanvas
+  private glowCtx!: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D
+
   static get observedAttributes() {
     return ['speed', 'led-bulb-size', 'led-bulb-spacing', 'inner-radius']
   }
@@ -42,8 +46,25 @@ export class PreviewElement extends HTMLElement {
     this.canvas.width  = width
     this.canvas.height = height
     this.appendChild(this.canvas)
-    this.ctx = this.canvas.getContext('2d', { willReadFrequently: true })!
+    this.ctx = this.canvas.getContext('2d')!
     this._drawBackground()
+
+    // Cache background for fast per-frame restore
+    this.bgCanvas = document.createElement('canvas')
+    this.bgCanvas.width  = width
+    this.bgCanvas.height = height
+    this.bgCanvas.getContext('2d')!.drawImage(this.canvas, 0, 0)
+
+    // Offscreen canvas for bloom compositing
+    if (typeof OffscreenCanvas !== 'undefined') {
+      this.glowCanvas = new OffscreenCanvas(width, height)
+      this.glowCtx = this.glowCanvas.getContext('2d') as OffscreenCanvasRenderingContext2D
+    } else {
+      const fb = document.createElement('canvas')
+      fb.width = width; fb.height = height
+      this.glowCanvas = fb
+      this.glowCtx = fb.getContext('2d')!
+    }
   }
 
   disconnectedCallback() {
@@ -83,6 +104,11 @@ export class PreviewElement extends HTMLElement {
     this.ledData    = ledData
     this.frameCount = capped
 
+    // Clear accumulated trail so old effect doesn't bleed into new one
+    if (this.glowCtx) {
+      this.glowCtx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+    }
+
     // Start animation loop — FIX: use modulo so it never stops
     const loop = () => {
       this._drawFrame(this.currentFrame)
@@ -111,42 +137,79 @@ export class PreviewElement extends HTMLElement {
     this.ctx.putImageData(imageData, 0, 0)
   }
 
-  /** Render a single ring frame at time offset `frameOffset` */
+  /**
+   * Render one animation tick using the accumulative POV trail model:
+   *  - The arm sweeps one angular slice per tick, drawing fresh LED data.
+   *  - Old content on the glow canvas fades each tick via destination-out,
+   *    simulating eye persistence: recently swept areas are bright, older ones dim.
+   *  - Two arms are drawn 180° apart.
+   */
   private _drawFrame(frameOffset: number): void {
     const { width, height } = this.canvas
-    const imageData = this.ctx.getImageData(0, 0, width, height)
-    const d = imageData.data
-    const showTime = Math.floor(MAX_FRAMES / this.speed)
-    const cx = width  >> 1
-    const cy = height >> 1
+    const cx          = width  >> 1
+    const cy          = height >> 1
+    const showTime    = Math.floor(MAX_FRAMES / this.speed)
     const outerRadius = this.innerRadius + 140
+    const halfSlice   = Math.PI / showTime   // angular half-width of one time step
 
-    for (let i = 0; i < showTime; i++) {
-      const frameIdx = (frameOffset + i) % this.frameCount
+    // Arm angle advances one full rotation per showTime ticks
+    const armAngle = (frameOffset % showTime) / showTime * (2 * Math.PI)
+
+    const gc = this.glowCtx
+
+    // ── Fade existing trail ─────────────────────────────────────────────────
+    // destination-out reduces the alpha of all existing pixels, making the
+    // trail decay toward transparent without leaving opaque black behind.
+    gc.globalCompositeOperation = 'destination-out'
+    gc.fillStyle = 'rgba(0,0,0,0.025)'
+    gc.fillRect(0, 0, width, height)
+    gc.globalCompositeOperation = 'source-over'
+
+    // ── Draw current arm strip ──────────────────────────────────────────────
+    const frameIdx = frameOffset % this.frameCount
+    const frame    = this.ledData[frameIdx]
+
+    if (frame) {
       for (let j = 0; j < 32; j++) {
-        const pixel = this.ledData[frameIdx]?.[j]
+        const pixel = frame[j]
         if (!pixel) continue
         const [r, g, b] = pixel
+        if (r + g + b === 0) continue   // skip black LEDs
 
-        const angle = ((i * -1 + showTime / 2) / showTime) * 2 * Math.PI
-        const radius = outerRadius - j * this.ledBulbSpacing
-        const col_x = cx + Math.round(radius * Math.sin(angle))
-        const col_y = cy + Math.round(radius * Math.cos(angle))
+        const outerR = outerRadius - j * this.ledBulbSpacing
+        const innerR = Math.max(0, outerRadius - (j + 1) * this.ledBulbSpacing)
 
-        for (let w = 0; w < this.ledBulbSize; w++) {
-          for (let h = 0; h < this.ledBulbSize; h++) {
-            const idx = ((col_y + w) * width + (col_x + h)) * 4
-            if (idx < 0 || idx + 3 >= d.length) continue
-            d[idx]   = r
-            d[idx+1] = g
-            d[idx+2] = b
-            d[idx+3] = 255
-          }
-        }
+        gc.fillStyle = `rgb(${r},${g},${b})`
+
+        // Arm 1
+        gc.beginPath()
+        gc.arc(cx, cy, outerR, armAngle - halfSlice, armAngle + halfSlice)
+        gc.arc(cx, cy, innerR, armAngle + halfSlice, armAngle - halfSlice, true)
+        gc.closePath()
+        gc.fill()
+
+        // Arm 2 — 180° offset, same data
+        const a2 = armAngle + Math.PI
+        gc.beginPath()
+        gc.arc(cx, cy, outerR, a2 - halfSlice, a2 + halfSlice)
+        gc.arc(cx, cy, innerR, a2 + halfSlice, a2 - halfSlice, true)
+        gc.closePath()
+        gc.fill()
       }
     }
 
-    this.ctx.putImageData(imageData, 0, 0)
+    // ── Composite onto visible canvas ───────────────────────────────────────
+    this.ctx.drawImage(this.bgCanvas, 0, 0)
+
+    // Bloom pass (blurred halo — gives the LED glow appearance)
+    this.ctx.save()
+    this.ctx.filter = 'blur(6px)'
+    this.ctx.globalAlpha = 0.55
+    this.ctx.drawImage(this.glowCanvas as CanvasImageSource, 0, 0)
+    this.ctx.restore()
+
+    // Crisp core pass
+    this.ctx.drawImage(this.glowCanvas as CanvasImageSource, 0, 0)
   }
 
   // ---------------------------------------------------------------------------

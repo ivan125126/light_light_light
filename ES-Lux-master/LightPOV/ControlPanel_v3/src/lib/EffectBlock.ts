@@ -108,6 +108,7 @@ export class EffectBlock {
       } else if (!selectionStore.selectedIds.includes(this.id)) {
         // Only reset selection when clicking an unselected block
         selectionStore.setOnly(this.id)
+        effectStore.setPreviewDefinition(null)  // 切回多 Lux 模式，清除素材庫預覽
         effectStore.selectInstance(this.id)
       }
       // If block is already selected (plain click on selected) → keep multi-selection intact
