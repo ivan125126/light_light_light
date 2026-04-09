@@ -59,9 +59,9 @@ export const useHardwareStore = defineStore('hardware', {
       }
     },
 
-    startServerPolling() {
+    async startServerPolling() {
       if (this._serverPollingId) return
-      this._checkServer()
+      await this._checkServer()
       this._serverPollingId = setInterval(() => this._checkServer(), 3000)
     },
 
