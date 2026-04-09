@@ -3,3 +3,5 @@ dist/
 src/dist/
 *.local
 .DS_Store
+.superpowers/
+docs/superpowers/
