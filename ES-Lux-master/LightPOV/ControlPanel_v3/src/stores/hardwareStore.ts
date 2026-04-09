@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getLuxStat } from '../services/hardwareService'
+import { getLuxStat, checkServerHealth } from '../services/hardwareService'
 import type { LuxUnit } from '../types'
 
 export const useHardwareStore = defineStore('hardware', {
@@ -7,6 +7,8 @@ export const useHardwareStore = defineStore('hardware', {
     units: [] as LuxUnit[],
     liveHardware: false,
     _pollingId: null as ReturnType<typeof setInterval> | null,
+    serverOnline: false as boolean,
+    _serverPollingId: null as ReturnType<typeof setInterval> | null,
   }),
 
   actions: {
@@ -55,6 +57,23 @@ export const useHardwareStore = defineStore('hardware', {
         if (!unit) continue
         unit.connected = (now - stat) < 1000
       }
+    },
+
+    startServerPolling() {
+      if (this._serverPollingId) return
+      this._checkServer()
+      this._serverPollingId = setInterval(() => this._checkServer(), 3000)
+    },
+
+    stopServerPolling() {
+      if (this._serverPollingId) {
+        clearInterval(this._serverPollingId)
+        this._serverPollingId = null
+      }
+    },
+
+    async _checkServer() {
+      this.serverOnline = await checkServerHealth()
     },
   },
 })
