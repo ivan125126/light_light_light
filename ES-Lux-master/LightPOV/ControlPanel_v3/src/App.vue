@@ -21,6 +21,19 @@
       <span class="server-status" :class="hardwareStore.serverOnline ? 'online' : 'offline'">
         ● {{ hardwareStore.serverOnline ? 'Server 已連線' : 'Server 未連線' }}
       </span>
+      <!-- Edit / Perform toggle -->
+      <label class="mode-toggle" :class="uiStore.appMode">
+        <input
+          type="checkbox"
+          class="mode-toggle__input"
+          :checked="uiStore.appMode === 'perform'"
+          @change="uiStore.toggleMode()"
+        />
+        <span class="mode-toggle__track">
+          <span class="mode-toggle__thumb"></span>
+        </span>
+        <span class="mode-toggle__label">{{ uiStore.appMode === 'edit' ? 'EDIT' : 'PERFORM' }}</span>
+      </label>
       <button @click="saveProject">儲存專案</button>
       <button @click="loadProjectDialog">載入專案</button>
       <button @click="projectStore.downloadLibraryFile()">匯出效果庫</button>
@@ -73,6 +86,7 @@ import { useProjectStore } from './stores/projectStore'
 import { useEffectStore } from './stores/effectStore'
 import { useTimelineStore } from './stores/timelineStore'
 import { useHardwareStore } from './stores/hardwareStore'
+import { useUiStore } from './stores/uiStore'
 import AssetLibrary from './components/AssetLibrary.vue'
 import TimelinePanel from './components/TimelinePanel.vue'
 import PreviewPanel from './components/PreviewPanel.vue'
@@ -83,6 +97,7 @@ const projectStore   = useProjectStore()
 const effectStore    = useEffectStore()
 const timelineStore  = useTimelineStore()
 const hardwareStore  = useHardwareStore()
+const uiStore        = useUiStore()
 
 // ── 面板尺寸狀態 ────────────────────────────────────────
 const leftWidth  = ref(260)
@@ -200,4 +215,48 @@ async function importLibrary(event: Event) {
 }
 .server-status.online  { color: #4caf50; }
 .server-status.offline { color: #f44336; opacity: 0.7; }
+
+.mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+.mode-toggle__input {
+  display: none;
+}
+.mode-toggle__track {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  background: #555;
+  border-radius: 11px;
+  transition: background 0.2s;
+}
+.mode-toggle.perform .mode-toggle__track {
+  background: #e05a00;
+}
+.mode-toggle__thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+.mode-toggle.perform .mode-toggle__thumb {
+  transform: translateX(18px);
+}
+.mode-toggle__label {
+  font-size: 0.75rem;
+  font-weight: bold;
+  min-width: 54px;
+  color: #ccc;
+}
+.mode-toggle.perform .mode-toggle__label {
+  color: #e05a00;
+}
 </style>
