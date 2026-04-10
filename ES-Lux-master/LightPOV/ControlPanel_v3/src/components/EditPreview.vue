@@ -14,7 +14,7 @@
         :class="{ highlighted: effectStore.selectedInstanceId !== null && activeInstanceTrack === unit.trackIndex }"
       >
         <pre-view
-          :ref="el => { if (el) previewRefs[i] = el as PreviewEl }"
+          :ref="(el: unknown) => { if (el) previewRefs[i] = el as PreviewEl }"
           :id="`edit_preview_lux_${unit.id}`"
           :speed="60"
         />
@@ -121,6 +121,7 @@ const activeInstanceIds = ref<(string | null)[]>([])
 
 // Effect 1: 偵測 globalTime 跨越效果邊界 → 只在 instance 切換時呼叫 updateData
 // watchEffect 每 16ms 跑一次，但 updateData 只在 instance.id 變化時才呼叫
+// Bug 1 fix: frame 數量依時長動態計算（最少 60，最多 10000），大幅縮短計算時間
 watchEffect(() => {
   hardwareStore.units.forEach((unit, i) => {
     if (unit.trackIndex === null) {
@@ -146,6 +147,9 @@ watchEffect(() => {
 })
 
 // Effect 2: 偵測 params 變更（ParameterPanel 編輯時）→ 對目前活躍的 instance 重新計算
+// Bug 2 fix: 防抖 80ms，拖曳 scrollbar 時主執行緒不被阻塞，鬆開後才更新預覽
+const _paramUpdateTimers = new Map<number, ReturnType<typeof setTimeout>>()
+
 watch(
   () => effectStore.instances,
   (instances) => {
@@ -157,7 +161,13 @@ watch(
       const el = previewRefs.value[i]
       if (!el?.updateData) return
       const def = effectStore.getDefinition(instance.definitionName)
-      if (def) el.updateData(instanceToEffectData(instance, def.mode))
+      if (!def) return
+      const data = instanceToEffectData(instance, def.mode)
+
+      clearTimeout(_paramUpdateTimers.get(i))
+      _paramUpdateTimers.set(i, setTimeout(() => {
+        el.updateData(data)
+      }, 80))
     })
   },
   { deep: true }
