@@ -107,19 +107,27 @@ const activeTab   = ref<'param' | 'control'>('param')
 
 // ── 時間輸入處理 ────────────────────────────────────────
 function onStartTimeChange(event: Event) {
+  const input = event.target as HTMLInputElement
   const inst = effectStore.selectedInstance
   if (!inst) return
-  const secs = parseFloat((event.target as HTMLInputElement).value)
-  if (isNaN(secs) || secs < 0) return
+  const secs = parseFloat(input.value)
+  if (isNaN(secs) || secs < 0) {
+    input.value = (inst.startTime / 1000).toFixed(3)
+    return
+  }
   undoStore.push()
   effectStore.updateInstance(inst.id, { startTime: Math.round(secs * 1000) })
 }
 
 function onDurationChange(event: Event) {
+  const input = event.target as HTMLInputElement
   const inst = effectStore.selectedInstance
   if (!inst) return
-  const secs = parseFloat((event.target as HTMLInputElement).value)
-  if (isNaN(secs) || secs < 0.001) return
+  const secs = parseFloat(input.value)
+  if (isNaN(secs) || secs < 0.001) {
+    input.value = (inst.duration / 1000).toFixed(3)
+    return
+  }
   undoStore.push()
   effectStore.updateInstance(inst.id, { duration: Math.round(secs * 1000) })
 }

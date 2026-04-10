@@ -1456,3 +1456,33 @@ button:disabled {
     background: transparent !important;
     /* 不覆蓋 width，讓 Fabric.js 自己管理 canvas buffer 大小，避免點擊座標偏移 */
 }
+
+/* 時間輸入樣式 */
+.param_timing_group {
+  padding: 6px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.param_timing_row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.param_timing_input {
+  width: 80px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  border: 1px solid #444;
+  background: #1a1a1a;
+  color: #eee;
+  font-size: 12px;
+}
+
+.param_timing_unit {
+  font-size: 12px;
+  color: #888;
+  min-width: 14px;
+}
