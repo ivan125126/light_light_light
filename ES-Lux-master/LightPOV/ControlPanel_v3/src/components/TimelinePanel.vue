@@ -189,8 +189,12 @@ function onSpeedSliderInput(event: Event) {
 }
 
 function onSpeedTextInput(event: Event) {
-  const val = parseFloat((event.target as HTMLInputElement).value)
-  if (isNaN(val) || val < 0.01) return
+  const input = event.target as HTMLInputElement
+  const val = parseFloat(input.value)
+  if (isNaN(val) || val < 0.01) {
+    input.value = audioStore.playbackRate.toString()
+    return
+  }
   audioStore.setPlaybackRate(val)
   setAudioPlaybackRate(val)
 }
@@ -321,7 +325,7 @@ function seekTo(ms: number) {
   if (timelineStore.isPlaying) {
     if (audioStore.hasAudio) {
       stopPlayback()
-      startPlayback(ms)
+      startPlayback(ms, audioStore.playbackRate)
     }
     playStartWallTime = performance.now()
     playStartGlobalTime = ms
