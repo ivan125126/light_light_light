@@ -18,6 +18,34 @@
           <span v-if="displayKind === 'definition'" class="param_source_hint">（預設值）</span>
         </div>
 
+        <!-- 時間資訊（僅 instance 模式） -->
+        <div v-if="displayKind === 'instance'" class="param_group param_timing_group">
+          <div class="param_timing_row">
+            <span class="param_label">開始時間</span>
+            <input
+              class="param_timing_input"
+              type="number"
+              min="0"
+              step="0.001"
+              :value="(displayInstance!.startTime / 1000).toFixed(3)"
+              @change="onStartTimeChange"
+            />
+            <span class="param_timing_unit">s</span>
+          </div>
+          <div class="param_timing_row">
+            <span class="param_label">持續時間</span>
+            <input
+              class="param_timing_input"
+              type="number"
+              min="0.001"
+              step="0.001"
+              :value="(displayInstance!.duration / 1000).toFixed(3)"
+              @change="onDurationChange"
+            />
+            <span class="param_timing_unit">s</span>
+          </div>
+        </div>
+
         <!-- 快速選色 -->
         <div class="param_group color_picker_group">
           <div class="param_label_row">
@@ -67,13 +95,34 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useEffectStore } from '../stores/effectStore'
+import { useUndoStore } from '../stores/undoStore'
 import HsvChannelGroup from './HsvChannelGroup.vue'
 import ExtraParamsGroup from './ExtraParamsGroup.vue'
 import ControlPanel from './ControlPanel.vue'
 import type { HsvChannel, ExtraParams } from '../types'
 
 const effectStore = useEffectStore()
+const undoStore = useUndoStore()
 const activeTab   = ref<'param' | 'control'>('param')
+
+// ── 時間輸入處理 ────────────────────────────────────────
+function onStartTimeChange(event: Event) {
+  const inst = effectStore.selectedInstance
+  if (!inst) return
+  const secs = parseFloat((event.target as HTMLInputElement).value)
+  if (isNaN(secs) || secs < 0) return
+  undoStore.push()
+  effectStore.updateInstance(inst.id, { startTime: Math.round(secs * 1000) })
+}
+
+function onDurationChange(event: Event) {
+  const inst = effectStore.selectedInstance
+  if (!inst) return
+  const secs = parseFloat((event.target as HTMLInputElement).value)
+  if (isNaN(secs) || secs < 0.001) return
+  undoStore.push()
+  effectStore.updateInstance(inst.id, { duration: Math.round(secs * 1000) })
+}
 
 // ── 顯示來源判斷 ────────────────────────────────────────
 // 'instance' = 選取 Timeline block；'definition' = 點選素材庫；null = 無選取
@@ -99,6 +148,10 @@ const definition = computed(() => {
   if (!displayName.value) return undefined
   return effectStore.getDefinition(displayName.value)
 })
+
+const displayInstance = computed(() =>
+  displayKind.value === 'instance' ? effectStore.selectedInstance : null
+)
 
 // ── 參數更新（同時支援 instance 和 definition 模式） ──────────
 function updateChannel(key: 'XH'|'XS'|'XV'|'YH'|'YS'|'YV', value: HsvChannel) {
