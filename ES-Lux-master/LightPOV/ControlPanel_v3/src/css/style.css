@@ -1184,6 +1184,35 @@ pre-view canvas {
     min-width: 38px;
 }
 
+.speed-label {
+  font-size: 12px;
+  color: #aaa;
+  white-space: nowrap;
+}
+
+.speed-slider {
+  width: 80px;
+  cursor: pointer;
+}
+
+.speed-input {
+  width: 52px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  border: 1px solid #444;
+  background: #1a1a1a;
+  color: #eee;
+  font-size: 12px;
+  text-align: center;
+}
+
+.speed-value {
+  font-size: 12px;
+  color: #ccc;
+  min-width: 36px;
+  white-space: nowrap;
+}
+
 /* 右上角新增/刪除按鈕群 */
 .track-actions {
   margin-left: auto;

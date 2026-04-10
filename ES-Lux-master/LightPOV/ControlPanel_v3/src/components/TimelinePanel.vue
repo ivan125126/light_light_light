@@ -188,6 +188,10 @@ function onSpeedSliderInput(event: Event) {
   const rate = SPEED_STEPS[idx] ?? 1.0
   audioStore.setPlaybackRate(rate)
   setAudioPlaybackRate(rate)
+  if (timelineStore.isPlaying) {
+    playStartWallTime = performance.now()
+    playStartGlobalTime = timelineStore.globalTime
+  }
 }
 
 function onSpeedTextInput(event: Event) {
@@ -199,6 +203,10 @@ function onSpeedTextInput(event: Event) {
   }
   audioStore.setPlaybackRate(val)
   setAudioPlaybackRate(val)
+  if (timelineStore.isPlaying) {
+    playStartWallTime = performance.now()
+    playStartGlobalTime = timelineStore.globalTime
+  }
 }
 
 const timescaleCanvasRef = ref<HTMLCanvasElement | null>(null)
@@ -596,6 +604,7 @@ function onKeyDown(e: KeyboardEvent) {
   // Ctrl+B — split selected effect at cursor
   if (isMeta && e.key === 'b') {
     if (isEditable) return
+    if (uiStore.appMode === 'perform') return
     e.preventDefault()
     const inst = effectStore.selectedInstance
     if (!inst) return
