@@ -6,6 +6,7 @@ interface AudioState {
   peaks: number[]
   fileName: string | null
   volume: number
+  playbackRate: number
 }
 
 export const useAudioStore = defineStore('audio', {
@@ -15,6 +16,7 @@ export const useAudioStore = defineStore('audio', {
     peaks: [],
     fileName: null,
     volume: 1,
+    playbackRate: 1,
   }),
 
   actions: {
@@ -27,6 +29,10 @@ export const useAudioStore = defineStore('audio', {
 
     setVolume(vol: number): void {
       this.volume = Math.max(0, Math.min(1, vol))
+    },
+
+    setPlaybackRate(rate: number): void {
+      this.playbackRate = Math.max(0.01, rate)
     },
 
     clearAudio(): void {
