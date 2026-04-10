@@ -37,6 +37,25 @@
       />
       <span class="volume-value">{{ Math.round(audioStore.volume * 100) }}%</span>
 
+      <!-- 播放速度 -->
+      <span class="speed-label">速度：</span>
+      <input
+        class="speed-slider"
+        type="range"
+        min="1" max="4" step="1"
+        :value="speedSliderIndex"
+        @input="onSpeedSliderInput"
+      />
+      <input
+        class="speed-input"
+        type="number"
+        min="0.01"
+        step="0.05"
+        :value="audioStore.playbackRate"
+        @change="onSpeedTextInput"
+      />
+      <span class="speed-value">x{{ audioStore.playbackRate.toFixed(2) }}</span>
+
       <!-- 音檔名稱 -->
       <span v-if="audioStore.hasAudio" class="audio-name">{{ audioStore.fileName }}</span>
 
@@ -135,12 +154,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import TrackCanvas from './TrackCanvas.vue'
 import { useTimelineStore } from '../stores/timelineStore'
 import { useAudioStore } from '../stores/audioStore'
 import { useEffectStore } from '../stores/effectStore'
-import { loadAudioFile, extractPeaks, startPlayback, stopPlayback, setVolume } from '../services/audioService'
+import { loadAudioFile, extractPeaks, startPlayback, stopPlayback, setVolume, setPlaybackRate as setAudioPlaybackRate } from '../services/audioService'
 import { startHardwareSync, stopHardwareSync, startWithoutAudio, notifyServerTime } from '../services/hardwareService'
 import { tracksToEffectMap, effectMapToTracks } from '../services/serializer'
 import type { EffectData, ProjectTrack } from '../types'
@@ -154,6 +173,28 @@ const audioStore = useAudioStore()
 const effectStore = useEffectStore()
 const selectionStore = useSelectionStore()
 const undoStore = useUndoStore()
+
+const SPEED_STEPS = [0.25, 0.5, 0.75, 1.0]
+
+const speedSliderIndex = computed(() => {
+  const idx = SPEED_STEPS.indexOf(audioStore.playbackRate)
+  return idx >= 0 ? idx + 1 : 1  // fallback to step 1 if custom value
+})
+
+function onSpeedSliderInput(event: Event) {
+  const idx = Number((event.target as HTMLInputElement).value) - 1
+  const rate = SPEED_STEPS[idx] ?? 1.0
+  audioStore.setPlaybackRate(rate)
+  setAudioPlaybackRate(rate)
+}
+
+function onSpeedTextInput(event: Event) {
+  const val = parseFloat((event.target as HTMLInputElement).value)
+  if (isNaN(val) || val < 0.01) return
+  audioStore.setPlaybackRate(val)
+  setAudioPlaybackRate(val)
+}
+
 const timescaleCanvasRef = ref<HTMLCanvasElement | null>(null)
 const tracksContainerRef = ref<HTMLElement | null>(null)
 const secInputRef = ref<HTMLInputElement | null>(null)
@@ -189,7 +230,7 @@ function play() {
   playStartWallTime = performance.now()
   playStartGlobalTime = timelineStore.globalTime
   if (audioStore.hasAudio) {
-    startPlayback(timelineStore.globalTime)
+    startPlayback(timelineStore.globalTime, audioStore.playbackRate)
   } else {
     startWithoutAudio()
   }
@@ -230,7 +271,7 @@ function onVolumeInput(event: Event) {
 
 function tick() {
   if (!timelineStore.isPlaying) return
-  const elapsed = performance.now() - playStartWallTime
+  const elapsed = (performance.now() - playStartWallTime) * audioStore.playbackRate
   timelineStore.setTime(playStartGlobalTime + elapsed)
   drawTimescale()
   animationFrameId = requestAnimationFrame(tick)
