@@ -100,9 +100,9 @@ function updateHeading(modeData: EffectData, idx: number, ledData: LedData): voi
     const ys = (s + getFuncValue(modeData.YS, j)) % 256
     const yv = (v + getFuncValue(modeData.YV, j)) % 256
     const { r, g, b } = hsvToRgb(yh, ys, yv)
-    ledData[idx][j][0] = r
-    ledData[idx][j][1] = g
-    ledData[idx][j][2] = b
+    ledData[idx][31-j][0] = r
+    ledData[idx][31-j][1] = g
+    ledData[idx][31-j][2] = b
   }
 }
 

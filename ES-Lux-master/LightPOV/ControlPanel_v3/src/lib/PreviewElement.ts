@@ -27,6 +27,9 @@ export class PreviewElement extends HTMLElement {
   private innerRadius = 80
   private ledBulbSpacing = 3
   private speed = 60
+  private fps = 500
+  private _lastFrameTime = 0
+  private fadeSpeed = 0.025
 
   private bgCanvas!: HTMLCanvasElement
   private glowCanvas!: HTMLCanvasElement | OffscreenCanvas
@@ -118,10 +121,22 @@ export class PreviewElement extends HTMLElement {
     this._startLoop()
   }
 
+  /** Dynamically update display parameters without recreating the element. */
+  setParams(params: { circumference?: number; speed?: number; fps?: number; fadeSpeed?: number }): void {
+    if (params.circumference !== undefined) this.innerRadius = params.circumference
+    if (params.speed        !== undefined) this.speed        = params.speed
+    if (params.fps          !== undefined) this.fps          = params.fps
+    if (params.fadeSpeed    !== undefined) this.fadeSpeed    = params.fadeSpeed
+  }
+
   private _startLoop(): void {
-    const loop = () => {
-      this._drawFrame(this.currentFrame)
-      this.currentFrame = (this.currentFrame + 1) % this.frameCount
+    const loop = (timestamp: number) => {
+      const interval = 1000 / this.fps
+      if (timestamp - this._lastFrameTime >= interval) {
+        this._drawFrame(this.currentFrame)
+        this.currentFrame = (this.currentFrame + 1) % this.frameCount
+        this._lastFrameTime = timestamp
+      }
       this.animationId = requestAnimationFrame(loop)
     }
     this.animationId = requestAnimationFrame(loop)
@@ -169,10 +184,17 @@ export class PreviewElement extends HTMLElement {
     // ── Fade existing trail ─────────────────────────────────────────────────
     // destination-out reduces the alpha of all existing pixels, making the
     // trail decay toward transparent without leaving opaque black behind.
-    gc.globalCompositeOperation = 'destination-out'
-    gc.fillStyle = 'rgba(0,0,0,0.025)'
-    gc.fillRect(0, 0, width, height)
-    gc.globalCompositeOperation = 'source-over'
+    // At the start of each new rotation, force clearRect to eliminate the
+    // exponential residue that never reaches exact zero.
+    const posInRotation = frameOffset % showTime
+    if (posInRotation === 0) {
+      gc.clearRect(0, 0, width, height)
+    } else {
+      gc.globalCompositeOperation = 'destination-out'
+      gc.fillStyle = `rgba(0,0,0,${this.fadeSpeed})`
+      gc.fillRect(0, 0, width, height)
+      gc.globalCompositeOperation = 'source-over'
+    }
 
     // ── Draw current arm strip ──────────────────────────────────────────────
     const frameIdx = frameOffset % this.frameCount

@@ -24,6 +24,30 @@
         尚未新增 Lux 裝置
       </div>
     </div>
+
+    <!-- Temporary display adjustment sliders -->
+    <div class="preview_adjust_sliders">
+      <div class="preview_slider_row">
+        <span class="preview_slider_label">周長</span>
+        <input type="range" min="20" max="50" step="1" v-model.number="displayParams.circumference" @input="applyDisplayParams" />
+        <span class="preview_slider_value">{{ displayParams.circumference }}</span>
+      </div>
+      <div class="preview_slider_row">
+        <span class="preview_slider_label">速度</span>
+        <input type="range" min="1" max="10000" step="1" v-model.number="displayParams.speed" @input="applyDisplayParams" />
+        <span class="preview_slider_value">{{ displayParams.speed }}</span>
+      </div>
+      <div class="preview_slider_row">
+        <span class="preview_slider_label">幀率</span>
+        <input type="range" min="1" max="10000" step="1" v-model.number="displayParams.fps" @input="applyDisplayParams" />
+        <span class="preview_slider_value">{{ displayParams.fps }}</span>
+      </div>
+      <div class="preview_slider_row">
+        <span class="preview_slider_label">消散</span>
+        <input type="range" min="0.001" max="1" step="0.001" v-model.number="displayParams.fadeSpeed" @input="applyDisplayParams" />
+        <span class="preview_slider_value">{{ displayParams.fadeSpeed.toFixed(3) }}</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -35,7 +59,7 @@ import { useTimelineStore } from '../stores/timelineStore'
 import { instanceToEffectData } from '../services/serializer'
 import type { EffectData } from '../types'
 
-type PreviewEl = { updateData: (data: EffectData) => void }
+type PreviewEl = { updateData: (data: EffectData) => void; setParams: (p: { circumference?: number; speed?: number; fps?: number }) => void }
 
 const ZERO_CH = { func: 0 as const, range: 0, lower: 0, p1: 0, p2: 0 }
 const CLEAR_EFFECT_DATA: EffectData = {
@@ -48,6 +72,15 @@ const CLEAR_EFFECT_DATA: EffectData = {
 const effectStore = useEffectStore()
 const hardwareStore = useHardwareStore()
 const timelineStore = useTimelineStore()
+
+// ── Temporary display adjustment ─────────────────────────────
+const displayParams = ref({ circumference: 80, speed: 60, fps: 60, fadeSpeed: 0.025 })
+
+function applyDisplayParams() {
+  const p = displayParams.value
+  if (singleRef.value?.setParams) singleRef.value.setParams(p)
+  previewRefs.value.forEach(el => el?.setParams?.(p))
+}
 
 // 播放時自動離開單一效果預覽，切換回多 Lux 模式
 watch(() => timelineStore.isPlaying, playing => {
