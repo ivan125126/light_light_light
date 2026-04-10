@@ -8,7 +8,7 @@
     </div>
 
     <!-- ── 參數 tab ───────────────────────────────── -->
-    <div v-show="activeTab === 'param'" class="param_body param_body--param">
+    <fieldset v-show="activeTab === 'param'" class="param_body param_body--param" :disabled="isPerform" style="border:none;padding:0;margin:0;">
 
       <div v-if="!displayParams" class="param_empty">點選 Timeline 上的效果或左側素材庫以查看參數</div>
 
@@ -82,7 +82,7 @@
         <!-- 刪除自定義效果（僅自定義效果才顯示） -->
         <button v-if="definition && !definition.isBuiltIn" class="delete-custom-btn" @click="deleteCustom">刪除自定義效果</button>
       </template>
-    </div>
+    </fieldset>
 
     <!-- ── 控制 tab ───────────────────────────────── -->
     <div v-show="activeTab === 'control'" class="param_body param_body--control">
@@ -96,6 +96,7 @@
 import { ref, computed } from 'vue'
 import { useEffectStore } from '../stores/effectStore'
 import { useUndoStore } from '../stores/undoStore'
+import { useUiStore } from '../stores/uiStore'
 import HsvChannelGroup from './HsvChannelGroup.vue'
 import ExtraParamsGroup from './ExtraParamsGroup.vue'
 import ControlPanel from './ControlPanel.vue'
@@ -103,7 +104,10 @@ import type { HsvChannel, ExtraParams } from '../types'
 
 const effectStore = useEffectStore()
 const undoStore = useUndoStore()
+const uiStore = useUiStore()
 const activeTab   = ref<'param' | 'control'>('param')
+
+const isPerform = computed(() => uiStore.appMode === 'perform')
 
 // ── 時間輸入處理 ────────────────────────────────────────
 function onStartTimeChange(event: Event) {
