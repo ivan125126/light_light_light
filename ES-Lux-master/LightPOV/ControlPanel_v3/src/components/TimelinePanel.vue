@@ -60,7 +60,7 @@
       <span v-if="audioStore.hasAudio" class="audio-name">{{ audioStore.fileName }}</span>
 
       <!-- 新增 / 刪除軌道 -->
-      <div class="track-actions">
+      <div v-if="uiStore.appMode === 'edit'" class="track-actions">
         <button @click="timelineStore.addTrack()">+ 新增軌道</button>
         <button
           :disabled="timelineStore.tracks.length <= 1"
@@ -69,7 +69,7 @@
       </div>
 
       <!-- 匯入 / 匯出 JSON -->
-      <div class="track-actions">
+      <div v-if="uiStore.appMode === 'edit'" class="track-actions">
         <label class="load-audio-btn">
           匯入 JSON
           <input type="file" accept=".json" hidden @change="handleImportJson" />
@@ -165,6 +165,7 @@ import { tracksToEffectMap, effectMapToTracks } from '../services/serializer'
 import type { EffectData, ProjectTrack } from '../types'
 import { useSelectionStore } from '../stores/selectionStore'
 import { useUndoStore } from '../stores/undoStore'
+import { useUiStore } from '../stores/uiStore'
 
 const TIMESCALE_HEIGHT = 120
 
@@ -173,6 +174,7 @@ const audioStore = useAudioStore()
 const effectStore = useEffectStore()
 const selectionStore = useSelectionStore()
 const undoStore = useUndoStore()
+const uiStore = useUiStore()
 
 const SPEED_STEPS = [0.25, 0.5, 0.75, 1.0]
 
