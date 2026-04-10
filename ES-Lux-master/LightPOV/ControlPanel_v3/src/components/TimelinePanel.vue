@@ -524,6 +524,14 @@ function onKeyDown(e: KeyboardEvent) {
   const isEditable = tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement).isContentEditable
   const isMeta = e.metaKey || e.ctrlKey
 
+  // Space — play / pause
+  if (e.key === ' ') {
+    if (isEditable) return
+    e.preventDefault()
+    togglePlay()
+    return
+  }
+
   // Cmd+Z — undo
   if (isMeta && e.key === 'z' && !e.shiftKey) {
     if (isEditable) return
@@ -580,6 +588,32 @@ function onKeyDown(e: KeyboardEvent) {
     }
     selectionStore.setMany(newIds)
     if (newIds.length === 1) effectStore.selectInstance(newIds[0])
+    return
+  }
+
+  // Ctrl+B — split selected effect at cursor
+  if (isMeta && e.key === 'b') {
+    if (isEditable) return
+    e.preventDefault()
+    const inst = effectStore.selectedInstance
+    if (!inst) return
+    const playhead = timelineStore.globalTime
+    if (playhead <= inst.startTime || playhead >= inst.startTime + inst.duration) return
+    undoStore.push()
+    const leftDuration = playhead - inst.startTime
+    const rightDuration = inst.duration - leftDuration
+    // Shorten the original to the left half
+    effectStore.updateInstance(inst.id, { duration: leftDuration })
+    // Create right half
+    const newId = effectStore.addInstance(
+      inst.definitionName,
+      playhead,
+      rightDuration,
+      inst.trackIndex
+    )
+    effectStore.updateInstance(newId, { params: JSON.parse(JSON.stringify(inst.params)) })
+    selectionStore.setOnly(newId)
+    effectStore.selectInstance(newId)
     return
   }
 
