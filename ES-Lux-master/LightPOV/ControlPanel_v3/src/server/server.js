@@ -16,7 +16,6 @@ var liveMode = false
 var liveEffectData = null
 var SONG = "unravel.json"
 var Time = 0;
-var time = 0;
 var last_connect_time = new Array(NUM_OF_LB).fill(0);
 
 let EffectMapData = fs.readFileSync(path.join(__dirname, 'public', SONG));
@@ -284,18 +283,6 @@ app.post('/fileupload', function (req, res) {
         });
     });
 })
-
-app.get('/gettime', (req, res) => {
-    const ID = parseInt(req.query.id);  // 從查詢參數中取得ID
-    var now = new Date();
-    last_connect_time[ID] = now.getTime();
-    res.send(time.toString());
-});
-app.post('/settime', (req, res) => {
-    time = req.body.time;
-    //console.log(`Received time: ${time} ms`);
-    res.status(200).send('Time updated');
-});
 
 app.post('/live_effect', (req, res) => {
     liveMode = true
