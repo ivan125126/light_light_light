@@ -36,6 +36,8 @@ export const MODE_EXTRA_SCHEMA: Partial<Record<EffectMode, ExtraParamSchema>> = 
   MODES_MAP_ES:      { reverse: true, space: true },
   MODES_MAP_ES_ZH:   { reverse: true, space: true },
   MODES_MAP_ESXOPT:  { reverse: true, space: true },
+  MODES_CMAP_BENSON: { reverse: true, space: true },
+  MODES_CMAP_YEN:    { reverse: true, space: true },
 }
 
 // Chinese display names → EffectMode (for backward compatibility when loading old JSON)

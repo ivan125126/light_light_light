@@ -1,10 +1,59 @@
-import type { EffectData, EffectDefinition, EffectInstance, EffectMode, HsvChannel, ProjectTrack } from '../types'
-import { MODE_ENUM } from '../constants/effectConfig'
+import type { EffectData, EffectDefinition, EffectInstance, EffectMode, HsvChannel, ProjectTrack, ExtraParams } from '../types'
+import { MODE_ENUM, defaultExtraParams } from '../constants/effectConfig'
 
 /** Linearly maps `value` from [min, max] to [0, 255]. Returns 0 if min === max. */
 function normalizeTo255(value: number, min: number, max: number): number {
   if (max === min) return 0
   return Math.round(((value - min) / (max - min)) * 255)
+}
+
+/** Reverses normalizeTo255: maps a 0–255 byte back to the [min, max] range. */
+function denormalizeFrom255(byte: number, min: number, max: number): number {
+  if (max === min) return min
+  return Math.round(byte * (max - min) / 255 + min)
+}
+
+/** Decodes mode-specific p1/p2/p3/p4 bytes back to human-readable ExtraParams. */
+function decodeExtraParams(data: EffectData): ExtraParams {
+  const extra = defaultExtraParams()
+
+  switch (data.mode) {
+    case 'MODES_SQUARE':
+      extra.boxsize = denormalizeFrom255(data.p3, 0, 300)
+      break
+    case 'MODES_SICKLE':
+    case 'MODES_SICKLE_ADV':
+      extra.positionFix = data.p1
+      extra.curvature   = denormalizeFrom255(data.p3, 0, 100)
+      extra.length      = denormalizeFrom255(data.p4, 0, 300)
+      break
+    case 'MODES_FAN':
+    case 'MODES_FAN_ADV':
+      extra.curvature  = denormalizeFrom255(data.p1, 0, 100)
+      extra.bladeCount = denormalizeFrom255(data.p3, 0, 12)
+      extra.length     = denormalizeFrom255(data.p4, 0, 300)
+      break
+    case 'MODES_BOXES':
+      extra.boxsize = denormalizeFrom255(data.p3, 0, 300)
+      extra.space   = denormalizeFrom255(data.p4, 0, 100)
+      break
+    case 'MODES_CMAP_FIRE':
+    case 'MODES_CMAP_GEAR':
+      extra.space = denormalizeFrom255(data.p4, 0, 100)
+      break
+    case 'MODES_CMAP_DNA':
+    case 'MODES_CMAP_LOVE':
+    case 'MODES_MAP_ES':
+    case 'MODES_MAP_ES_ZH':
+    case 'MODES_MAP_ESXOPT':
+    case 'MODES_CMAP_BENSON':
+    case 'MODES_CMAP_YEN':
+      extra.reverse = data.p1 >= 128 ? 1 : 0
+      extra.space   = denormalizeFrom255(data.p4, 0, 100)
+      break
+  }
+
+  return extra
 }
 
 /**
@@ -47,10 +96,11 @@ export function instanceToEffectData(instance: EffectInstance, mode: EffectMode)
     case 'MODES_MAP_ES':
     case 'MODES_MAP_ES_ZH':
     case 'MODES_MAP_ESXOPT':
+    case 'MODES_CMAP_BENSON':
+    case 'MODES_CMAP_YEN':
       p1 = extra.reverse >= 1 ? 255 : 0
       p4 = normalizeTo255(extra.space, 0, 100)
       break
-    // MODES_CMAP_BENSON, MODES_CMAP_YEN: no extra params
   }
 
   return {
@@ -185,4 +235,61 @@ export function tracksToEffectMap(
   }
 
   return result
+}
+
+/**
+ * Converts server EffectMap format (EffectData[][]) back to timeline tracks + instances.
+ * Each device index becomes one track named "Device N". MODES_CLEAR entries are skipped.
+ *
+ * Returns:
+ *   tracks    — load via timelineStore.loadTracks(tracks, tracks.length + 1)
+ *   instances — load via effectStore.loadFromProject(instances, [])
+ */
+export function effectMapToTracks(
+  effectMap: EffectData[][],
+  definitions: EffectDefinition[],
+): {
+  tracks: { id: string; name: string; deviceIndices: number[] }[]
+  instances: EffectInstance[]
+} {
+  const modeToDefName = new Map(definitions.map(d => [d.mode, d.name]))
+  const tracks: { id: string; name: string; deviceIndices: number[] }[] = []
+  const instances: EffectInstance[] = []
+
+  for (let deviceIdx = 0; deviceIdx < effectMap.length; deviceIdx++) {
+    const deviceEffects = effectMap[deviceIdx]
+    if (!deviceEffects || deviceEffects.length === 0) continue
+
+    // Only add a track if there are non-CLEAR effects
+    const nonClear = deviceEffects.filter(e => e.mode !== 'MODES_CLEAR')
+    if (nonClear.length === 0) continue
+
+    const trackId = `track-${Date.now()}-${deviceIdx}`
+    tracks.push({ id: trackId, name: `Device ${deviceIdx}`, deviceIndices: [deviceIdx] })
+    const trackIndex = tracks.length - 1
+
+    for (const effectData of nonClear) {
+      const defName = modeToDefName.get(effectData.mode) ?? effectData.mode
+      const extra = decodeExtraParams(effectData)
+
+      instances.push({
+        id: `effect_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        definitionName: defName,
+        trackIndex,
+        startTime: effectData.start_time,
+        duration: effectData.duration,
+        params: {
+          XH: { ...effectData.XH },
+          XS: { ...effectData.XS },
+          XV: { ...effectData.XV },
+          YH: { ...effectData.YH },
+          YS: { ...effectData.YS },
+          YV: { ...effectData.YV },
+          extra,
+        },
+      })
+    }
+  }
+
+  return { tracks, instances }
 }

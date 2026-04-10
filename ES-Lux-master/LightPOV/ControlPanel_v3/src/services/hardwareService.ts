@@ -29,6 +29,15 @@ export function stopHardwareSync(): void {
   }
 }
 
+/** Send current playback time to server once (one-shot, used when seeking while paused) */
+export async function notifyServerTime(ms: number): Promise<void> {
+  try {
+    await fetch(`/start?time=${ms}`)
+  } catch {
+    // Server unreachable — silently ignore
+  }
+}
+
 /** Fetch effect string from server (used to verify hardware receives correct data) */
 export async function getEffectFromServer(effectId: number, luxId: number): Promise<string> {
   const res = await fetch(`/get_effect?id=${effectId}&luxid=${luxId}`)

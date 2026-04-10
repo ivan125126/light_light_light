@@ -57,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch, onUnmounted } from 'vue'
+import { ref, watch, onUnmounted } from 'vue'
 import { useHardwareStore } from '../stores/hardwareStore'
 import { useTimelineStore } from '../stores/timelineStore'
 import { useEffectStore } from '../stores/effectStore'
@@ -77,7 +77,13 @@ watch(
   { immediate: true }
 )
 
-onUnmounted(() => store.stopPolling())
+onUnmounted(() => {
+  store.stopPolling()
+  clearInterval(_tickId)
+})
+
+const now = ref(Date.now())
+const _tickId = setInterval(() => { now.value = Date.now() }, 1000)
 
 function onTrackChange(unitId: number, event: Event) {
   const val = (event.target as HTMLSelectElement).value
@@ -85,7 +91,7 @@ function onTrackChange(unitId: number, event: Event) {
 }
 
 function secondsSince(ms: number): number {
-  return Math.floor((Date.now() - ms) / 1000)
+  return Math.floor((now.value - ms) / 1000)
 }
 
 function currentEffectName(unit: LuxUnit): string {

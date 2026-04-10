@@ -15,6 +15,6 @@ export const BUILT_IN_DEFINITIONS: EffectDefinition[] = [
   { name: 'ES',     mode: 'MODES_MAP_ES',       isBuiltIn: true, defaultParams: defaultEffectParams(), extraParamSchema: MODE_EXTRA_SCHEMA['MODES_MAP_ES']    ?? {} },
   { name: '工科',   mode: 'MODES_MAP_ES_ZH',    isBuiltIn: true, defaultParams: defaultEffectParams(), extraParamSchema: MODE_EXTRA_SCHEMA['MODES_MAP_ES_ZH'] ?? {} },
   { name: 'ESXOPT', mode: 'MODES_MAP_ESXOPT',   isBuiltIn: true, defaultParams: defaultEffectParams(), extraParamSchema: MODE_EXTRA_SCHEMA['MODES_MAP_ESXOPT']?? {} },
-  { name: 'OT',     mode: 'MODES_CMAP_YEN',     isBuiltIn: true, defaultParams: defaultEffectParams(), extraParamSchema: {} },
-  { name: 'PT',     mode: 'MODES_CMAP_BENSON',  isBuiltIn: true, defaultParams: defaultEffectParams(), extraParamSchema: {} },
+  { name: 'OT',     mode: 'MODES_CMAP_YEN',     isBuiltIn: true, defaultParams: defaultEffectParams(), extraParamSchema: MODE_EXTRA_SCHEMA['MODES_CMAP_YEN']    ?? {} },
+  { name: 'PT',     mode: 'MODES_CMAP_BENSON',  isBuiltIn: true, defaultParams: defaultEffectParams(), extraParamSchema: MODE_EXTRA_SCHEMA['MODES_CMAP_BENSON'] ?? {} },
 ]

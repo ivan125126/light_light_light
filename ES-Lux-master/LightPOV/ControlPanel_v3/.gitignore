@@ -5,3 +5,4 @@ src/dist/
 .DS_Store
 .superpowers/
 docs/superpowers/
+package-lock.json

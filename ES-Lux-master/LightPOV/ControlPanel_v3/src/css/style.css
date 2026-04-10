@@ -177,12 +177,14 @@ body {
 /* ========== Timeline 下半區塊 ========== */
 .timeline-section {
     flex: 1 1 auto;
-    overflow: hidden;
     min-height: 0;
+    overflow: hidden;
     margin: 0 16px 10px 16px;
     background: #1c1c1c;
     border-radius: 8px;
     border: 1px solid #2e2e2e;
+    display: flex;
+    flex-direction: column;
 }
 
 /* legacy alias */
@@ -1280,6 +1282,7 @@ pre-view canvas {
 
 .tracks_container {
     flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
     display: flex;

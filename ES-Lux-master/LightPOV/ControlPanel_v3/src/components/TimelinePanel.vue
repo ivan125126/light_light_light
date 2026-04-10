@@ -48,6 +48,15 @@
           @click="openDeleteDialog"
         >− 刪除軌道</button>
       </div>
+
+      <!-- 匯入 / 匯出 JSON -->
+      <div class="track-actions">
+        <label class="load-audio-btn">
+          匯入 JSON
+          <input type="file" accept=".json" hidden @change="handleImportJson" />
+        </label>
+        <button @click="exportJson">匯出 JSON</button>
+      </div>
     </div>
 
     <!-- 時間刻度行（左：播放控制 | 右：時間刻度canvas） -->
@@ -72,7 +81,7 @@
     <div
       ref="tracksContainerRef"
       class="tracks_container"
-      @wheel.prevent="onWheel"
+      @wheel="onTracksWheel"
     >
       <div
         class="track-row"
@@ -132,7 +141,9 @@ import { useTimelineStore } from '../stores/timelineStore'
 import { useAudioStore } from '../stores/audioStore'
 import { useEffectStore } from '../stores/effectStore'
 import { loadAudioFile, extractPeaks, startPlayback, stopPlayback, setVolume } from '../services/audioService'
-import { startHardwareSync, stopHardwareSync, startWithoutAudio } from '../services/hardwareService'
+import { startHardwareSync, stopHardwareSync, startWithoutAudio, notifyServerTime } from '../services/hardwareService'
+import { tracksToEffectMap, effectMapToTracks } from '../services/serializer'
+import type { EffectData, ProjectTrack } from '../types'
 import { useSelectionStore } from '../stores/selectionStore'
 import { useUndoStore } from '../stores/undoStore'
 
@@ -199,8 +210,7 @@ function pause() {
 
 function stop() {
   pause()
-  timelineStore.setTime(0)
-  drawTimescale()
+  seekTo(0)
 }
 
 // ── 跳至時間 ──────────────────────────────────────────────
@@ -239,7 +249,7 @@ async function loadAudio(event: Event) {
   drawTimescale()
 }
 
-// ── 滾輪：上下 = zoom，左右 = pan ─────────────────────────
+// ── 滾輪：時間刻度軸上 → 上下 = zoom，左右 = pan ────────
 function onWheel(event: WheelEvent) {
   if (Math.abs(event.deltaY) >= Math.abs(event.deltaX)) {
     // 縱向滾動 → zoom（向上縮小 secondsPerPixel = 放大尺度）
@@ -253,6 +263,17 @@ function onWheel(event: WheelEvent) {
   drawTimescale()
 }
 
+// ── 滾輪：軌道區域 → 垂直 = 捲動 tracks，水平 = pan ─────
+function onTracksWheel(event: WheelEvent) {
+  if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
+    // 水平滾動 → pan timeline
+    event.preventDefault()
+    timelineStore.setOffset(timelineStore.timelineOffset + event.deltaX)
+    drawTimescale()
+  }
+  // 垂直滾動交給瀏覽器原生處理（捲動 tracks_container）
+}
+
 // ── 跳至指定時間（seek） ──────────────────────────────────
 function seekTo(ms: number) {
   timelineStore.setTime(ms)
@@ -263,6 +284,9 @@ function seekTo(ms: number) {
     }
     playStartWallTime = performance.now()
     playStartGlobalTime = ms
+  } else {
+    // 暫停狀態下 cursor 移動仍需通知 server，讓 Lux 顯示正確效果
+    notifyServerTime(ms)
   }
   drawTimescale()
 }
@@ -394,6 +418,59 @@ function drawTimescale() {
     ctx.stroke()
     ctx.lineWidth = 1
   }
+}
+
+// ── 匯入 / 匯出 JSON ──────────────────────────────────────
+function exportJson() {
+  const projectTracks: ProjectTrack[] = timelineStore.tracks.map((track, i) => ({
+    id: track.id,
+    name: track.name,
+    deviceIndices: track.deviceIndices,
+    effects: effectStore.instances
+      .filter(inst => inst.trackIndex === i)
+      .map(inst => ({
+        id: inst.id,
+        definitionName: inst.definitionName,
+        startTime: inst.startTime,
+        duration: inst.duration,
+        params: inst.params,
+      })),
+  }))
+
+  const effectMap = tracksToEffectMap(projectTracks, effectStore.definitions, timelineStore.totalDuration)
+  const json = JSON.stringify(effectMap, null, 2)
+  const blob = new Blob([json], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'effect_map.json'
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+async function handleImportJson(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (!file) return
+
+  let effectMap: EffectData[][]
+  try {
+    effectMap = JSON.parse(await file.text())
+  } catch {
+    alert('無效的 JSON 檔案')
+    return
+  }
+
+  if (!Array.isArray(effectMap) || !Array.isArray(effectMap[0])) {
+    alert('JSON 格式錯誤：需要 EffectData[][] 格式')
+    return
+  }
+
+  const { tracks, instances } = effectMapToTracks(effectMap, effectStore.definitions)
+  timelineStore.loadTracks(tracks, tracks.length + 1)
+  effectStore.loadFromProject(instances, [])
+
+  // reset so the same file can be re-imported if needed
+  ;(event.target as HTMLInputElement).value = ''
 }
 
 // ── 生命週期 ──────────────────────────────────────────────
