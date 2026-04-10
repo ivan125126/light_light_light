@@ -85,17 +85,23 @@
 import { ref, computed, nextTick } from 'vue'
 import { useEffectStore } from '../stores/effectStore'
 import { useTimelineStore } from '../stores/timelineStore'
+import { useUiStore } from '../stores/uiStore'
 import type { EffectMode } from '../types'
 import { defaultEffectParams } from '../constants/effectConfig'
 
 const effectStore = useEffectStore()
 const timelineStore = useTimelineStore()
+const uiStore = useUiStore()
 const activeTab = ref('preset')
 
 const builtInDefs = computed(() => effectStore.definitions.filter(d => d.isBuiltIn))
 const customDefs  = computed(() => effectStore.definitions.filter(d => !d.isBuiltIn))
 
 function onDragStart(event: DragEvent, definitionName: string) {
+  if (uiStore.appMode === 'perform') {
+    event.preventDefault()
+    return
+  }
   event.dataTransfer?.setData('text/plain', definitionName)
 }
 

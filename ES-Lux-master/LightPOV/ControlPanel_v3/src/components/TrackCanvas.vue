@@ -9,6 +9,7 @@ import { useEffectStore } from '../stores/effectStore'
 import { useTimelineStore } from '../stores/timelineStore'
 import { useSelectionStore } from '../stores/selectionStore'
 import { useUndoStore } from '../stores/undoStore'
+import { useUiStore } from '../stores/uiStore'
 import EffectBlock from '../lib/EffectBlock'
 
 const props = defineProps<{ trackIndex: number }>()
@@ -16,6 +17,7 @@ const effectStore = useEffectStore()
 const timelineStore = useTimelineStore()
 const selectionStore = useSelectionStore()
 const undoStore = useUndoStore()
+const uiStore = useUiStore()
 let canvas: fabric.Canvas | null = null
 let resizeObserver: ResizeObserver | null = null
 let rafId: number | null = null
@@ -56,6 +58,9 @@ function syncFromStore() {
       block.startTime = instance.startTime
       block.duration = instance.duration
       block.render()
+      if (uiStore.appMode === 'perform') {
+        block.fabricGroup?.set({ evented: false, selectable: false })
+      }
       blockMap.set(instance.id, block)
     }
   }
@@ -89,6 +94,18 @@ watch(
 
 // Sync canvas whenever this track's instances change (handles load, delete, etc.)
 watch(trackInstances, syncFromStore)
+
+watch(
+  () => uiStore.appMode,
+  (mode) => {
+    if (!canvas) return
+    const locked = mode === 'perform'
+    canvas.getObjects().forEach(obj => {
+      obj.set({ evented: !locked, selectable: !locked })
+    })
+    canvas.requestRenderAll()
+  }
+)
 
 // Sync highlight state on all blocks whenever the selection changes
 watch(
@@ -135,6 +152,7 @@ onMounted(() => {
 
   // Drop: only update the store — the watch above handles block creation
   canvasContainer?.addEventListener('drop', (e: DragEvent) => {
+    if (uiStore.appMode === 'perform') return
     e.preventDefault()
     e.stopPropagation()
     const definitionName = e.dataTransfer?.getData('text/plain')
