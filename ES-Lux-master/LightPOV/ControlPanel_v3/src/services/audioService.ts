@@ -8,6 +8,7 @@ let _audioContext: AudioContext | null = null
 let _gainNode: GainNode | null = null
 let _sourceNode: AudioBufferSourceNode | null = null
 let _audioBuffer: AudioBuffer | null = null
+let _currentRate = 1
 
 function getAudioContext(): AudioContext {
   if (!_audioContext) {
@@ -40,8 +41,6 @@ export async function loadAudioFile(file: File): Promise<{ buffer: AudioBuffer; 
 
 /**
  * Extract normalized peak values for waveform rendering.
- * @param buffer  Decoded AudioBuffer
- * @param numPeaks  Number of peaks to extract
  */
 export function extractPeaks(buffer: AudioBuffer, numPeaks: number): number[] {
   const channelData = buffer.getChannelData(0)
@@ -60,17 +59,27 @@ export function extractPeaks(buffer: AudioBuffer, numPeaks: number): number[] {
   return peaks
 }
 
-/** Start playback from offsetMs (in milliseconds) */
-export function startPlayback(offsetMs: number): void {
+/** Start playback from offsetMs (in milliseconds) at the given rate */
+export function startPlayback(offsetMs: number, rate = _currentRate): void {
   if (!_audioBuffer) return
   stopPlayback()
   const ctx = getAudioContext()
   if (ctx.state === 'suspended') ctx.resume()
   const source = ctx.createBufferSource()
   source.buffer = _audioBuffer
+  source.playbackRate.value = rate
   source.connect(getGainNode())
   source.start(0, offsetMs / 1000)
   _sourceNode = source
+  _currentRate = rate
+}
+
+/** Change playback rate in real-time without restarting */
+export function setPlaybackRate(rate: number): void {
+  _currentRate = Math.max(0.01, rate)
+  if (_sourceNode) {
+    _sourceNode.playbackRate.value = _currentRate
+  }
 }
 
 /** Stop current playback */
