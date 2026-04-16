@@ -46,8 +46,8 @@
           </div>
         </div>
 
-        <!-- 快速選色 -->
-        <div class="param_group color_picker_group">
+        <!-- 快速選色（色圖效果不可變色） -->
+        <div v-if="!isColorMap" class="param_group color_picker_group">
           <div class="param_label_row">
             <span class="param_label">顏色</span>
             <input type="color" class="color_preview" :value="colorHex" @input="onColorInput" />
@@ -62,13 +62,15 @@
           @update:extra="updateExtra"
         />
 
-        <!-- HSV 六通道 -->
-        <HsvChannelGroup label="XH (色相) °"  :channel="displayParams.XH"
-          @update:channel="updateChannel('XH', $event)" />
-        <HsvChannelGroup label="XS (飽和) %"  :channel="displayParams.XS"
-          @update:channel="updateChannel('XS', $event)" />
-        <HsvChannelGroup label="XV (明度) %"  :channel="displayParams.XV"
-          @update:channel="updateChannel('XV', $event)" />
+        <!-- HSV 六通道（色圖效果隱藏 XH/XS/XV） -->
+        <template v-if="!isColorMap">
+          <HsvChannelGroup label="XH (色相) °"  :channel="displayParams.XH"
+            @update:channel="updateChannel('XH', $event)" />
+          <HsvChannelGroup label="XS (飽和) %"  :channel="displayParams.XS"
+            @update:channel="updateChannel('XS', $event)" />
+          <HsvChannelGroup label="XV (明度) %"  :channel="displayParams.XV"
+            @update:channel="updateChannel('XV', $event)" />
+        </template>
         <HsvChannelGroup label="YH (色相) °"  :channel="displayParams.YH"
           @update:channel="updateChannel('YH', $event)" />
         <HsvChannelGroup label="YS (飽和) %"  :channel="displayParams.YS"
@@ -101,6 +103,7 @@ import HsvChannelGroup from './HsvChannelGroup.vue'
 import ExtraParamsGroup from './ExtraParamsGroup.vue'
 import ControlPanel from './ControlPanel.vue'
 import type { HsvChannel, ExtraParams } from '../types'
+import { COLOR_MAP_MODES } from '../constants/effectConfig'
 
 const effectStore = useEffectStore()
 const undoStore = useUndoStore()
@@ -160,6 +163,10 @@ const definition = computed(() => {
   if (!displayName.value) return undefined
   return effectStore.getDefinition(displayName.value)
 })
+
+const isColorMap = computed(() =>
+  definition.value ? COLOR_MAP_MODES.has(definition.value.mode) : false
+)
 
 const displayInstance = computed(() =>
   displayKind.value === 'instance' ? effectStore.selectedInstance : null

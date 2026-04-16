@@ -2,7 +2,7 @@
   <div v-if="schema && extra" class="extra_params">
 
     <div v-if="schema.bladeCount" class="param_group">
-      <label class="param_label">扇葉數量</label>
+      <label class="param_label">扇葉密度</label>
       <div class="param_input_row">
         <input type="number" class="func_number" min="0" max="12"
           v-model.number="extra.bladeCount" @input="emitUpdate" />

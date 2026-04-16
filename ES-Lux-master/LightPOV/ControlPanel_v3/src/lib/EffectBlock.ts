@@ -53,6 +53,7 @@ export class EffectBlock {
       originX: 'left', originY: 'center',
       selectable: true,
       lockMovementY: true, lockScalingY: true, lockRotation: true,
+      lockScalingFlip: true,
       hasBorders: false, cornerColor: 'white', cornerSize: 8,
       transparentCorners: false, objectCaching: false,
     })
@@ -169,6 +170,10 @@ export class EffectBlock {
         group.scaleX = maxWidth / group.width
       }
 
+      // Enforce minimum visible width (4px) to prevent block from disappearing
+      const minScale = 4 / group.width
+      if (group.scaleX < minScale) group.scaleX = minScale
+
       this.duration = group.getScaledWidth() * timelineStore.secondsPerPixel * 1000
       this.startTime = timelineStore.pixelToMs(group.left)
     })
@@ -198,7 +203,7 @@ export class EffectBlock {
 
   private _getSafeBoundaries(canvas: fabric.Canvas, skipIds: Set<string> = new Set()): { minX: number; maxX: number } {
     const timelineStore = useTimelineStore()
-    let minX = -timelineStore.timelineOffset / timelineStore.secondsPerPixel
+    let minX = -timelineStore.timelineOffset  // pixel position of time=0 (= msToPixel(0))
     let maxX = Infinity
     const activeObj = this.fabricGroup!
 

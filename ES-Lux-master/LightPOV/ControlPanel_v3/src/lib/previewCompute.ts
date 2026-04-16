@@ -274,10 +274,14 @@ function _bitmap(m: EffectData, map: number[], length: number, ledData: LedData)
 }
 
 function _colormap(m: EffectData, colormap: number[][], length: number, ledData: LedData): void {
-  const space = m.p4
+  const reverse = m.p1
+  const space   = m.p4
 
   for (let idx = 0; idx < m.duration && idx < ledData.length; ) {
-    for (let i = length - 1; i >= 0 && idx < m.duration && idx < ledData.length; i--, idx++) {
+    const iStart = reverse ? 0 : length - 1
+    const iEnd   = reverse ? length : -1
+    const iStep  = reverse ? 1 : -1
+    for (let i = iStart; i !== iEnd && idx < m.duration && idx < ledData.length; i += iStep, idx++) {
       for (let j = 0; j < 32; j++) {
         const { r, g, b } = hsvToRgb(
           (colormap[i][j] >> 7 & 0xf8) % 255,

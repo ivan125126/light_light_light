@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import type { ProjectFile, ProjectFileV2, ProjectTrack, EffectLibraryFile, EffectInstance } from '../types'
 import { tracksToEffectMap } from '../services/serializer'
+import { API_BASE } from '../services/apiBase'
 import { useEffectStore } from './effectStore'
 import { useTimelineStore } from './timelineStore'
 import { useAudioStore } from './audioStore'
@@ -148,7 +149,7 @@ export const useProjectStore = defineStore('project', {
         timelineStore.totalDuration
       )
       console.log(`EffectMap updated: ${effectMap} device(s)`)
-      await fetch('/push_effect_map', {
+      await fetch(`${API_BASE}/push_effect_map`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(effectMap),

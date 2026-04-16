@@ -40,6 +40,13 @@ export const MODE_EXTRA_SCHEMA: Partial<Record<EffectMode, ExtraParamSchema>> = 
   MODES_CMAP_YEN:    { reverse: true, space: true },
 }
 
+// Modes whose color is baked into the color map — color controls are hidden in the param panel
+export const COLOR_MAP_MODES = new Set<EffectMode>([
+  'MODES_CMAP_DNA',
+  'MODES_CMAP_FIRE',
+  'MODES_CMAP_GEAR',
+])
+
 // Chinese display names → EffectMode (for backward compatibility when loading old JSON)
 export const CHINESE_NAME_TO_MODE: Record<string, EffectMode> = {
   '清除':   'MODES_CLEAR',
@@ -75,7 +82,7 @@ export function defaultExtraParams(): ExtraParams {
   }
 }
 
-export function defaultEffectParams(): EffectParams {
+export function defaultEffectParams(extraOverride?: Partial<ExtraParams>): EffectParams {
   return {
     XH: defaultHsvChannel(),
     XS: defaultHsvChannel(),
@@ -83,6 +90,19 @@ export function defaultEffectParams(): EffectParams {
     YH: defaultHsvChannel(),
     YS: defaultHsvChannel(),
     YV: defaultHsvChannel(),
-    extra: defaultExtraParams(),
+    extra: { ...defaultExtraParams(), ...extraOverride },
+  }
+}
+
+// Red default: RGB(255, 0, 0) = HSV(0, 255, 255) using Const func (func=1)
+export function defaultEffectParamsRed(extraOverride?: Partial<ExtraParams>): EffectParams {
+  return {
+    XH: { func: 1, range: 0, lower: 0, p1: 0,   p2: 0 },
+    XS: { func: 1, range: 0, lower: 0, p1: 255, p2: 0 },
+    XV: { func: 1, range: 0, lower: 0, p1: 255, p2: 0 },
+    YH: defaultHsvChannel(),
+    YS: defaultHsvChannel(),
+    YV: defaultHsvChannel(),
+    extra: { ...defaultExtraParams(), ...extraOverride },
   }
 }

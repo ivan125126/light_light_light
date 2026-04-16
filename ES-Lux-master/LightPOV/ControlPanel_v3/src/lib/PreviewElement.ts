@@ -30,6 +30,7 @@ export class PreviewElement extends HTMLElement {
   private fps = 500
   private _lastFrameTime = 0
   private fadeSpeed = 0.025
+  private _rotationTick = 0
 
   private bgCanvas!: HTMLCanvasElement
   private glowCanvas!: HTMLCanvasElement | OffscreenCanvas
@@ -176,8 +177,10 @@ export class PreviewElement extends HTMLElement {
     const outerRadius = this.innerRadius + 140
     const halfSlice   = Math.PI / showTime   // angular half-width of one time step
 
-    // Arm angle advances one full rotation per showTime ticks
-    const armAngle = (frameOffset % showTime) / showTime * (2 * Math.PI)
+    // _rotationTick advances independently of frameOffset (which cycles % frameCount
+    // and would cause spurious clearRect triggers if used directly for rotation phase).
+    this._rotationTick = (this._rotationTick + 1) % showTime
+    const armAngle = this._rotationTick / showTime * (2 * Math.PI)
 
     const gc = this.glowCtx
 
@@ -186,9 +189,10 @@ export class PreviewElement extends HTMLElement {
     // trail decay toward transparent without leaving opaque black behind.
     // At the start of each new rotation, force clearRect to eliminate the
     // exponential residue that never reaches exact zero.
-    const posInRotation = frameOffset % showTime
-    if (posInRotation === 0) {
-      gc.clearRect(0, 0, width, height)
+    if (this._rotationTick === 0) {
+      // gc.clearRect(0, 0, width, height)
+      gc.fillStyle = `rgba(10,10,10,${this.fadeSpeed})`
+      gc.fillRect(0, 0, width, height)
     } else {
       gc.globalCompositeOperation = 'destination-out'
       gc.fillStyle = `rgba(0,0,0,${this.fadeSpeed})`
