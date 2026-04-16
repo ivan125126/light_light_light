@@ -9,7 +9,7 @@
         :class="{ active: activeTab === tab }"
         @click="activeTab = tab"
       >
-        {{ tab === 'preset' ? '預設效果' : '自定義' }}
+        {{ tab === 'preset' ? 'Preset' : 'Custom' }}
       </button>
     </div>
 
@@ -30,7 +30,7 @@
 
     <!-- 自訂效果 -->
     <div v-show="activeTab === 'custom'" class="Asset_library_content custom">
-      <button class="add-custom-btn" @click="openAddDialog">+ 新增效果</button>
+      <button class="add-custom-btn" @click="openAddDialog">+ Add Effect</button>
       <div
         v-for="def in customDefs"
         :key="def.name"
@@ -47,34 +47,34 @@
     <!-- 新增效果 Dialog -->
     <div v-if="showAddDialog" class="dialog-overlay" @click.self="closeDialog">
       <div class="dialog-box">
-        <div class="dialog-title">新增自定義效果</div>
+        <div class="dialog-title">Add Custom Effect</div>
 
-        <label class="dialog-label">效果名稱</label>
+        <label class="dialog-label">Effect Name</label>
         <input
           ref="nameInputRef"
           v-model.trim="dialogName"
           class="dialog-input"
           type="text"
-          placeholder="請輸入名稱"
+          placeholder="Enter name"
           @keydown.enter="confirmAdd"
           @keydown.esc="closeDialog"
         />
 
-        <label class="dialog-label">效果模式</label>
+        <label class="dialog-label">Effect Mode</label>
         <select v-model="dialogMode" class="dialog-select">
           <option v-for="m in ALL_MODES" :key="m.value" :value="m.value">{{ m.label }}</option>
         </select>
 
         <label class="dialog-checkbox-row" v-if="effectStore.selectedInstance">
           <input type="checkbox" v-model="dialogCopyParams" />
-          <span>複製目前選取效果的參數</span>
+          <span>Copy params from selected effect</span>
         </label>
 
         <div v-if="dialogError" class="dialog-error">{{ dialogError }}</div>
 
         <div class="dialog-actions">
-          <button class="dialog-btn dialog-btn--cancel" @click="closeDialog">取消</button>
-          <button class="dialog-btn dialog-btn--confirm" @click="confirmAdd">確定新增</button>
+          <button class="dialog-btn dialog-btn--cancel" @click="closeDialog">Cancel</button>
+          <button class="dialog-btn dialog-btn--confirm" @click="confirmAdd">Add</button>
         </div>
       </div>
     </div>
@@ -122,23 +122,23 @@ function removeCustom(name: string) {
 
 // ── 新增效果 Dialog ────────────────────────────────────────
 const ALL_MODES: { value: EffectMode; label: string }[] = [
-  { value: 'MODES_PLAIN',      label: '純色 (PLAIN)' },
-  { value: 'MODES_SQUARE',     label: '方形 (SQUARE)' },
-  { value: 'MODES_SICKLE',     label: '鐮刀 (SICKLE)' },
-  { value: 'MODES_FAN',        label: '扇形 (FAN)' },
-  { value: 'MODES_BOXES',      label: '方塊 (BOXES)' },
-  { value: 'MODES_SICKLE_ADV', label: '鐮刀進階 (SICKLE_ADV)' },
-  { value: 'MODES_FAN_ADV',    label: '扇形進階 (FAN_ADV)' },
+  { value: 'MODES_PLAIN',      label: 'Plain (PLAIN)' },
+  { value: 'MODES_SQUARE',     label: 'Square (SQUARE)' },
+  { value: 'MODES_SICKLE',     label: 'Sickle (SICKLE)' },
+  { value: 'MODES_FAN',        label: 'Fan (FAN)' },
+  { value: 'MODES_BOXES',      label: 'Boxes (BOXES)' },
+  { value: 'MODES_SICKLE_ADV', label: 'Sickle Adv (SICKLE_ADV)' },
+  { value: 'MODES_FAN_ADV',    label: 'Fan Adv (FAN_ADV)' },
   { value: 'MODES_CMAP_DNA',   label: 'DNA' },
-  { value: 'MODES_CMAP_FIRE',  label: '火焰 (FIRE)' },
+  { value: 'MODES_CMAP_FIRE',  label: 'Fire (FIRE)' },
   { value: 'MODES_CMAP_LOVE',  label: 'Love' },
-  { value: 'MODES_CMAP_GEAR',  label: '齒輪 (GEAR)' },
+  { value: 'MODES_CMAP_GEAR',  label: 'Gear (GEAR)' },
   { value: 'MODES_CMAP_YEN',   label: 'OT' },
   { value: 'MODES_CMAP_BENSON',label: 'PT' },
   { value: 'MODES_MAP_ES',     label: 'ES' },
-  { value: 'MODES_MAP_ES_ZH',  label: '工科' },
+  { value: 'MODES_MAP_ES_ZH',  label: 'ES-ZH' },
   { value: 'MODES_MAP_ESXOPT', label: 'ESXOPT' },
-  { value: 'MODES_CLEAR',      label: '清除 (CLEAR)' },
+  { value: 'MODES_CLEAR',      label: 'Clear (CLEAR)' },
 ]
 
 const showAddDialog = ref(false)
@@ -163,9 +163,9 @@ function closeDialog() {
 
 function confirmAdd() {
   const name = dialogName.value
-  if (!name) { dialogError.value = '請輸入效果名稱'; return }
+  if (!name) { dialogError.value = 'Please enter an effect name'; return }
   if (effectStore.definitions.some(d => d.name === name)) {
-    dialogError.value = `「${name}」已存在，請使用其他名稱`
+    dialogError.value = `"${name}" already exists, please use another name`
     return
   }
 

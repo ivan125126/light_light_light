@@ -23,7 +23,7 @@ export const useTimelineStore = defineStore('timeline', {
     globalTime: 0,
     isPlaying: false,
     totalDuration: 60_000,
-    tracks: [{ id: 'track-0', name: '軌道 1', deviceIndices: [0] }],
+    tracks: [{ id: 'track-0', name: 'Track 1', deviceIndices: [0] }],
     _nextTrackNum: 2,
   }),
 
@@ -65,7 +65,7 @@ export const useTimelineStore = defineStore('timeline', {
       const deviceIdx = this.tracks.length
       this.tracks.push({
         id: `track-${Date.now()}`,
-        name: `軌道 ${this._nextTrackNum}`,
+        name: `Track ${this._nextTrackNum}`,
         deviceIndices: [deviceIdx],
       })
       this._nextTrackNum++

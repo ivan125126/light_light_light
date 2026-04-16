@@ -14,11 +14,11 @@
         <span class="preview_lux_label">Lux {{ unit.id }}</span>
         <span class="preview_lux_effect">{{ unitEffectName(unit) }}</span>
         <span class="preview_lux_status" :class="unit.connected ? 'connected' : 'disconnected'">
-          {{ unit.connected ? '● 已連線' : '○ 斷線' }}
+          {{ unit.connected ? '● Connected' : '○ Offline' }}
         </span>
       </div>
       <div v-if="hardwareStore.units.length === 0" class="preview_empty">
-        尚未新增 Lux 裝置
+        No Lux devices added
       </div>
     </div>
   </div>

@@ -19,7 +19,7 @@
       />
       <span v-if="projectStore.isDirty" class="dirty-indicator">●</span>
       <span class="server-status" :class="hardwareStore.serverOnline ? 'online' : 'offline'">
-        ● {{ hardwareStore.serverOnline ? 'Server 已連線' : 'Server 未連線' }}
+        ● {{ hardwareStore.serverOnline ? 'Server Connected' : 'Server Disconnected' }}
       </span>
       <!-- Edit / Perform toggle -->
       <label class="mode-toggle" :class="uiStore.appMode">
@@ -34,18 +34,18 @@
         </span>
         <span class="mode-toggle__label">{{ uiStore.appMode === 'edit' ? 'EDIT' : 'PERFORM' }}</span>
       </label>
-      <button @click="saveProject">儲存專案</button>
-      <button @click="loadProjectDialog">載入專案</button>
-      <button @click="projectStore.downloadLibraryFile()">匯出效果庫</button>
+      <button @click="saveProject">Save Project</button>
+      <button @click="loadProjectDialog">Load Project</button>
+      <button @click="projectStore.downloadLibraryFile()">Export Library</button>
       <label class="btn">
-        匯入效果庫
+        Import Library
         <input type="file" accept=".json" hidden @change="importLibrary" />
       </label>
       <label class="live_hw_label">
         <input type="checkbox" class="live_hw_check" v-model="hardwareStore.liveHardware" />
-        推播硬體
+        Live Hardware
       </label>
-      <button :disabled="!hardwareStore.serverOnline" @click="uploadToServer">上傳到 server</button>
+      <button :disabled="!hardwareStore.serverOnline" @click="uploadToServer">Upload to Server</button>
     </header>
 
     <!-- ── 上半：三欄（素材庫 | 預覽 | 參數） ── -->

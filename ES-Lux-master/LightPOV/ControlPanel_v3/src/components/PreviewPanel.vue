@@ -2,14 +2,14 @@
   <div class="preview_panel">
     <div class="preview_toolbar">
       <label class="mode_toggle_label">
-        <span :class="{ active: mode === 'edit' }">編輯</span>
+        <span :class="{ active: mode === 'edit' }">Edit</span>
         <input
           type="checkbox"
           class="mode_toggle_check"
           :checked="mode === 'performance'"
           @change="mode = ($event.target as HTMLInputElement).checked ? 'performance' : 'edit'"
         />
-        <span :class="{ active: mode === 'performance' }">表演</span>
+        <span :class="{ active: mode === 'performance' }">Perform</span>
       </label>
     </div>
 

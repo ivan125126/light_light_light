@@ -3,25 +3,25 @@
 
     <!-- Tabs -->
     <div class="param_header">
-      <button class="param_tab" :class="{ active: activeTab === 'param' }" @click="activeTab = 'param'">參數</button>
-      <button class="param_tab" :class="{ active: activeTab === 'control' }" @click="activeTab = 'control'">控制</button>
+      <button class="param_tab" :class="{ active: activeTab === 'param' }" @click="activeTab = 'param'">Params</button>
+      <button class="param_tab" :class="{ active: activeTab === 'control' }" @click="activeTab = 'control'">Control</button>
     </div>
 
     <!-- ── 參數 tab ───────────────────────────────── -->
     <fieldset v-show="activeTab === 'param'" class="param_body param_body--param" :disabled="isPerform" style="border:none;padding:0;margin:0;">
 
-      <div v-if="!displayParams" class="param_empty">點選 Timeline 上的效果或左側素材庫以查看參數</div>
+      <div v-if="!displayParams" class="param_empty">Select an effect on the Timeline or from the Asset Library to view parameters</div>
 
       <template v-else>
         <div class="param_effect_title">
           {{ displayName }}
-          <span v-if="displayKind === 'definition'" class="param_source_hint">（預設值）</span>
+          <span v-if="displayKind === 'definition'" class="param_source_hint">(default)</span>
         </div>
 
         <!-- 時間資訊（僅 instance 模式） -->
         <div v-if="displayKind === 'instance'" class="param_group param_timing_group">
           <div class="param_timing_row">
-            <span class="param_label">開始時間</span>
+            <span class="param_label">Start Time</span>
             <input
               class="param_timing_input"
               type="number"
@@ -33,7 +33,7 @@
             <span class="param_timing_unit">s</span>
           </div>
           <div class="param_timing_row">
-            <span class="param_label">持續時間</span>
+            <span class="param_label">Duration</span>
             <input
               class="param_timing_input"
               type="number"
@@ -49,7 +49,7 @@
         <!-- 快速選色（色圖效果不可變色） -->
         <div v-if="!isColorMap" class="param_group color_picker_group">
           <div class="param_label_row">
-            <span class="param_label">顏色</span>
+            <span class="param_label">Color</span>
             <input type="color" class="color_preview" :value="colorHex" @input="onColorInput" />
           </div>
         </div>
@@ -78,11 +78,11 @@
         <HsvChannelGroup label="YV (明度) %"  :channel="displayParams.YV"
           @update:channel="updateChannel('YV', $event)" />
 
-        <!-- 加入自定義素材庫 -->
-        <button class="save-custom-btn" @click="saveAsCustom">+ 加入自訂義素材庫</button>
+        <!-- Save to custom library -->
+        <button class="save-custom-btn" @click="saveAsCustom">+ Save to Library</button>
 
-        <!-- 刪除自定義效果（僅自定義效果才顯示） -->
-        <button v-if="definition && !definition.isBuiltIn" class="delete-custom-btn" @click="deleteCustom">刪除自定義效果</button>
+        <!-- Delete custom effect (only shown for custom effects) -->
+        <button v-if="definition && !definition.isBuiltIn" class="delete-custom-btn" @click="deleteCustom">Delete Custom Effect</button>
       </template>
     </fieldset>
 
@@ -249,17 +249,17 @@ function onColorInput(event: Event) {
 // ── 刪除自定義效果 ───────────────────────────────────────
 function deleteCustom() {
   if (!definition.value || definition.value.isBuiltIn) return
-  if (!window.confirm(`確定要刪除「${definition.value.name}」？`)) return
+  if (!window.confirm(`Delete "${definition.value.name}"?`)) return
   effectStore.removeCustomDefinition(definition.value.name)
 }
 
 // ── 加入自定義素材庫 ─────────────────────────────────────
 function saveAsCustom() {
   if (!displayParams.value || !definition.value) return
-  const name = window.prompt('請輸入自定義效果名稱：', displayName.value)
+  const name = window.prompt('Enter custom effect name:', displayName.value)
   if (!name?.trim()) return
   if (effectStore.definitions.some(d => d.name === name.trim())) {
-    window.alert(`「${name.trim()}」已存在，請使用其他名稱`)
+    window.alert(`"${name.trim()}" already exists, please use another name`)
     return
   }
   effectStore.addCustomDefinition({

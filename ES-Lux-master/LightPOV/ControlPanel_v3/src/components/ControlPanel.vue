@@ -3,9 +3,9 @@
     <!-- 表頭 -->
     <div class="control_table_header">
       <span>ID</span>
-      <span>狀態</span>
-      <span>當前效果</span>
-      <span>對應 Track</span>
+      <span>Status</span>
+      <span>Current Effect</span>
+      <span>Track</span>
     </div>
 
     <!-- lux 列表 -->
@@ -19,7 +19,7 @@
         class="state_text"
         :class="unit.connected ? 'connected' : 'disconnected'"
       >
-        {{ unit.connected ? '已連線' : '斷線' }}
+        {{ unit.connected ? 'Connected' : 'Offline' }}
         <span v-if="!unit.connected && unit.lastSeenMs > 0" class="last_seen">
           {{ secondsSince(unit.lastSeenMs) }}s
         </span>
@@ -30,7 +30,7 @@
         :value="unit.trackIndex ?? ''"
         @change="onTrackChange(unit.id, $event)"
       >
-        <option value="">未對應</option>
+        <option value="">(none)</option>
         <option
           v-for="(track, i) in timelineStore.tracks"
           :key="track.id"
@@ -41,17 +41,17 @@
 
     <!-- 無 lux 時的空狀態提示 -->
     <div v-if="store.units.length === 0" class="control_empty">
-      尚未新增 lux 單元
+      No lux units added
     </div>
 
     <!-- 底部操作列 -->
     <div class="control_actions">
-      <button class="control_btn" @click="store.addUnit()">＋ 新增 lux</button>
+      <button class="control_btn" @click="store.addUnit()">+ Add Lux</button>
       <button
         class="control_btn control_btn--danger"
         :disabled="store.units.length === 0"
         @click="store.removeLastUnit()"
-      >－ 刪除最後一個</button>
+      >- Remove Last</button>
     </div>
   </div>
 </template>

@@ -18,7 +18,7 @@ interface ProjectState {
 
 export const useProjectStore = defineStore('project', {
   state: (): ProjectState => ({
-    projectName: '新專案',
+    projectName: 'New Project',
     musicFile: null,
     isDirty: false,
     lastSavedAt: null,
@@ -78,7 +78,7 @@ export const useProjectStore = defineStore('project', {
           : 0
         tracks = Array.from({ length: maxTrack + 1 }, (_, i) => ({
           id: `track-${i}`,
-          name: `軌道 ${i + 1}`,
+          name: `Track ${i + 1}`,
           deviceIndices: [i],
         }))
       } else {

@@ -21,24 +21,24 @@
         <span class="preview_lux_label">Lux {{ unit.id }}</span>
       </div>
       <div v-if="hardwareStore.units.length === 0" class="preview_empty">
-        尚未新增 Lux 裝置
+        No Lux devices added
       </div>
     </div>
 
     <!-- Temporary display adjustment sliders -->
     <div class="preview_adjust_sliders">
       <div class="preview_slider_row">
-        <span class="preview_slider_label">速度</span>
+        <span class="preview_slider_label">Speed</span>
         <input type="range" min="1" max="500" step="1" v-model.number="displayParams.speed" @input="applyDisplayParams" />
         <span class="preview_slider_value">{{ displayParams.speed }}</span>
       </div>
       <div class="preview_slider_row">
-        <span class="preview_slider_label">幀率</span>
+        <span class="preview_slider_label">FPS</span>
         <input type="range" min="1" max="300" step="1" v-model.number="displayParams.fps" @input="applyDisplayParams" />
         <span class="preview_slider_value">{{ displayParams.fps }}</span>
       </div>
       <div class="preview_slider_row">
-        <span class="preview_slider_label">消散</span>
+        <span class="preview_slider_label">Fade</span>
         <input type="range" min="0.001" max="0.2" step="0.001" v-model.number="displayParams.fadeSpeed" @input="applyDisplayParams" />
         <span class="preview_slider_value">{{ displayParams.fadeSpeed.toFixed(3) }}</span>
       </div>

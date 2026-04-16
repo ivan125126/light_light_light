@@ -2,17 +2,17 @@
   <div class="timeline_panel">
     <!-- 播放控制列 -->
     <div class="playback_controls">
-      <!-- 音樂載入 -->
+      <!-- Audio load -->
       <label class="load-audio-btn">
-        選擇音檔
+        Load Audio
         <input type="file" accept="audio/*" hidden @change="loadAudio" />
       </label>
 
-      <!-- 當前時間 -->
-      <span class="time-display">當前時間:{{ formatTimeMmSs(timelineStore.globalTime) }}</span>
+      <!-- Current time -->
+      <span class="time-display">Time: {{ formatTimeMmSs(timelineStore.globalTime) }}</span>
 
-      <!-- 跳至時間（mm : ss + Enter） -->
-      <span class="jump-label">跳至時間:</span>
+      <!-- Jump to time (mm : ss + Enter) -->
+      <span class="jump-label">Jump to:</span>
       <input
         v-model.number="jumpMin"
         class="jump-input"
@@ -28,8 +28,8 @@
         @keydown.enter="jumpToTime"
       />
 
-      <!-- 音量 -->
-      <span class="volume-icon">🔊 音量：</span>
+      <!-- Volume -->
+      <span class="volume-icon">🔊 Volume:</span>
       <input
         class="volume-slider"
         type="range" min="0" max="100" :value="Math.round(audioStore.volume * 100)"
@@ -37,8 +37,8 @@
       />
       <span class="volume-value">{{ Math.round(audioStore.volume * 100) }}%</span>
 
-      <!-- 播放速度 -->
-      <span class="speed-label">速度：</span>
+      <!-- Playback speed -->
+      <span class="speed-label">Speed:</span>
       <input
         class="speed-slider"
         type="range"
@@ -59,22 +59,22 @@
       <!-- 音檔名稱 -->
       <span v-if="audioStore.hasAudio" class="audio-name">{{ audioStore.fileName }}</span>
 
-      <!-- 新增 / 刪除軌道 -->
+      <!-- Add / Delete track -->
       <div v-if="uiStore.appMode === 'edit'" class="track-actions">
-        <button @click="timelineStore.addTrack()">+ 新增軌道</button>
+        <button @click="timelineStore.addTrack()">+ Add Track</button>
         <button
           :disabled="timelineStore.tracks.length <= 1"
           @click="openDeleteDialog"
-        >− 刪除軌道</button>
+        >− Delete Track</button>
       </div>
 
-      <!-- 匯入 / 匯出 JSON -->
+      <!-- Import / Export JSON -->
       <div v-if="uiStore.appMode === 'edit'" class="track-actions">
         <label class="load-audio-btn">
-          匯入 JSON
+          Import JSON
           <input type="file" accept=".json" hidden @change="handleImportJson" />
         </label>
-        <button @click="exportJson">匯出 JSON</button>
+        <button @click="exportJson">Export JSON</button>
       </div>
     </div>
 
@@ -127,10 +127,10 @@
       </div>
     </div>
 
-    <!-- 刪除軌道 Dialog -->
+    <!-- Delete Track Dialog -->
     <div v-if="showDeleteDialog" class="dialog-overlay" @click.self="showDeleteDialog = false">
       <div class="dialog-box">
-        <div class="dialog-title">刪除軌道</div>
+        <div class="dialog-title">Delete Track</div>
         <div class="track-delete-list">
           <div
             v-for="track in timelineStore.tracks"
@@ -141,12 +141,12 @@
           >{{ track.name }}</div>
         </div>
         <div class="dialog-actions">
-          <button class="dialog-btn dialog-btn--cancel" @click="showDeleteDialog = false">取消</button>
+          <button class="dialog-btn dialog-btn--cancel" @click="showDeleteDialog = false">Cancel</button>
           <button
             class="dialog-btn dialog-btn--confirm"
             :disabled="!deleteTargetId"
             @click="confirmDelete"
-          >刪除</button>
+          >Delete</button>
         </div>
       </div>
     </div>
@@ -511,12 +511,12 @@ async function handleImportJson(event: Event) {
   try {
     effectMap = JSON.parse(await file.text())
   } catch {
-    alert('無效的 JSON 檔案')
+    alert('Invalid JSON file')
     return
   }
 
   if (!Array.isArray(effectMap) || !Array.isArray(effectMap[0])) {
-    alert('JSON 格式錯誤：需要 EffectData[][] 格式')
+    alert('Invalid JSON format: expected EffectData[][] format')
     return
   }
 

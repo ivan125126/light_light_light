@@ -47,20 +47,32 @@ export const COLOR_MAP_MODES = new Set<EffectMode>([
   'MODES_CMAP_GEAR',
 ])
 
-// Chinese display names → EffectMode (for backward compatibility when loading old JSON)
+// Legacy display names → EffectMode (for backward compatibility when loading old JSON)
 export const CHINESE_NAME_TO_MODE: Record<string, EffectMode> = {
+  // Chinese names (legacy)
   '清除':   'MODES_CLEAR',
   '純色':   'MODES_PLAIN',
   '方形':   'MODES_SQUARE',
   '鐮刀':   'MODES_SICKLE',
   '扇形':   'MODES_FAN',
   '方塊':   'MODES_BOXES',
-  'DNA':    'MODES_CMAP_DNA',
   '火焰':   'MODES_CMAP_FIRE',
-  'Love':   'MODES_CMAP_LOVE',
   '齒輪':   'MODES_CMAP_GEAR',
-  'ES':     'MODES_MAP_ES',
   '工科':   'MODES_MAP_ES_ZH',
+  // English names (current)
+  'Clear':  'MODES_CLEAR',
+  'Plain':  'MODES_PLAIN',
+  'Square': 'MODES_SQUARE',
+  'Sickle': 'MODES_SICKLE',
+  'Fan':    'MODES_FAN',
+  'Boxes':  'MODES_BOXES',
+  'Fire':   'MODES_CMAP_FIRE',
+  'Gear':   'MODES_CMAP_GEAR',
+  'ES-ZH':  'MODES_MAP_ES_ZH',
+  // Unchanged names
+  'DNA':    'MODES_CMAP_DNA',
+  'Love':   'MODES_CMAP_LOVE',
+  'ES':     'MODES_MAP_ES',
   'ESXOPT': 'MODES_MAP_ESXOPT',
   'OT':     'MODES_CMAP_YEN',
   'PT':     'MODES_CMAP_BENSON',
