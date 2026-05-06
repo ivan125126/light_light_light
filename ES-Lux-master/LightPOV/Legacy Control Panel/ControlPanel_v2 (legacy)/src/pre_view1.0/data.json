@@ -1,0 +1,154 @@
+[[
+    {"mode": "MODES_MAP_ESXOPT",
+    "start_time": 0,
+    "duration": 1000,
+    "XH": {
+      "func": 2,
+      "range": 50,
+      "lower": 0,
+      "p1": 255,
+      "p2": 0
+    },
+    "XS": {
+      "func": 1,
+      "range": 0,
+      "lower": 0,
+      "p1": 50,
+      "p2": 0
+    },
+    "XV": {
+      "func": 1,
+      "range": 5,
+      "lower": 10,
+      "p1": 100,
+      "p2": 2
+    },
+    "YH": {
+      "func": 2,
+      "range": 50,
+      "lower": 0,
+      "p1": 255,
+      "p2": 0
+    },
+    "YS": {
+      "func": 1,
+      "range": 7,
+      "lower": 0,
+      "p1": 100,
+      "p2": 0
+    },
+    "YV": {
+      "func": 1,
+      "range": 9,
+      "lower": 5,
+      "p1": 100,
+      "p2": 0
+    },
+    "p1": 20,
+    "p2": 0,
+    "p3": 10,
+    "p4": 20
+  },
+  {
+    "mode": "MODES_CMAP_LOVE",
+    "start_time": 0,
+    "duration": 1000,
+    "XH": {
+      "func": 2,
+      "range": 50,
+      "lower": 0,
+      "p1": 100,
+      "p2": 0
+    },
+    "XS": {
+      "func": 1,
+      "range": 0,
+      "lower": 0,
+      "p1": 50,
+      "p2": 0
+    },
+    "XV": {
+      "func": 1,
+      "range": 5,
+      "lower": 10,
+      "p1": 100,
+      "p2": 2
+    },
+    "YH": {
+      "func": 1,
+      "range": 1,
+      "lower": 0,
+      "p1": 0,
+      "p2": 0
+    },
+    "YS": {
+      "func": 1,
+      "range": 7,
+      "lower": 0,
+      "p1": 100,
+      "p2": 0
+    },
+    "YV": {
+      "func": 1,
+      "range": 9,
+      "lower": 5,
+      "p1": 100,
+      "p2": 0
+    },
+    "p1": 1,
+    "p2": 0,
+    "p3": 0,
+    "p4": 40
+  },
+  {
+    "mode": "MODES_PLAIN",
+    "start_time": 1000,
+    "duration": 10000,
+    "XH": {
+      "func": 1,
+      "range": 0,
+      "lower": 0,
+      "p1": 255,
+      "p2": 0
+    },
+    "XS": {
+      "func": 1,
+      "range": 0,
+      "lower": 0,
+      "p1": 255,
+      "p2": 0
+    },
+    "XV": {
+      "func": 3,
+      "range": 200,
+      "lower": 0,
+      "p1": 255,
+      "p2": 0
+    },
+    "YH": {
+      "func": 0,
+      "range": 0,
+      "lower": 0,
+      "p1": 0,
+      "p2": 0
+    },
+    "YS": {
+      "func": 0,
+      "range": 0,
+      "lower": 0,
+      "p1": 0,
+      "p2": 0
+    },
+    "YV": {
+      "func": 0,
+      "range": 0,
+      "lower": 0,
+      "p1": 0,
+      "p2": 0
+    },
+    "p1": 0,
+    "p2": 0,
+    "p3": 0,
+    "p4": 0
+  }
+]]

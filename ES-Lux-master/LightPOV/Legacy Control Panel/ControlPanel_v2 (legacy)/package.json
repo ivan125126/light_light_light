@@ -1,0 +1,18 @@
+{
+  "name": "controlpanel_v2",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@wanglin1994/video-timeline": "^0.1.10",
+    "express": "^5.1.0",
+    "fabric": "^6.9.0",
+    "vue": "^3.5.24"
+  }
+}
