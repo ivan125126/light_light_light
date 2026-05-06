@@ -6,3 +6,4 @@ src/dist/
 .superpowers/
 docs/superpowers/
 package-lock.json
+.vite/
