@@ -43,8 +43,8 @@ describe('selectionStore', () => {
   it('setCopy 深拷貝 instances，移除 id，記錄 anchorTime', () => {
     const effectStore = useEffectStore()
     const store = useSelectionStore()
-    const id1 = effectStore.addInstance('純色', 1000, 3000, 0)
-    const id2 = effectStore.addInstance('純色', 4000, 2000, 0)
+    const id1 = effectStore.addInstance('Plain', 1000, 3000, 0)
+    const id2 = effectStore.addInstance('Plain', 4000, 2000, 0)
     const instances = effectStore.instances.filter(i => [id1, id2].includes(i.id))
     store.setCopy(instances)
     expect(store.clipboard).toHaveLength(2)

@@ -27,7 +27,7 @@ describe('useActiveEffect', () => {
     const effectStore = useEffectStore()
     const timelineStore = useTimelineStore()
     timelineStore.setTime(5000)
-    effectStore.addInstance('純色', 0, 3000, 0)  // track 0, 0–3000ms
+    effectStore.addInstance('Plain', 0, 3000, 0)  // track 0, 0–3000ms
     const effectData = useActiveEffect(() => 0)
     expect(effectData.value).not.toBeNull()
     expect(effectData.value?.mode).toBe('MODES_CLEAR')
@@ -37,7 +37,7 @@ describe('useActiveEffect', () => {
     const effectStore = useEffectStore()
     const timelineStore = useTimelineStore()
     timelineStore.setTime(1000)
-    effectStore.addInstance('純色', 0, 3000, 0)  // track 0, 0–3000ms
+    effectStore.addInstance('Plain', 0, 3000, 0)  // track 0, 0–3000ms
     const effectData = useActiveEffect(() => 0)
     expect(effectData.value).not.toBeNull()
     expect(effectData.value?.mode).toBe('MODES_PLAIN')
@@ -47,7 +47,7 @@ describe('useActiveEffect', () => {
     const effectStore = useEffectStore()
     const timelineStore = useTimelineStore()
     timelineStore.setTime(1000)
-    effectStore.addInstance('純色', 0, 3000, 0)  // only track 0
+    effectStore.addInstance('Plain', 0, 3000, 0)  // only track 0
     const effectData = useActiveEffect(() => 1)   // track 1 has nothing
     expect(effectData.value).not.toBeNull()
     expect(effectData.value?.mode).toBe('MODES_CLEAR')
