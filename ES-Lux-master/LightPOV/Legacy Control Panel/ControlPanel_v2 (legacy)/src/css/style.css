@@ -1,0 +1,597 @@
+* {
+    box-sizing: border-box; 
+}
+
+body {
+    color: white;
+    background-color: #222;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+}
+
+/* menu bar */
+.menu_bar {
+    flex: 0 0 auto; 
+    width: 100%;
+    padding: 10px 20px 0 20px;
+    box-sizing: border-box;
+}
+
+
+.row2 {
+    flex: 0 0 520px;
+    height: 520px;
+
+    width: 100%;
+    padding: 20px 20px 0 20px;
+    box-sizing: border-box;
+
+    display: grid;
+    /* 預設狀態：左 300px | 中 1fr | 右 320px */
+    grid-template-columns: 300px 1fr 320px;
+    transition: all 0.3s ease; /* 讓切換時有平滑感 */
+    overflow: hidden;
+    column-gap: 20px;
+}
+
+/* 效果預覽區 */
+
+
+/* 左側素材庫 */
+.Asset_library {
+    background: #1c1c1c;
+    border-right: 1px solid #333;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+
+    height: 100%;
+    max-height: 100%;
+    overflow-y: hidden;  
+}
+
+.Asset_library_header {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.Asset_library_header .tab {
+    flex: 1;
+    background: #2a2a2a;
+    padding: 6px 0;
+    color: #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid #3a3a3a;
+    text-align: center;
+    font-size: 14px;
+}
+
+.Asset_library_header .tab.active {
+    background: #3e4a52;
+    color: #fff;
+    border-color: #4a5a66;
+}
+
+.Asset_library_content {
+    display: none;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.Asset_library_content.active {
+    display: grid;
+}
+
+.Asset_item {
+    padding: 10px 8px;
+    background: #2d2d2d;
+    color: #eaeaea;
+    border-radius: 6px;
+    border: 1px solid #444;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.Asset_item:hover {
+    background: #3a3a3a;
+    border-color: #666;
+}
+
+.empty {
+    color: #aaa;
+    font-size: 13px;
+    padding: 10px;
+    text-align: center;
+}
+
+
+
+/* ========== 右側參數面板 ========== */
+
+/* 右側參數 / 控制面板外框 */
+.param_panel {
+  background: #1c1c1c;
+  border-left: 1px solid #333;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #eee;
+  font-size: 14px;
+
+  height: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 上方 tab 列：參數 / 控制 */
+.param_header {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.param_tab {
+  flex: 1;
+  padding: 6px 0;
+  border-radius: 6px;
+  border: 1px solid #3a3a3a;
+  background: #2a2a2a;
+  color: #ddd;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.param_tab.active {
+  background: #3e4a52;
+  color: #fff;
+  border-color: #4a5a66;
+}
+
+/* 面板內容區：參數 / 控制 */
+.param_body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  display: none;
+}
+
+.param_body.active {
+  display: block;
+}
+
+/* 什麼都沒選時的提示文字 */
+.param_empty {
+  font-size: 13px;
+  color: #aaa;
+}
+
+/* 主要參數內容 */
+.param_main.hidden {
+  display: none;
+}
+
+/* 一般 group 樣式 */
+.param_group {
+  margin-bottom: 12px;
+  padding: 8px 8px;
+  border-radius: 6px;
+  background: #242424;
+}
+
+.param_group_title {
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: #d0eaff;
+}
+
+.param_label_row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.param_label {
+  font-size: 14px;
+}
+
+/* label + (number + range) */
+.param_field {
+  margin-bottom: 8px;
+}
+
+.param_field label {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 13px;
+}
+
+.param_input_row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.param_input_row input[type="number"] {
+  width: 80px;
+  padding: 3px 4px;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background: #111;
+  color: #eee;
+}
+
+.param_input_row input[type="range"] {
+  flex: 1;
+}
+
+/* 額外幾何 group（扇葉、長度、曲度）預設不顯示，JS 控制 */
+.extra_group {
+  display: none;
+}
+
+/* 顏色小方塊 */
+.color_preview {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* 下方提示文字 */
+.param_hint {
+  font-size: 13px;
+  color: #bbb;
+}
+
+/* HSV Function Block */
+.hsv_block {
+  margin-bottom: 12px;
+  padding: 8px 8px;
+  border-radius: 6px;
+  background: #202020;
+}
+
+.hsv_block .param_group_title {
+  margin-bottom: 4px;
+}
+
+/* Function 選擇下拉 */
+.hsv_func_select {
+  width: 100%;
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background: #111;
+  color: #eee;
+  font-size: 13px;
+}
+
+/* 各 function 對應的參數集 */
+.hsv_func_params {
+  display: none;
+  margin-top: 6px;
+}
+
+.hsv_func_params.active {
+  display: block;
+}
+
+/* 比較緊湊的 field（range / lower / upper / ...） */
+.param_field.compact {
+  margin-bottom: 6px;
+}
+
+.param_field.compact .param_input_row input[type="number"] {
+  width: 70px;
+}
+
+/* number + range 共用樣式 */
+.func_number {
+  width: 80px;
+  padding: 3px 4px;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background: #111;
+  color: #eee;
+}
+
+.func_range {
+  flex: 1;
+}
+
+/* 加入自訂義按鈕 */
+.btn_add_custom {
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px 0;
+  border-radius: 6px;
+  border: 1px solid #486a8c;
+  background: #264563;
+  color: #dff6ff;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.btn_add_custom:hover {
+  background: #30587a;
+}
+
+.btn_add_custom:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.custom_actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.btn_update_custom,
+.btn_delete_custom {
+  flex: 1;
+  padding: 6px 0;
+  border-radius: 6px;
+  border: 1px solid #486a8c;
+  background: #1f3448;
+  color: #dff6ff;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn_delete_custom {
+  border-color: #8c4848;
+  background: #462626;
+}
+
+.btn_update_custom:hover:not(:disabled),
+.btn_delete_custom:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.btn_update_custom:disabled,
+.btn_delete_custom:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 左邊素材選中狀態 */
+
+.Asset_item.active {
+    outline: 2px solid #4fb3d6;
+}
+
+/* --- 控制面板表格樣式 (依照您的手繪圖) --- */
+.control_table_header {
+    display: grid;
+    /* 定義欄位寬度: ID | State | Time | Mode | Rst */
+    grid-template-columns: 30px 60px 1fr 50px 30px; 
+    gap: 10px;
+    padding: 8px 4px;
+    border-bottom: 1px solid #444;
+    font-size: 13px;
+    color: #aaa;
+    text-align: center;
+}
+
+.control_row {
+    display: grid;
+    grid-template-columns: 30px 60px 1fr 50px 30px;
+    gap: 10px;
+    padding: 10px 4px;
+    border-bottom: 1px solid #2a2a2a;
+    align-items: center;
+    text-align: center;
+    font-size: 14px;
+}
+
+.control_row:hover {
+    background: #252525;
+}
+
+/* 狀態燈號文字 */
+.state_text {
+    font-size: 12px;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+.state_text.connected {
+    color: #4fd677; /* 綠色 */
+    background: rgba(79, 214, 119, 0.1);
+}
+.state_text.disconnected {
+    color: #ff5555; /* 紅色 */
+    background: rgba(255, 85, 85, 0.1);
+}
+
+.time_text {
+    font-family: monospace;
+    color: #ddd;
+    font-size: 13px;
+}
+
+.mode_select {
+    width: 100%;
+    background: #111;
+    color: #eee;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 2px;
+    text-align: center;
+}
+
+.rst_check {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: #4fb3d6; 
+}
+
+/* --- 版面切換邏輯 (Layout Switching) --- */
+
+/* 當切換到「控制模式」時 */
+.row2.mode-control {
+    /* 左側變成 0 (隱藏) | 中間彈性縮放 | 右側維持 320px 且置右 */
+    grid-template-columns: 1fr 500px;
+}
+
+/* 隱藏左側素材庫的內容，防止寬度撐開 */
+.row2.mode-control .Asset_library {
+    display: none;
+    visibility: hidden;
+}
+
+/* 確保控制面板內部內容不會溢出 */
+.param_panel {
+    width: 100%; /* 填滿 grid 的右邊那一格 (320px) */
+    border-left: 1px solid #333;
+    background-color: #1a1a1a;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 調整表格寬度，確保在 320px 內不擁擠 */
+.control_table_header,
+.control_row {
+    display: grid;
+    /* ID(30) | State(50) | Time(彈性) | Mode(55) | Rst(30) */
+    grid-template-columns: 30px 50px 1fr 55px 30px; 
+    gap: 4px;
+    padding: 8px 5px;
+    align-items: center;
+}
+
+/* 預覽區 (中間) */
+.preview_area {
+    background: #000;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 音樂控制區 */
+.music_and_effects {
+    flex: 0 0 auto;     
+    width: 100%;
+    max-width: 1200px;
+    margin: 24px auto 0 auto; 
+    padding: 0 20px 20px 20px;
+    box-sizing: border-box;
+}
+header h1 {
+    margin:8px 0 12px 0;
+    font-size:20px;
+    color:#dff6ff;
+}
+.controls {
+    display:flex;
+    gap:16px;
+    align-items:center;
+    margin-bottom:12px;
+}
+.music_file_load {
+    background:#1f2a36;
+    padding:8px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    border:1px solid #2f3f4d;
+}
+.music_file_load input { 
+    display:none; 
+}
+
+.player-controls {
+    display:flex;
+    gap:8px;
+    align-items:center;
+}
+button {
+    background:#2b3946;
+    color:#e6eef8;
+    border:none;
+    padding:8px 12px;
+    border-radius:6px;
+    cursor:pointer;
+    transition: background 0.2s;
+}
+button:hover:not(:disabled) { 
+    background:#3b4a57; 
+}
+button:disabled { 
+    opacity:0.45; cursor:not-allowed; 
+}
+
+.waveform-wrap {
+    position: relative;
+    background: linear-gradient(180deg,#0b1220 0%, #07101a 100%);
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #21303f;
+}
+canvas {
+    display:block;
+    width:100%;
+    max-height:240px;
+    border-radius:6px;
+    background:#07101a;
+    touch-action: none;
+    cursor: crosshair;
+    border: 2px solid white;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+.time-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #dff6ff;
+  font-family: "Noto Sans TC", sans-serif;
+  font-size: 14px;
+}
+
+.time-controls input {
+  width: 50px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid #2f3f4d;
+  background: #1f2a36;
+  color: #e6eef8;
+  text-align: center;
+}
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+#volumeSlider {
+  width: 150px;
+  cursor: pointer;
+}
+
+#volumeValue {
+  min-width: 40px;
+  text-align: right;
+}
+
+.canvas-container .upper-canvas {
+    background: transparent !important;
+}

@@ -5,3 +5,5 @@ __pycache__
 *.mp3
 *.lock
 *.vs
+node_modules/
+package-lock.json

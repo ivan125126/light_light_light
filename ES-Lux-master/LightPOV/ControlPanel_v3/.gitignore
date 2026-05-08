@@ -1,0 +1,9 @@
+node_modules/
+dist/
+src/dist/
+*.local
+.DS_Store
+.superpowers/
+docs/superpowers/
+package-lock.json
+.vite/

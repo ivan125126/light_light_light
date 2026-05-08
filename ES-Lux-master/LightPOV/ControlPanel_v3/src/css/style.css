@@ -1,0 +1,1517 @@
+* {
+    box-sizing: border-box;
+}
+
+/* 拖動 resize handle 時防止選到文字 */
+.app-wrapper.resizing,
+.app-wrapper.resizing * {
+    user-select: none;
+    cursor: inherit;
+}
+
+body {
+    color: white;
+    background-color: #222;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+/* ========== App 頂層 wrapper ========== */
+.app-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ========== Toolbar / Menu bar ========== */
+.toolbar {
+    flex: 0 0 auto;
+    width: 100%;
+    padding: 8px 20px;
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.project-name {
+    font-size: 15px;
+    font-weight: bold;
+    color: #dff6ff;
+    margin-right: 6px;
+}
+
+.dirty-indicator {
+    color: #ff8c42;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.toolbar button,
+.toolbar label.btn {
+    padding: 5px 12px;
+    background: #2a3a4a;
+    color: #c8dff0;
+    border: 1px solid #3a5068;
+    border-radius: 5px;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.toolbar button:hover,
+.toolbar label.btn:hover {
+    background: #344e63;
+    border-color: #4a6880;
+}
+
+/* legacy alias */
+.menu_bar {
+    flex: 0 0 auto;
+    width: 100%;
+    padding: 10px 20px 0 20px;
+}
+
+/* ========== 上半：三欄（素材庫 | 預覽 | 參數） ========== */
+.top-section {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    padding: 12px 16px 0 16px;
+    gap: 0;
+    background: #222;
+}
+
+/* 通用面板外框 */
+.panel {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background: #1c1c1c;
+    border-radius: 8px;
+    border: 1px solid #2e2e2e;
+}
+
+.panel-left {
+    flex: 0 0 auto;  /* 寬度由 :style 控制 */
+    margin-right: 0;
+}
+
+.panel-center {
+    flex: 1 1 auto;  /* 剩餘空間自動填滿 */
+    min-width: 0;
+    align-items: stretch;  /* 讓子元素撐滿寬度 */
+    background: #111;
+    margin: 0 0;
+    overflow: hidden;
+}
+
+.panel-right {
+    flex: 0 0 auto;  /* 寬度由 :style 控制 */
+}
+
+/* ========== 可拖動分隔線 ========== */
+.resize-handle {
+    flex: 0 0 auto;
+    background: transparent;
+    transition: background 0.15s;
+    z-index: 10;
+}
+
+.resize-handle--v {
+    width: 8px;
+    cursor: col-resize;
+    margin: 0 2px;
+}
+
+.resize-handle--h {
+    height: 8px;
+    width: 100%;
+    cursor: row-resize;
+    margin: 6px 0 0 0;
+}
+
+.resize-handle--v:hover,
+.resize-handle--v:active {
+    background: #4fb3d644;
+}
+
+.resize-handle--h:hover,
+.resize-handle--h:active {
+    background: #4fb3d644;
+}
+
+/* 分隔線中間的視覺提示點 */
+.resize-handle--v::after {
+    content: '';
+    display: block;
+    width: 2px;
+    height: 40px;
+    background: #3a3a3a;
+    border-radius: 1px;
+    margin: auto;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 3px;
+}
+
+.resize-handle--h::after {
+    content: '';
+    display: block;
+    height: 2px;
+    width: 40px;
+    background: #3a3a3a;
+    border-radius: 1px;
+    margin: 3px auto 0;
+}
+
+/* ========== Timeline 下半區塊 ========== */
+.timeline-section {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    margin: 0 16px 10px 16px;
+    background: #1c1c1c;
+    border-radius: 8px;
+    border: 1px solid #2e2e2e;
+    display: flex;
+    flex-direction: column;
+}
+
+/* legacy alias */
+.row2 {
+    flex: 0 0 520px;
+    height: 520px;
+    width: 100%;
+    padding: 20px 20px 0 20px;
+    display: grid;
+    grid-template-columns: 300px 1fr 320px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    column-gap: 20px;
+}
+
+/* 效果預覽區 */
+
+
+/* 左側素材庫 */
+.Asset_library {
+    background: transparent;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: 100%;
+    overflow-y: hidden;
+}
+
+.Asset_library_header {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.Asset_library_header .tab {
+    flex: 1;
+    background: #2a2a2a;
+    padding: 6px 0;
+    color: #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid #3a3a3a;
+    text-align: center;
+    font-size: 14px;
+}
+
+.Asset_library_header .tab.active {
+    background: #3e4a52;
+    color: #fff;
+    border-color: #4a5a66;
+}
+
+.Asset_library_content {
+    /* v-show controls visibility; always use grid when visible */
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    gap: 6px;
+    overflow-y: auto;
+    flex: 1 1 auto;
+}
+
+/* legacy class kept for compatibility */
+.Asset_library_content.active {
+    display: grid;
+}
+
+/* asset_item: lowercase to match Vue template */
+.asset_item {
+    padding: 10px 8px;
+    background: #2d2d2d;
+    color: #eaeaea;
+    border-radius: 6px;
+    border: 1px solid #444;
+    cursor: grab;
+    font-size: 14px;
+    transition: 0.2s;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 48px;
+}
+
+.asset_item:hover {
+    background: #3a3a3a;
+    border-color: #666;
+}
+
+/* uppercase alias kept for legacy */
+.Asset_item {
+    padding: 10px 8px;
+    background: #2d2d2d;
+    color: #eaeaea;
+    border-radius: 6px;
+    border: 1px solid #444;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.Asset_item:hover {
+    background: #3a3a3a;
+    border-color: #666;
+}
+
+.delete-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: transparent;
+    border: none;
+    color: #888;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0 3px;
+    line-height: 1;
+}
+
+.delete-btn:hover {
+    color: #ff5555;
+    background: transparent;
+}
+
+.add-custom-btn {
+    grid-column: 1 / -1;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: 6px;
+    border: 1px dashed #486a8c;
+    background: transparent;
+    color: #88c0d0;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-custom-btn:hover {
+    background: #1f3448;
+}
+
+/* ── 新增效果 Dialog ─────────────────────────── */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog-box {
+  background: #1a2332;
+  border: 1px solid #3a5068;
+  border-radius: 10px;
+  padding: 20px 24px;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dialog-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #d0eaff;
+  margin-bottom: 4px;
+}
+
+.dialog-label {
+  font-size: 12px;
+  color: #7aafcc;
+}
+
+.dialog-input,
+.dialog-select {
+  background: #0d1117;
+  border: 1px solid #3a5068;
+  border-radius: 5px;
+  color: #d0eaff;
+  font-size: 13px;
+  padding: 6px 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dialog-input:focus,
+.dialog-select:focus {
+  outline: none;
+  border-color: #4fb3d6;
+}
+
+.dialog-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #aac8de;
+  cursor: pointer;
+  margin-top: 2px;
+}
+
+.dialog-error {
+  font-size: 12px;
+  color: #ff7070;
+  margin-top: 2px;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.dialog-btn {
+  padding: 6px 16px;
+  border-radius: 5px;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.dialog-btn--cancel {
+  background: #2a3a4a;
+  color: #aac8de;
+}
+
+.dialog-btn--cancel:hover {
+  background: #334455;
+}
+
+.dialog-btn--confirm {
+  background: #2e6a96;
+  color: #fff;
+}
+
+.dialog-btn--confirm:hover {
+  background: #3a80b5;
+}
+
+/* ── 儲存為自定義按鈕（ParameterPanel） ─────────── */
+.save-custom-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 7px 0;
+  border-radius: 6px;
+  border: 1px dashed #486a8c;
+  background: transparent;
+  color: #88c0d0;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.save-custom-btn:hover {
+  background: #1f3448;
+}
+
+.delete-custom-btn {
+  width: 100%;
+  margin-top: 4px;
+  padding: 7px 0;
+  border-radius: 6px;
+  border: 1px dashed #6a3030;
+  background: transparent;
+  color: #c07070;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.delete-custom-btn:hover {
+  background: #3a1f1f;
+}
+
+.empty {
+    color: #aaa;
+    font-size: 13px;
+    padding: 10px;
+    text-align: center;
+}
+
+
+
+/* ========== 右側參數面板 ========== */
+
+/* 右側參數 / 控制面板外框 */
+.param_panel {
+  background: transparent;
+  padding: 10px 12px;
+  color: #eee;
+  font-size: 14px;
+
+  height: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;   /* 內容多時可捲動 */
+  overflow-x: hidden;
+}
+
+.param_panel h3 {
+  flex: 0 0 auto;
+  font-size: 14px;
+  font-weight: bold;
+  color: #dff6ff;
+  margin: 0 0 10px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #333;
+}
+
+/* 上方 tab 列：參數 / 控制 */
+.param_header {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.param_tab {
+  flex: 1;
+  padding: 6px 0;
+  border-radius: 6px;
+  border: 1px solid #3a3a3a;
+  background: #2a2a2a;
+  color: #ddd;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.param_tab.active {
+  background: #3e4a52;
+  color: #fff;
+  border-color: #4a5a66;
+}
+
+/* 面板內容區：參數 / 控制 */
+.param_body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* v-show 控制，不用 display:none */
+}
+
+/* 什麼都沒選時的提示文字 */
+.param_empty {
+  font-size: 13px;
+  color: #aaa;
+  padding: 8px 0;
+}
+
+/* 選中效果的標題 */
+.param_effect_title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #dff6ff;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #333;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.param_source_hint {
+  font-size: 11px;
+  font-weight: normal;
+  color: #6a9ab0;
+}
+
+/* 主要參數內容 */
+.param_main.hidden {
+  display: none;
+}
+
+/* 一般 group 樣式 */
+.param_group {
+  margin-bottom: 12px;
+  padding: 8px 8px;
+  border-radius: 6px;
+  background: #242424;
+}
+
+.param_group_title {
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: #d0eaff;
+}
+
+.param_label_row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.param_label {
+  font-size: 14px;
+}
+
+/* 快速選色 */
+.color_picker_group .param_label_row {
+  margin-bottom: 0;
+}
+
+.color_preview {
+  width: 36px;
+  height: 28px;
+  padding: 2px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+}
+
+.color_preview::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color_preview::-webkit-color-swatch {
+  border: none;
+  border-radius: 3px;
+}
+
+/* label + (number + range) */
+.param_field {
+  margin-bottom: 8px;
+}
+
+.param_field label {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 13px;
+}
+
+.param_input_row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.param_input_row input[type="number"] {
+  width: 80px;
+  padding: 3px 4px;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background: #111;
+  color: #eee;
+}
+
+.param_input_row input[type="range"] {
+  flex: 1;
+}
+
+/* 額外幾何 group（扇葉、長度、曲度）預設不顯示，JS 控制 */
+.extra_group {
+  display: none;
+}
+
+/* 顏色小方塊 */
+.color_preview {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* 下方提示文字 */
+.param_hint {
+  font-size: 13px;
+  color: #bbb;
+}
+
+/* HSV Function Block */
+.hsv_block {
+  margin-bottom: 12px;
+  padding: 8px 8px;
+  border-radius: 6px;
+  background: #202020;
+}
+
+.hsv_block .param_group_title {
+  margin-bottom: 4px;
+}
+
+/* Function 選擇下拉 */
+.hsv_func_select {
+  width: 100%;
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background: #111;
+  color: #eee;
+  font-size: 13px;
+}
+
+/* 各 function 對應的參數集 */
+.hsv_func_params {
+  display: none;
+  margin-top: 6px;
+}
+
+.hsv_func_params.active {
+  display: block;
+}
+
+/* 比較緊湊的 field（range / lower / upper / ...） */
+.param_field.compact {
+  margin-bottom: 6px;
+}
+
+.param_field.compact .param_input_row input[type="number"] {
+  width: 70px;
+}
+
+/* number + range 共用樣式 */
+.func_number {
+  width: 80px;
+  padding: 3px 4px;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background: #111;
+  color: #eee;
+}
+
+.func_range {
+  flex: 1;
+}
+
+/* 加入自訂義按鈕 */
+.btn_add_custom {
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px 0;
+  border-radius: 6px;
+  border: 1px solid #486a8c;
+  background: #264563;
+  color: #dff6ff;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.btn_add_custom:hover {
+  background: #30587a;
+}
+
+.btn_add_custom:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.custom_actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.btn_update_custom,
+.btn_delete_custom {
+  flex: 1;
+  padding: 6px 0;
+  border-radius: 6px;
+  border: 1px solid #486a8c;
+  background: #1f3448;
+  color: #dff6ff;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn_delete_custom {
+  border-color: #8c4848;
+  background: #462626;
+}
+
+.btn_update_custom:hover:not(:disabled),
+.btn_delete_custom:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.btn_update_custom:disabled,
+.btn_delete_custom:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 素材庫選中狀態 */
+.Asset_item.active,
+.asset_item.active {
+    outline: 2px solid #4fb3d6;
+    background: #2a3d4a;
+}
+
+/* --- 控制面板表格樣式 (依照您的手繪圖) --- */
+.control_table_header {
+    display: grid;
+    /* 定義欄位寬度: ID | State | Time | Mode | Rst */
+    grid-template-columns: 30px 60px 1fr 50px 30px; 
+    gap: 10px;
+    padding: 8px 4px;
+    border-bottom: 1px solid #444;
+    font-size: 13px;
+    color: #aaa;
+    text-align: center;
+}
+
+.control_row {
+    display: grid;
+    grid-template-columns: 30px 60px 1fr 50px 30px;
+    gap: 10px;
+    padding: 10px 4px;
+    border-bottom: 1px solid #2a2a2a;
+    align-items: center;
+    text-align: center;
+    font-size: 14px;
+}
+
+.control_row:hover {
+    background: #252525;
+}
+
+/* 狀態燈號文字 */
+.state_text {
+    font-size: 12px;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+.state_text.connected {
+    color: #4fd677; /* 綠色 */
+    background: rgba(79, 214, 119, 0.1);
+}
+.state_text.disconnected {
+    color: #ff5555; /* 紅色 */
+    background: rgba(255, 85, 85, 0.1);
+}
+
+.time_text {
+    font-family: monospace;
+    color: #ddd;
+    font-size: 13px;
+}
+
+.mode_select {
+    width: 100%;
+    background: #111;
+    color: #eee;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 2px;
+    text-align: center;
+}
+
+.rst_check {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: #4fb3d6; 
+}
+
+/* --- 版面切換邏輯 (Layout Switching) --- */
+
+/* 當切換到「控制模式」時 */
+.row2.mode-control {
+    /* 左側變成 0 (隱藏) | 中間彈性縮放 | 右側維持 320px 且置右 */
+    grid-template-columns: 1fr 500px;
+}
+
+/* 隱藏左側素材庫的內容，防止寬度撐開 */
+.row2.mode-control .Asset_library {
+    display: none;
+    visibility: hidden;
+}
+
+/* 確保控制面板內部內容不會溢出 */
+.param_panel {
+    width: 100%; /* 填滿 grid 的右邊那一格 (320px) */
+    border-left: 1px solid #333;
+    background-color: #1a1a1a;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 調整表格寬度，確保在 320px 內不擁擠 */
+.control_table_header,
+.control_row {
+    display: grid;
+    /* ID(30) | State(50) | Time(彈性) | Mode(55) | Rst(30) */
+    grid-template-columns: 30px 50px 1fr 55px 30px; 
+    gap: 4px;
+    padding: 8px 5px;
+    align-items: center;
+}
+
+/* 預覽區 (中間) */
+.preview_area {
+    background: #000;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ========== PreviewPanel ========== */
+.preview_panel {
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.edit_preview,
+.performance_preview {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    width: 100%;
+}
+
+/* canvas 永遠填滿 pre-view 元素（CSS 縮放） */
+pre-view canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+/* Single effect preview — 等比例置中，1:1 */
+.preview_single {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    padding: 8px;
+}
+
+.preview_single pre-view {
+    aspect-ratio: 1;
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+}
+
+/* Multi-Lux preview: 依 --grid-cols / --grid-rows 等分面板 */
+.preview_multi {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--grid-cols, 1), minmax(0, 1fr));
+    grid-template-rows: repeat(var(--grid-rows, 1), minmax(0, 1fr));
+    gap: 6px;
+    padding: 8px;
+    overflow: hidden;
+}
+
+.preview_lux_slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* pre-view 在 slot 內填滿可用高度並保持 1:1 */
+.preview_lux_slot pre-view {
+    flex: 1 1 0;
+    min-height: 0;
+    aspect-ratio: 1;
+    max-width: 100%;
+    display: block;
+    align-self: center;
+}
+
+.preview_lux_label {
+    font-size: 11px;
+    color: #888;
+}
+
+.preview_adjust_sliders {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px 10px;
+    border-top: 1px solid #222;
+    background: #0a0a0a;
+}
+
+.preview_slider_row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.preview_slider_label {
+    font-size: 11px;
+    color: #888;
+    width: 28px;
+    flex-shrink: 0;
+}
+
+.preview_slider_row input[type="range"] {
+    flex: 1 1 auto;
+    height: 4px;
+    accent-color: #4fd677;
+}
+
+.preview_slider_value {
+    font-size: 11px;
+    color: #ccc;
+    width: 30px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.preview_lux_effect {
+    font-size: 10px;
+    color: #666;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.preview_lux_status {
+    font-size: 10px;
+}
+
+.preview_lux_status.connected   { color: #4fd677; }
+.preview_lux_status.disconnected { color: #666; }
+
+.preview_lux_slot.highlighted pre-view {
+    outline: 1px solid #4fd677;
+}
+
+.preview_empty {
+    width: 100%;
+    text-align: center;
+    color: #555;
+    font-size: 13px;
+    padding-top: 24px;
+}
+
+.preview_toolbar {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    z-index: 1;
+}
+
+.live_hw_label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: #aaa;
+    cursor: pointer;
+    user-select: none;
+}
+
+.live_hw_label:has(.live_hw_check:checked) {
+    color: #4fd677;
+}
+
+.live_hw_check {
+    accent-color: #4fd677;
+    cursor: pointer;
+}
+
+/* ========== ParameterPanel empty state ========== */
+.param_panel.empty {
+    justify-content: center;
+    align-items: center;
+    color: #666;
+    font-size: 13px;
+}
+
+/* ========== ExtraParamsGroup ========== */
+.extra_params {
+    display: block; /* v-if 已經控制顯示，CSS 不應再隱藏 */
+}
+
+.extra_params label {
+    display: block;
+    font-size: 13px;
+    margin-top: 6px;
+    margin-bottom: 2px;
+    color: #ccc;
+}
+
+/* ========== TimelinePanel ========== */
+.timeline_panel {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: transparent;
+    min-height: 0;
+    border-radius: 8px;
+}
+
+.playback_controls {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: #1f1f1f;
+    border-bottom: 1px solid #333;
+}
+
+.load-audio-btn {
+    background: #2b3946;
+    color: #e6eef8;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    border: 1px solid #3b4a57;
+}
+
+.load-audio-btn:hover {
+    background: #3b4a57;
+}
+
+.time-display {
+    font-family: monospace;
+    font-size: 14px;
+    color: #dff6ff;
+    min-width: 90px;
+}
+
+.audio-name {
+    font-size: 12px;
+    color: #88c0d0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 200px;
+}
+
+.jump-label {
+    font-size: 13px;
+    color: #dff6ff;
+    white-space: nowrap;
+}
+
+.jump-colon {
+    color: #aaa;
+}
+
+.jump-input {
+    width: 48px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: 1px solid #3b4a57;
+    background: #1f2a36;
+    color: #e6eef8;
+    text-align: center;
+    font-size: 13px;
+    -moz-appearance: textfield;
+}
+
+.jump-input::-webkit-inner-spin-button,
+.jump-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+.volume-icon {
+    font-size: 13px;
+    color: #dff6ff;
+    white-space: nowrap;
+}
+
+.volume-slider {
+    width: 100px;
+    cursor: pointer;
+    accent-color: #4fb3d6;
+}
+
+.volume-value {
+    font-size: 13px;
+    color: #dff6ff;
+    min-width: 38px;
+}
+
+.speed-label {
+  font-size: 12px;
+  color: #aaa;
+  white-space: nowrap;
+}
+
+.speed-slider {
+  width: 80px;
+  cursor: pointer;
+}
+
+.speed-input {
+  width: 52px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  border: 1px solid #444;
+  background: #1a1a1a;
+  color: #eee;
+  font-size: 12px;
+  text-align: center;
+}
+
+.speed-value {
+  font-size: 12px;
+  color: #ccc;
+  min-width: 36px;
+  white-space: nowrap;
+}
+
+/* 右上角新增/刪除按鈕群 */
+.track-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* 軌道列（label + canvas 的容器） */
+.track-row {
+  display: flex;
+  height: 40px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+/* 左側軌道名稱欄 */
+.track-label {
+  width: 72px;
+  flex-shrink: 0;
+  background: #222;
+  border-right: 1px solid #333;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  overflow: hidden;
+}
+
+.track-label span {
+  font-size: 11px;
+  color: #888;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.track-label span:hover {
+  color: #ccc;
+}
+
+/* Inline 編輯輸入框 */
+.track-name-input {
+  width: 100%;
+  font-size: 11px;
+  background: #1a2332;
+  border: 1px solid #4fb3d6;
+  border-radius: 3px;
+  color: #d0eaff;
+  padding: 2px 4px;
+  outline: none;
+}
+
+/* 刪除 dialog 軌道清單 */
+.track-delete-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 14px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.track-delete-item {
+  padding: 7px 12px;
+  border-radius: 5px;
+  border: 1px solid #2e3e50;
+  background: #0f1c2a;
+  color: #aac8de;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.track-delete-item:hover {
+  background: #1a2a3a;
+}
+
+.track-delete-item.selected {
+  border-color: #ff5555;
+  background: #2a1010;
+  color: #ff9090;
+}
+
+/* 時間刻度行（播放按鈕 + 刻度canvas並排） */
+.timeline-row {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: stretch;
+}
+
+/* 左側播放控制（寬度對齊 .track-label） */
+.timeline-ctrl {
+    width: 72px;
+    flex-shrink: 0;
+    background: #1a1a1a;
+    border-right: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 4px;
+}
+
+.timeline-ctrl button {
+    width: 100%;
+    padding: 4px 0;
+    font-size: 14px;
+}
+
+/* canvas 的外層容器，填滿剩餘寬度 */
+.timescale-wrapper {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.timescale_canvas {
+    display: block;
+    width: 100%;
+    height: 120px;
+    /* override global canvas rule */
+    border: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    background: #0d1117 !important;
+    cursor: grab;
+}
+
+.timescale_canvas:active {
+    cursor: grabbing;
+}
+
+.tracks_container {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px 0;
+}
+
+/* Each track canvas */
+.asset_canvas {
+    display: block;
+    width: 100%;
+    height: 40px;
+    /* override global canvas rule */
+    border: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    background: #333;
+    cursor: crosshair;
+}
+
+/* 音樂控制區 */
+.music_and_effects {
+    flex: 0 0 auto;     
+    width: 100%;
+    max-width: 1200px;
+    margin: 24px auto 0 auto; 
+    padding: 0 20px 20px 20px;
+    box-sizing: border-box;
+}
+header h1 {
+    margin:8px 0 12px 0;
+    font-size:20px;
+    color:#dff6ff;
+}
+.controls {
+    display:flex;
+    gap:16px;
+    align-items:center;
+    margin-bottom:12px;
+}
+.music_file_load {
+    background:#1f2a36;
+    padding:8px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    border:1px solid #2f3f4d;
+}
+.music_file_load input { 
+    display:none; 
+}
+
+.player-controls {
+    display:flex;
+    gap:8px;
+    align-items:center;
+}
+button {
+    background:#2b3946;
+    color:#e6eef8;
+    border:none;
+    padding:8px 12px;
+    border-radius:6px;
+    cursor:pointer;
+    transition: background 0.2s;
+}
+button:hover:not(:disabled) { 
+    background:#3b4a57; 
+}
+button:disabled { 
+    opacity:0.45; cursor:not-allowed; 
+}
+
+.waveform-wrap {
+    position: relative;
+    background: linear-gradient(180deg,#0b1220 0%, #07101a 100%);
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #21303f;
+}
+.waveform-wrap canvas {
+    display: block;
+    width: 100%;
+    max-height: 240px;
+    border-radius: 6px;
+    background: #07101a;
+    touch-action: none;
+    cursor: crosshair;
+    border: 2px solid white;
+    padding: 5px;
+}
+
+.time-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #dff6ff;
+  font-family: "Noto Sans TC", sans-serif;
+  font-size: 14px;
+}
+
+.time-controls input {
+  width: 50px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid #2f3f4d;
+  background: #1f2a36;
+  color: #e6eef8;
+  text-align: center;
+}
+
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+#volumeSlider {
+  width: 150px;
+  cursor: pointer;
+}
+
+#volumeValue {
+  min-width: 40px;
+  text-align: right;
+}
+
+.canvas-container {
+    width: 100% !important;
+}
+
+.canvas-container .upper-canvas {
+    background: transparent !important;
+    /* 不覆蓋 width，讓 Fabric.js 自己管理 canvas buffer 大小，避免點擊座標偏移 */
+}
+
+/* 時間輸入樣式 */
+.param_timing_group {
+  padding: 6px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.param_timing_row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.param_timing_input {
+  width: 80px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  border: 1px solid #444;
+  background: #1a1a1a;
+  color: #eee;
+  font-size: 12px;
+}
+
+.param_timing_unit {
+  font-size: 12px;
+  color: #888;
+  min-width: 14px;
+}
