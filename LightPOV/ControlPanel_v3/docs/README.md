@@ -1,4 +1,4 @@
-# ControlPanel v2 — 開發者快速上手
+# ControlPanel v3 — 開發者快速上手
 
 ## 環境需求
 
@@ -10,16 +10,16 @@
 ### 前端（Vue 3 + TypeScript）
 
 ```bash
-# 在 ControlPanel_v2/ 目錄下
+# 在 ControlPanel_v3/ 目錄下
 npm install
 npm run dev
-# → http://localhost:5173
+# → http://localhost:3000
 ```
 
 ### 後端（Express TypeScript Server）
 
 ```bash
-# 在 ControlPanel_v2/server/ 目錄下
+# 在 ControlPanel_v3/server/ 目錄下
 npm install
 npm run start
 # → Server listening on port 10240
@@ -32,7 +32,7 @@ Vite 開發伺服器已設定 proxy，所有 `/start`、`/get_effect` 等 API �
 ## 目錄結構
 
 ```
-ControlPanel_v2/
+ControlPanel_v3/
 ├── src/
 │   ├── components/          # Vue 元件（UI 層）
 │   │   ├── AssetLibrary.vue     # 左側效果資產庫

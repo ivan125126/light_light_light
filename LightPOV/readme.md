@@ -9,39 +9,34 @@
 
 ## Project file structure
 ```
-├── ControlPanel                : Web server for controlling the POV
-│   ├── package-lock.json
-│   ├── package.json
-│   ├── public                  : Web front-end
-│   ├── readme.md
-│   └── server.js               : Web main server
+├── ControlPanel_v3             : Effect editor (Vite + Vue 3 + TypeScript), see ControlPanel_v3/docs/
+│   ├── src                     : Web front-end
+│   ├── src/server/server.js    : Hardware server (port 20480)
+│   ├── server/server.ts        : Hardware server (port 10240)
+│   └── docs                    : Developer docs (architecture, hardware protocol)
 ├── ESP32                       : Program for ESP32
-│   ├── ESP32.ino               : Main program code
-│   ├── acc.cpp                 : 
-│   ├── acc.h                   : Accelerometer module
-│   ├── bitmaps.h               : bitmaps for displaying patterns
-│   ├── communication.cpp       : Wifi connection and OTA
-│   ├── communication.h         : Wifi connection and OTA
-│   ├── config.h                : Configuration for Wifi password, host address, etc.
-│   ├── core.h                  : Definitions of pattern functions
-│   ├── modes.cpp
-│   └── modes.h                 : Implementations of patterns, 
-│                               : The scheduling of effects
+│   ├── ESP32.ino               : Main program code
+│   ├── ConfigManager.cpp/.h    : Persistent (ROM) configuration
+│   ├── acc.cpp/.h              : Accelerometer module
+│   ├── bitmaps.h               : bitmaps for displaying patterns
+│   ├── communication.cpp/.h    : Wifi connection and OTA
+│   ├── config.h                : Configuration for Wifi password, host address, etc.
+│   ├── core.h                  : Definitions of pattern functions
+│   └── modes.cpp/.h            : Implementations of patterns, the scheduling of effects
 ├── hardware
-│   ├── buttomCap.SLDPRT
-│   ├── buttomCap.STL
-│   ├── combine.SLDASM
-│   ├── core.SLDPRT
-│   ├── core.STL
-│   ├── core_front.SLDPRT
-│   └── core_front.STL
+│   ├── *.SLDPRT / *.STL        : SolidWorks parts and printable meshes
+│   └── PCB
+│       ├── core_pcb            : ESP32 core board v2.0
+│       ├── light_stick         : KiCad project for the stick
+│       └── easyeda_projects.7z : Earlier EasyEDA projects (stick, ball, hand light)
+├── legacy                      : Previous control panels and performance files (read-only)
 ├── readme.md
 └── test                        : Some module test code
 ```
 
 ## The hardware 
 The schematic is an unrecorded artifact. The hardware is a simple design with an ESP32, a WS2812 LED strip, and a 18650 battery. 
-Maybe schematics and PCB layouts will be added in the future.
+PCB designs are in `hardware/PCB/`.
 
 ## Welcome for Contribution
 If you are interested in this project, feel free to contribute to this project.
