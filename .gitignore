@@ -1,3 +1,20 @@
-.vscode/
+# OS / editor
 .DS_Store
+.vscode/
+*.swp
+*.swa
+
+# AI tooling (local only)
+.claude/
+.superpowers/
+
+# Node
+node_modules/
 **/package-lock.json
+
+# C# / Visual Studio build output
+obj/
+bin/
+.vs/
+# Keep the prebuilt LightBallHelper tool so Windows users can run it without building
+!LightBall/LightBallHelper/*/bin/
