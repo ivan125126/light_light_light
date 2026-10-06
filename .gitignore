@@ -16,3 +16,5 @@ node_modules/
 obj/
 bin/
 .vs/
+# Keep the prebuilt LightBallHelper tool so Windows users can run it without building
+!LightBall/LightBallHelper/*/bin/
