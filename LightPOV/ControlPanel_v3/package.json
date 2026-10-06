@@ -12,7 +12,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "BSD-3-Clause",
   "description": "",
   "dependencies": {
     "@wanglin1994/video-timeline": "^0.1.10",
